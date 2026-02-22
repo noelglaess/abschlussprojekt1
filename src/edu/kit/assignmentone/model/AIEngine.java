@@ -1,14 +1,13 @@
 package edu.kit.assignmentone.model;
 
-import edu.kit.assignmentone.StringConstants;
 import edu.kit.assignmentone.model.board.Board;
 import edu.kit.assignmentone.model.board.PlacedUnit;
 import edu.kit.assignmentone.model.board.Position;
 import edu.kit.assignmentone.model.player.Player;
 import edu.kit.assignmentone.model.player.PlayerType;
 import edu.kit.assignmentone.model.units.Unit;
-import edu.kit.assignmentone.model.units.UnitCombiner;
 import edu.kit.assignmentone.ui.BoardFormatter;
+import edu.kit.assignmentone.ui.commands.Command;
 import edu.kit.assignmentone.ui.commands.MoveCommand;
 import edu.kit.assignmentone.ui.commands.PlaceCommand;
 import edu.kit.assignmentone.ui.commands.YieldCommand;
@@ -62,18 +61,10 @@ public final class AIEngine {
         Position kingPos = board.findUnit(StringConstants.KING_NAME, PlayerType.ENEMY);
         if (kingPos == null) return;
 
-        List<Position> options = kingPos.getAdjacentAndCenter();
-        Position chosen = evaluateKingMoves(board, kingPos, options, game);
-
-        game.setSelectedPosition(kingPos);
-        executeCommandSilently(new MoveCommand(game), new String[]{chosen.toString()});
-    }
-
-    private static Position evaluateKingMoves(Board board, Position kingPos, List<Position> options, Game game) {
         int maxScore = Integer.MIN_VALUE;
         List<Position> bestOptions = new ArrayList<>();
 
-        for (Position pos : options) {
+        for (Position pos : kingPos.getAdjacentAndCenter()) {
             if (!Position.isValid(pos.col(), pos.row())) continue;
 
             Optional<PlacedUnit> unitOpt = board.getUnitAt(pos);
@@ -95,12 +86,15 @@ public final class AIEngine {
             }
         }
 
+        Position chosen = bestOptions.getFirst();
         if (bestOptions.size() > 1) {
             List<Integer> weights = new ArrayList<>();
             for (int i = 0; i < bestOptions.size(); i++) weights.add(WEIGHT_DEFAULT);
-            return bestOptions.get(RandomUtils.weightedRandom(weights, game.getRandom()));
+            chosen = bestOptions.get(RandomUtils.weightedRandom(weights, game.getRandom()));
         }
-        return bestOptions.getFirst();
+
+        game.setSelectedPosition(kingPos);
+        executeCommandSilently(new MoveCommand(game), new String[]{chosen.toString()});
     }
 
     private static void placeUnit(Game game) {
@@ -112,64 +106,42 @@ public final class AIEngine {
         Position playerKingPos = board.findUnit(StringConstants.KING_NAME, PlayerType.PLAYER);
         if (kingPos == null || playerKingPos == null) return;
 
-        List<Position> validFields = new ArrayList<>();
-        List<Integer> scores = new ArrayList<>();
-        evaluatePlacementFields(board, kingPos, playerKingPos, validFields, scores);
+        int maxScore = Integer.MIN_VALUE;
+        List<Position> bestFields = new ArrayList<>();
 
-        if (validFields.isEmpty()) return;
-
-        Position chosenField = selectBestPlacementField(validFields, scores, game);
-        int chosenUnitIdx = selectUnitToPlace(enemy, game);
-
-        game.setSelectedPosition(chosenField);
-        executeCommandSilently(new PlaceCommand(game), new String[]{String.valueOf(chosenUnitIdx + 1)});
-    }
-
-    private static void evaluatePlacementFields(Board board, Position kingPos, Position playerKingPos, List<Position> validFields, List<Integer> scores) {
         for (int[] dir : DIR_8) {
             Position pos = new Position(kingPos.col() + dir[0], kingPos.row() + dir[1]);
-            if (Position.isValid(pos.col(), pos.row())) {
-                Optional<PlacedUnit> unitOpt = board.getUnitAt(pos);
-                if (unitOpt.isEmpty() || unitOpt.get().getOwner() == PlayerType.ENEMY) {
-                    int steps = pos.distanceTo(playerKingPos);
-                    int enemies = board.countUnits(pos, DIR_4, PlayerType.PLAYER, null);
-                    int fellows = board.countUnits(pos, DIR_4, PlayerType.ENEMY, null);
-                    int score = -steps + ENEMY_MULTIPLIER * enemies - fellows;
+            if (Position.isValid(pos.col(), pos.row()) && (board.isEmpty(pos) || board.getUnitAt(pos).get().getOwner() == PlayerType.ENEMY)) {
+                int steps = pos.distanceTo(playerKingPos);
+                int enemies = board.countUnits(pos, DIR_4, PlayerType.PLAYER, null);
+                int fellows = board.countUnits(pos, DIR_4, PlayerType.ENEMY, null);
+                int score = -steps + ENEMY_MULTIPLIER * enemies - fellows;
 
-                    validFields.add(pos);
-                    scores.add(score);
+                if (score > maxScore) {
+                    maxScore = score;
+                    bestFields.clear();
+                    bestFields.add(pos);
+                } else if (score == maxScore) {
+                    bestFields.add(pos);
                 }
             }
         }
-    }
 
-    private static Position selectBestPlacementField(List<Position> validFields, List<Integer> scores, Game game) {
-        int maxScore = Integer.MIN_VALUE;
-        List<Position> bestFields = new ArrayList<>();
-        for (int i = 0; i < validFields.size(); i++) {
-            if (scores.get(i) > maxScore) {
-                maxScore = scores.get(i);
-                bestFields.clear();
-                bestFields.add(validFields.get(i));
-            } else if (scores.get(i) == maxScore) {
-                bestFields.add(validFields.get(i));
-            }
-        }
+        if (bestFields.isEmpty()) return;
 
+        Position chosenField = bestFields.getFirst();
         if (bestFields.size() > 1) {
             List<Integer> weights = new ArrayList<>();
             for (int i = 0; i < bestFields.size(); i++) weights.add(WEIGHT_DEFAULT);
-            return bestFields.get(RandomUtils.weightedRandom(weights, game.getRandom()));
+            chosenField = bestFields.get(RandomUtils.weightedRandom(weights, game.getRandom()));
         }
-        return bestFields.getFirst();
-    }
 
-    private static int selectUnitToPlace(Player enemy, Game game) {
         List<Integer> handWeights = new ArrayList<>();
-        for (Unit u : enemy.getHand()) {
-            handWeights.add(u.attack());
-        }
-        return RandomUtils.weightedRandom(handWeights, game.getRandom());
+        for (Unit u : enemy.getHand()) handWeights.add(u.attack());
+        int chosenUnitIdx = RandomUtils.weightedRandom(handWeights, game.getRandom());
+
+        game.setSelectedPosition(chosenField);
+        executeCommandSilently(new PlaceCommand(game), new String[]{String.valueOf(chosenUnitIdx + 1)});
     }
 
     private static void moveUnits(Game game) {
@@ -178,48 +150,41 @@ public final class AIEngine {
         if (playerKingPos == null) return;
 
         while (true) {
-            List<Position> unmovedUnits = getUnmovedEnemyUnits(board);
-            if (unmovedUnits.isEmpty()) break;
-            executeBestUnitAction(game, board, unmovedUnits, playerKingPos);
-        }
-    }
-
-    private static List<Position> getUnmovedEnemyUnits(Board board) {
-        List<Position> unmovedUnits = new ArrayList<>();
-        for (int row = 0; row < BOARD_SIZE; row++) {
-            for (int col = 0; col < BOARD_SIZE; col++) {
-                Position pos = new Position(col, row);
-                Optional<PlacedUnit> opt = board.getUnitAt(pos);
-                if (opt.isPresent() && opt.get().getOwner() == PlayerType.ENEMY
-                        && !opt.get().hasMoved() && !opt.get().isKing()) {
-                    unmovedUnits.add(pos);
+            List<Position> unmovedUnits = new ArrayList<>();
+            for (int row = 0; row < BOARD_SIZE; row++) {
+                for (int col = 0; col < BOARD_SIZE; col++) {
+                    Position pos = new Position(col, row);
+                    Optional<PlacedUnit> opt = board.getUnitAt(pos);
+                    if (opt.isPresent() && opt.get().getOwner() == PlayerType.ENEMY
+                            && !opt.get().isMoved() && !opt.get().isKing()) {
+                        unmovedUnits.add(pos);
+                    }
                 }
             }
-        }
-        return unmovedUnits;
-    }
 
-    private static void executeBestUnitAction(Game game, Board board, List<Position> unmovedUnits, Position playerKingPos) {
-        Position bestUnitPos = null;
-        int bestUnitTotalScore = Integer.MIN_VALUE;
-        List<Integer> bestUnitOptionScores = new ArrayList<>();
-        List<Integer> bestUnitValidIndices = new ArrayList<>();
+            if (unmovedUnits.isEmpty()) break;
 
-        for (Position pos : unmovedUnits) {
-            PlacedUnit unit = board.getUnitAt(pos).orElseThrow();
-            UnitScoreResult result = evaluateUnitOptions(board, unit, pos, playerKingPos);
+            Position bestUnitPos = null;
+            int bestUnitTotalScore = Integer.MIN_VALUE;
+            List<Integer> bestUnitOptionScores = new ArrayList<>();
+            List<Integer> bestUnitValidIndices = new ArrayList<>();
 
-            if (result.totalScore() > bestUnitTotalScore) {
-                bestUnitTotalScore = result.totalScore();
-                bestUnitPos = pos;
-                bestUnitOptionScores = result.optionScores();
-                bestUnitValidIndices = result.validIndices();
+            for (Position pos : unmovedUnits) {
+                PlacedUnit unit = board.getUnitAt(pos).orElseThrow();
+                UnitScoreResult result = evaluateUnitOptions(board, unit, pos, playerKingPos);
+
+                if (result.totalScore() > bestUnitTotalScore) {
+                    bestUnitTotalScore = result.totalScore();
+                    bestUnitPos = pos;
+                    bestUnitOptionScores = result.optionScores();
+                    bestUnitValidIndices = result.validIndices();
+                }
             }
-        }
 
-        if (bestUnitPos != null) {
-            game.setSelectedPosition(bestUnitPos);
-            performChosenAction(game, board, bestUnitPos, bestUnitOptionScores, bestUnitValidIndices);
+            if (bestUnitPos != null) {
+                game.setSelectedPosition(bestUnitPos);
+                performChosenAction(game, board, bestUnitPos, bestUnitOptionScores, bestUnitValidIndices);
+            }
         }
     }
 
@@ -232,12 +197,10 @@ public final class AIEngine {
             Position target = new Position(pos.col() + DIR_4[dirIdx][0], pos.row() + DIR_4[dirIdx][1]);
             if (!Position.isValid(target.col(), target.row())) continue;
 
-            Optional<PlacedUnit> targetOpt = board.getUnitAt(target);
-            if (targetOpt.isPresent() && targetOpt.get().isKing() && targetOpt.get().getOwner() == PlayerType.ENEMY) {
-                continue;
-            }
+            PlacedUnit targetUnit = board.getUnitAt(target).orElse(null);
+            if (targetUnit != null && targetUnit.isKing() && targetUnit.getOwner() == PlayerType.ENEMY) continue;
 
-            int score = calculateTargetScore(unit, targetOpt, target, playerKingPos, board);
+            int score = calculateTargetScore(unit, targetUnit, target, playerKingPos, board);
             optionScores.add(score);
             validIndices.add(dirIdx);
             totalScore += score;
@@ -257,37 +220,41 @@ public final class AIEngine {
         return new UnitScoreResult(totalScore, optionScores, validIndices);
     }
 
-    private static int calculateTargetScore(PlacedUnit unit, Optional<PlacedUnit> targetOpt, Position target, Position playerKingPos, Board board) {
-        if (targetOpt.isEmpty()) {
+    private static int calculateTargetScore(PlacedUnit unit, PlacedUnit targetUnit, Position target, Position playerKingPos, Board board) {
+        int score;
+        if (targetUnit == null) {
             int steps = target.distanceTo(playerKingPos);
             int enemies = board.countUnits(target, DIR_4, PlayerType.PLAYER, null);
-            return BASE_SCORE - steps - enemies;
-        }
-
-        PlacedUnit targetUnit = targetOpt.get();
-        if (targetUnit.getOwner() == PlayerType.ENEMY) {
-            Optional<Unit> combined = UnitCombiner.tryCombine(unit.getUnit(), targetUnit.getUnit());
+            score = BASE_SCORE - steps - enemies;
+        } else if (targetUnit.getOwner() == PlayerType.ENEMY) {
+            Optional<Unit> combined = unit.getUnit().combineWith(targetUnit.getUnit());
             if (combined.isPresent()) {
-                return combined.get().attack() + combined.get().defense() - unit.getAttack() - unit.getDefense();
+                score = combined.get().attack() + combined.get().defense() - unit.getAttack() - unit.getDefense();
+            } else {
+                score = -targetUnit.getAttack() - targetUnit.getDefense();
             }
-            return -targetUnit.getAttack() - targetUnit.getDefense();
+        } else {
+            if (targetUnit.isKing()) {
+                score = unit.getAttack();
+            } else if (!targetUnit.isFlipped()) {
+                score = unit.getAttack() - FLIPPED_PENALTY;
+            } else if (targetUnit.isBlocking()) {
+                score = unit.getAttack() - targetUnit.getDefense();
+            } else {
+                score = ENEMY_MULTIPLIER * (unit.getAttack() - targetUnit.getAttack());
+            }
         }
-
-        if (targetUnit.isKing()) {
-            return unit.getAttack();
-        } else if (!targetUnit.isFlipped()) {
-            return unit.getAttack() - FLIPPED_PENALTY;
-        } else if (targetUnit.isBlocking()) {
-            return unit.getAttack() - targetUnit.getDefense();
-        }
-        return ENEMY_MULTIPLIER * (unit.getAttack() - targetUnit.getAttack());
+        return score;
     }
 
     private static void performChosenAction(Game game, Board board, Position bestUnitPos, List<Integer> scores, List<Integer> validIndices) {
         PlacedUnit activeUnit = board.getUnitAt(bestUnitPos).orElseThrow();
         boolean hasPositive = false;
         for (int score : scores) {
-            if (score > 0) hasPositive = true;
+            if (score > 0) {
+                hasPositive = true;
+                break;
+            }
         }
 
         if (!hasPositive) {
@@ -328,7 +295,7 @@ public final class AIEngine {
         }
     }
 
-    private static void executeCommandSilently(edu.kit.assignmentone.ui.commands.Command command, String[] args) {
+    private static void executeCommandSilently(Command command, String[] args) {
         try {
             command.execute(args);
         } catch (IllegalStateException | IllegalArgumentException ignored) {

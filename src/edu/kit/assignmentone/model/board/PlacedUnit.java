@@ -1,5 +1,7 @@
 package edu.kit.assignmentone.model.board;
 
+import edu.kit.assignmentone.model.DuelResult;
+import edu.kit.assignmentone.model.StringConstants;
 import edu.kit.assignmentone.model.player.PlayerType;
 import edu.kit.assignmentone.model.units.Unit;
 
@@ -7,62 +9,85 @@ import edu.kit.assignmentone.model.units.Unit;
  * Represents a unit that is currently placed on the board, including its owner and state.
  *
  * @author Programmieren-Team
+ * @version 1.0
  */
 public class PlacedUnit {
 
     private Unit unit;
     private final PlayerType owner;
-    private boolean isFlipped;
-    private boolean hasMoved;
-    private boolean isBlocking;
+    private boolean flipped;
+    private boolean moved;
+    private boolean blocking;
 
     /**
      * Creates a new placed unit.
-     *
-     * @param unit The base unit statistics
-     * @param owner The player who owns this unit
+     * @param unit The unit stats
+     * @param owner The player owner
      */
     public PlacedUnit(Unit unit, PlayerType owner) {
         this.unit = unit;
         this.owner = owner;
-        this.isFlipped = false;
-        this.hasMoved = false;
-        this.isBlocking = false;
+        this.flipped = false;
+        this.moved = false;
+        this.blocking = false;
     }
 
-    public Unit getUnit() {
-        return this.unit;
-    }
+    /** @return the unit */
+    public Unit getUnit() { return this.unit; }
+    /** @param unit the unit to set */
+    public void setUnit(Unit unit) { this.unit = unit; }
+    /** @return the owner */
+    public PlayerType getOwner() { return this.owner; }
 
-    public void setUnit(Unit unit) {
-        this.unit = unit;
-    }
+    /** @return true if flipped */
+    public boolean isFlipped() { return this.flipped; }
+    /** @param flipped true if flipped */
+    public void setFlipped(boolean flipped) { this.flipped = flipped; }
 
-    public PlayerType getOwner() {
-        return this.owner;
-    }
+    /** @return true if moved */
+    public boolean isMoved() { return this.moved; }
+    /** @param moved true if moved */
+    public void setMoved(boolean moved) { this.moved = moved; }
 
-    public boolean isFlipped() {
-        return this.isFlipped;
-    }
+    /** @return true if blocking */
+    public boolean isBlocking() { return this.blocking; }
+    /** @param blocking true if blocking */
+    public void setBlocking(boolean blocking) { this.blocking = blocking; }
 
-    public void setFlipped(boolean flipped) {
-        this.isFlipped = flipped;
-    }
+    /** @return true if unit is king */
+    public boolean isKing() { return this.unit.name().equals(StringConstants.KING_NAME); }
+    /** @return the attack value */
+    public int getAttack() { return this.unit.attack(); }
+    /** @return the defense value */
+    public int getDefense() { return this.unit.defense(); }
+    /** @return the unit name */
+    public String getName() { return this.unit.name(); }
 
-    public boolean hasMoved() {
-        return this.hasMoved;
-    }
+    /**
+     * Executes the battle calculation against a defending unit.
+     *
+     * @param defender The defending unit
+     * @return The resulting DuelResult holding all damage and elimination states
+     */
+    public DuelResult fightAgainst(PlacedUnit defender) {
+        if (defender.isKing()) {
+            return new DuelResult(defender.getOwner(), this.getAttack(), false, false, false);
+        }
 
-    public void setMoved(boolean moved) {
-        this.hasMoved = moved;
-    }
+        if (defender.isBlocking()) {
+            if (this.getAttack() > defender.getDefense()) {
+                return new DuelResult(null, 0, false, true, true);
+            } else if (this.getAttack() < defender.getDefense()) {
+                return new DuelResult(this.getOwner(), defender.getDefense() - this.getAttack(), false, false, false);
+            }
+            return new DuelResult(null, 0, false, false, false);
+        }
 
-    public boolean isBlocking() {
-        return this.isBlocking;
-    }
-
-    public void setBlocking(boolean blocking) {
-        this.isBlocking = blocking;
+        if (this.getAttack() > defender.getAttack()) {
+            return new DuelResult(defender.getOwner(), this.getAttack() - defender.getAttack(), false, true, true);
+        } else if (this.getAttack() < defender.getAttack()) {
+            return new DuelResult(this.getOwner(), defender.getAttack() - this.getAttack(), true, false, false);
+        }
+        return new DuelResult(null, 0, true, true, false);
     }
 }

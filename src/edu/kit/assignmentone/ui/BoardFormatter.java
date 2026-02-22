@@ -1,6 +1,6 @@
 package edu.kit.assignmentone.ui;
 
-import edu.kit.assignmentone.StringConstants;
+import edu.kit.assignmentone.model.StringConstants;
 import edu.kit.assignmentone.model.board.Board;
 import edu.kit.assignmentone.model.board.PlacedUnit;
 import edu.kit.assignmentone.model.board.Position;

@@ -1,14 +1,14 @@
 package edu.kit.assignmentone.ui.commands;
 
-import edu.kit.assignmentone.StringConstants;
+import edu.kit.assignmentone.model.DuelResult;
 import edu.kit.assignmentone.model.Game;
+import edu.kit.assignmentone.model.StringConstants;
 import edu.kit.assignmentone.model.board.Board;
 import edu.kit.assignmentone.model.board.PlacedUnit;
 import edu.kit.assignmentone.model.board.Position;
 import edu.kit.assignmentone.model.player.Player;
 import edu.kit.assignmentone.model.player.PlayerType;
 import edu.kit.assignmentone.model.units.Unit;
-import edu.kit.assignmentone.model.units.UnitCombiner;
 import edu.kit.assignmentone.ui.BoardFormatter;
 
 import java.util.Optional;
@@ -22,8 +22,6 @@ import java.util.Optional;
  */
 public class MoveCommand extends Command {
 
-    private static final String COMMAND_NAME = "move";
-    private static final String COMMAND_REGEX = "move [a-zA-Z]\\d";
     private static final String ERROR_NO_SELECTION = "No field selected or selected field is empty.";
     private static final String ERROR_ALREADY_MOVED = "This unit has already moved this turn.";
     private static final String ERROR_INVALID_DISTANCE = "Invalid move distance. Only 1 step horizontally/vertically or en place allowed.";
@@ -34,7 +32,7 @@ public class MoveCommand extends Command {
      * @param game The game to execute the command on
      */
     public MoveCommand(Game game) {
-        super(COMMAND_REGEX, game);
+        super(StringConstants.REGEX_MOVE, game);
     }
 
     @Override
@@ -89,7 +87,7 @@ public class MoveCommand extends Command {
     }
 
     private void validateMovementRules(Board board, PlacedUnit movingUnit, Position sourcePos, Position targetPos) {
-        if (movingUnit.hasMoved()) {
+        if (movingUnit.isMoved()) {
             throw new IllegalStateException(ERROR_ALREADY_MOVED);
         }
         if (sourcePos.distanceTo(targetPos) > 1) {
@@ -114,7 +112,7 @@ public class MoveCommand extends Command {
         System.out.printf(StringConstants.FMT_MOVES_TO, movingUnit.getName(), targetPos);
         System.out.printf(StringConstants.FMT_JOIN_FORCES, movingUnit.getName(), targetUnit.getName(), targetPos);
 
-        Optional<Unit> combinedOpt = UnitCombiner.tryCombine(movingUnit.getUnit(), targetUnit.getUnit());
+        Optional<Unit> combinedOpt = movingUnit.getUnit().combineWith(targetUnit.getUnit());
 
         if (combinedOpt.isPresent()) {
             System.out.println(StringConstants.SUCCESS_MSG);
@@ -124,7 +122,8 @@ public class MoveCommand extends Command {
             this.getGame().setSelectedPosition(targetPos);
         } else {
             System.out.printf(StringConstants.FMT_UNION_FAILED, targetUnit.getName());
-            board.removeAndMove(sourcePos, targetPos);
+            board.removeUnit(targetPos);
+            board.moveUnit(sourcePos, targetPos);
             getPlayer(targetUnit.getOwner()).decrementBoardCount();
             this.getGame().setSelectedPosition(targetPos);
         }
@@ -139,34 +138,12 @@ public class MoveCommand extends Command {
         flipUnitIfCovered(attacker, source);
         flipUnitIfCovered(defender, target);
 
-        DuelResult result = calculateDuelDamage(attacker, defender);
+        DuelResult result = attacker.fightAgainst(defender);
         if (result.damage() > 0) {
             applyDamage(result.victim(), result.damage());
         }
 
         resolveDuelOutcome(board, attacker, defender, source, target, result.atkEliminated(), result.defEliminated(), result.moves());
-    }
-
-    private DuelResult calculateDuelDamage(PlacedUnit attacker, PlacedUnit defender) {
-        if (defender.isKing()) {
-            return new DuelResult(defender.getOwner(), attacker.getAttack(), false, false, false);
-        }
-
-        if (defender.isBlocking()) {
-            if (attacker.getAttack() > defender.getDefense()) {
-                return new DuelResult(null, 0, false, true, true);
-            } else if (attacker.getAttack() < defender.getDefense()) {
-                return new DuelResult(attacker.getOwner(), defender.getDefense() - attacker.getAttack(), false, false, false);
-            }
-            return new DuelResult(null, 0, false, false, false);
-        }
-
-        if (attacker.getAttack() > defender.getAttack()) {
-            return new DuelResult(defender.getOwner(), attacker.getAttack() - defender.getAttack(), false, true, true);
-        } else if (attacker.getAttack() < defender.getAttack()) {
-            return new DuelResult(attacker.getOwner(), defender.getAttack() - attacker.getAttack(), true, false, false);
-        }
-        return new DuelResult(null, 0, true, true, false);
     }
 
     private void flipUnitIfCovered(PlacedUnit unit, Position pos) {
@@ -218,6 +195,4 @@ public class MoveCommand extends Command {
             System.out.print(BoardFormatter.formatBoard(this.getGame().getBoard(), highlight));
         }
     }
-
-    private record DuelResult(PlayerType victim, int damage, boolean atkEliminated, boolean defEliminated, boolean moves) {}
 }

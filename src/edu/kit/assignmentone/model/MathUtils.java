@@ -1,7 +1,5 @@
 package edu.kit.assignmentone.model;
 
-import edu.kit.assignmentone.StringConstants;
-
 /**
  * Utility class for mathematical operations needed in the game (like GCD and Prime checks).
  *

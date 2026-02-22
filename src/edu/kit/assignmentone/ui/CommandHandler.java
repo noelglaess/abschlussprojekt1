@@ -25,7 +25,7 @@ import java.util.Scanner;
  * @version 1.0
  */
 public class CommandHandler {
-    private static final String ERROR_PREFIX = Main.ERROR_PREFIX;
+    private static final String ERROR_PREFIX = Main.ERROR_ARGUMENT_FORMAT;
     private static final String COMMAND_NOT_FOUND_ERROR = "Command not recognised.";
     private static final String USE_ONE_OF_THE_FOLLOWING_COMMANDS_SELECT_BOARD_MOVE_FLIP_BLOCK_HAND_PLACE_SHOW_YIELD_STATE_QUIT = "Use one of the following commands: select, board, move, flip, block, hand, place, show, yield, state, quit.";
     private static final String REGEX = "\\s+";

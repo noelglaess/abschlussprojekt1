@@ -1,7 +1,7 @@
 package edu.kit.assignmentone.ui.commands;
 
-import edu.kit.assignmentone.StringConstants;
 import edu.kit.assignmentone.model.Game;
+import edu.kit.assignmentone.model.StringConstants;
 import edu.kit.assignmentone.model.player.Player;
 import edu.kit.assignmentone.model.units.Unit;
 
@@ -13,7 +13,6 @@ import edu.kit.assignmentone.model.units.Unit;
  */
 public class YieldCommand extends Command {
 
-    private static final String COMMAND_REGEX = "yield(\\s+\\d+)?";
     private static final String ERROR_MUST_DISCARD = "You hold 5 units and must discard one using 'yield <idx>'.";
     private static final String ERROR_CANNOT_DISCARD = "You hold less than 5 units and cannot discard.";
     private static final String ERROR_INVALID_INDEX = "The provided index is invalid.";
@@ -21,11 +20,10 @@ public class YieldCommand extends Command {
 
     /**
      * Creates a new yield command.
-     *
      * @param game The game to execute the command on
      */
     public YieldCommand(Game game) {
-        super(COMMAND_REGEX, game);
+        super(StringConstants.REGEX_YIELD, game);
     }
 
     @Override

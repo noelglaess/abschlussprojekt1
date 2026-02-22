@@ -1,6 +1,5 @@
 package edu.kit.assignmentone.model;
 
-import edu.kit.assignmentone.StringConstants;
 import edu.kit.assignmentone.model.board.Board;
 import edu.kit.assignmentone.model.board.Position;
 import edu.kit.assignmentone.model.io.ResourceLoader;

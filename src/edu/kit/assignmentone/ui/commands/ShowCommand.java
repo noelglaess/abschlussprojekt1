@@ -1,7 +1,7 @@
 package edu.kit.assignmentone.ui.commands;
 
-import edu.kit.assignmentone.StringConstants;
 import edu.kit.assignmentone.model.Game;
+import edu.kit.assignmentone.model.StringConstants;
 import edu.kit.assignmentone.model.board.PlacedUnit;
 import edu.kit.assignmentone.model.board.Position;
 
@@ -21,7 +21,6 @@ public class ShowCommand extends Command {
 
     /**
      * Creates a new show command.
-     *
      * @param game The game to execute the command on
      */
     public ShowCommand(Game game) {

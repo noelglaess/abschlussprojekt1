@@ -1,6 +1,7 @@
 package edu.kit.assignmentone.ui.commands;
 
 import edu.kit.assignmentone.model.Game;
+import edu.kit.assignmentone.model.StringConstants;
 import edu.kit.assignmentone.model.board.PlacedUnit;
 import edu.kit.assignmentone.model.board.Position;
 import edu.kit.assignmentone.ui.BoardFormatter;
@@ -15,16 +16,14 @@ import java.util.Optional;
  */
 public class SelectCommand extends Command {
 
-    private static final String COMMAND_REGEX = "select [a-zA-Z]\\d";
     private static final String UNIT_INFO_FORMAT = "%s %s (Team %s)%nATK: %d%nDEF: %d";
 
     /**
      * Creates a new select command.
-     *
      * @param game The game to execute the command on
      */
     public SelectCommand(Game game) {
-        super(COMMAND_REGEX, game);
+        super(StringConstants.REGEX_SELECT, game);
     }
 
     @Override

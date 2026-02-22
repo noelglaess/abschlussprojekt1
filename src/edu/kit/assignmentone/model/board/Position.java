@@ -15,7 +15,7 @@ public record Position(int col, int row) {
     private static final char COL_OFFSET = 'A';
     private static final char ROW_OFFSET = '1';
     private static final int EXPECTED_LENGTH = 2;
-    public static final String POSITION = "Position ";
+    private static final String POSITION = "Position ";
 
     /**
      * Parses a string representation (e.g., "D5") into a Position.

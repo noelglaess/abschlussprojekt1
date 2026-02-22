@@ -1,7 +1,5 @@
 package edu.kit.assignmentone.model;
 
-import edu.kit.assignmentone.StringConstants;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;

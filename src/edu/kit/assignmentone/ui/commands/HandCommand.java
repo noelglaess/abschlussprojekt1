@@ -1,7 +1,7 @@
 package edu.kit.assignmentone.ui.commands;
 
-import edu.kit.assignmentone.StringConstants;
 import edu.kit.assignmentone.model.Game;
+import edu.kit.assignmentone.model.StringConstants;
 import edu.kit.assignmentone.model.player.Player;
 import edu.kit.assignmentone.model.units.Unit;
 
@@ -23,7 +23,7 @@ public class HandCommand extends Command {
      * @param game The game to execute the command on
      */
     public HandCommand(Game game) {
-        super(COMMAND_NAME, game);
+        super(game);
     }
 
     @Override

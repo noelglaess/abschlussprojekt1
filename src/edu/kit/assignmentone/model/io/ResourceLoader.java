@@ -1,6 +1,6 @@
 package edu.kit.assignmentone.model.io;
 
-import edu.kit.assignmentone.StringConstants;
+import edu.kit.assignmentone.model.StringConstants;
 import edu.kit.assignmentone.model.units.Unit;
 import edu.kit.assignmentone.model.units.UnitType;
 
