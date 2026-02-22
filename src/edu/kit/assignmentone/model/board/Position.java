@@ -15,6 +15,7 @@ public record Position(int col, int row) {
     private static final char COL_OFFSET = 'A';
     private static final char ROW_OFFSET = '1';
     private static final int EXPECTED_LENGTH = 2;
+    public static final String POSITION = "Position ";
 
     /**
      * Parses a string representation (e.g., "D5") into a Position.
@@ -35,7 +36,7 @@ public record Position(int col, int row) {
         int row = rowChar - ROW_OFFSET;
 
         if (!isValid(col, row)) {
-            throw new IllegalArgumentException("Position " + posString + " is out of bounds.");
+            throw new IllegalArgumentException(POSITION + posString + " is out of bounds.");
         }
 
         return new Position(col, row);
