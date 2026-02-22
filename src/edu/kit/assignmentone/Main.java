@@ -14,10 +14,10 @@ import java.io.IOException;
  */
 public final class Main {
 
-    public static final String ERROR_ARGUMENT_FORMAT = "Invalid command line arguments.";
     private static final int REQUIRED_ARGS_COUNT = 4;
 
     private Main() {
+        // Prevent instantiation
     }
 
     /**
@@ -27,7 +27,7 @@ public final class Main {
      */
     public static void main(String[] args) {
         if (args.length != REQUIRED_ARGS_COUNT) {
-            System.err.println(StringConstants.ERROR_PREFIX + ERROR_ARGUMENT_FORMAT);
+            System.err.println(StringConstants.ERROR_PREFIX + StringConstants.ERR_ARG_FORMAT);
             return;
         }
 
@@ -37,32 +37,34 @@ public final class Main {
 
         try {
             for (String arg : args) {
-                String[] parts = arg.split("=", 2);
+                String[] parts = arg.split(StringConstants.ARG_SEPARATOR, 2);
                 if (parts.length != 2) {
-                    System.err.println(StringConstants.ERROR_PREFIX + ERROR_ARGUMENT_FORMAT);
+                    System.err.println(StringConstants.ERROR_PREFIX + StringConstants.ERR_ARG_FORMAT);
                     return;
                 }
 
                 String key = parts[0];
                 String value = parts[1];
 
-                if (StringConstants.ARG_SEED.equals(key)) {
-                    seed = Long.parseLong(value);
-                } else if (StringConstants.ARG_DECK.equals(key)) {
-                    deckPath = value;
-                } else if (StringConstants.ARG_VERBOSITY.equals(key)) {
-                    // Parsed but intentionally ignored
-                } else if (StringConstants.ARG_UNITS.equals(key)) {
-                    unitsPath = value;
-                } else {
-                    System.err.println(StringConstants.ERROR_PREFIX + ERROR_ARGUMENT_FORMAT);
-                    return;
+                switch (key) {
+                    case StringConstants.ARG_SEED -> seed = Long.parseLong(value);
+                    case StringConstants.ARG_DECK -> deckPath = value;
+                    case StringConstants.ARG_VERBOSITY -> {
+                        // Parsed but intentionally ignored
+                    }
+                    case StringConstants.ARG_UNITS -> unitsPath = value;
+                    case null, default -> {
+                        System.err.println(StringConstants.ERROR_PREFIX + StringConstants.ERR_ARG_FORMAT);
+                        return;
+                    }
                 }
             }
             Game game = new Game(seed, deckPath, unitsPath);
             CommandHandler handler = new CommandHandler(game);
             handler.handleUserInput();
-        } catch (NumberFormatException | IllegalArgumentException | IllegalStateException | IOException e) {
+        } catch (NumberFormatException | IOException e) {
+            // Wir fangen hier exakt nur die beiden Exceptions,
+            // die in der Setup-Phase explizit fliegen können.
             System.err.println(StringConstants.ERROR_PREFIX + e.getMessage());
         }
     }

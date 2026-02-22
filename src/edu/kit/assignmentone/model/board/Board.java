@@ -16,77 +16,69 @@ public class Board {
     private static final int[][] DIR_4 = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
     private final PlacedUnit[][] grid;
 
-    /**
-     * Creates a new, empty game board.
-     */
+    /** Creates a new, empty game board. */
     public Board() {
         this.grid = new PlacedUnit[BOARD_SIZE][BOARD_SIZE];
     }
 
     /**
-     * Checks if a specific position on the board is empty.
-     *
-     * @param position The position to check
-     * @return true if empty, false if occupied
+     * Checks if empty.
+     * @param position The position
+     * @return true if empty
      */
     public boolean isEmpty(Position position) {
         return this.grid[position.col()][position.row()] == null;
     }
 
     /**
-     * Places a unit at the given position.
-     *
-     * @param position The position to place the unit
-     * @param unit The placed unit including its owner
+     * Places a unit.
+     * @param position The position
+     * @param unit The unit
      */
     public void placeUnit(Position position, PlacedUnit unit) {
-        if (!isEmpty(position)) {
-            throw new IllegalStateException("Position is already occupied.");
-        }
+        if (!isEmpty(position)) throw new IllegalStateException("Position is already occupied.");
         this.grid[position.col()][position.row()] = unit;
     }
 
     /**
-     * Removes a unit from the given position.
-     *
-     * @param position The position to remove the unit from
+     * Removes a unit.
+     * @param position The position
      * @return The removed unit
      */
     public PlacedUnit removeUnit(Position position) {
-        PlacedUnit unit = this.grid[position.col()][position.row()];
-        this.grid[position.col()][position.row()] = null;
+        int col = position.col();
+        int row = position.row();
+        PlacedUnit unit = this.grid[col][row];
+        this.grid[col][row] = null;
         return unit;
     }
 
     /**
-     * Gets the unit at the given position.
-     *
-     * @param position The position to check
-     * @return An Optional containing the unit if present
+     * Gets the unit.
+     * @param position The position
+     * @return An Optional
      */
     public Optional<PlacedUnit> getUnitAt(Position position) {
         return Optional.ofNullable(this.grid[position.col()][position.row()]);
     }
 
     /**
-     * Moves a unit from a source to a target position.
-     *
-     * @param from The source position
-     * @param to The target position
+     * Moves a unit.
+     * @param from source
+     * @param to target
      */
     public void moveUnit(Position from, Position to) {
-        if (isEmpty(from)) throw new IllegalStateException("No unit at source position.");
-        if (!isEmpty(to)) throw new IllegalStateException("Target position is occupied.");
+        if (isEmpty(from)) throw new IllegalStateException("No unit at source.");
+        if (!isEmpty(to)) throw new IllegalStateException("Target occupied.");
         PlacedUnit unit = removeUnit(from);
         placeUnit(to, unit);
     }
 
     /**
      * Finds a unit by name and owner.
-     *
-     * @param name The name of the unit
-     * @param owner The owner of the unit
-     * @return The position or null
+     * @param name Name
+     * @param owner Owner
+     * @return Position or null
      */
     public Position findUnit(String name, PlayerType owner) {
         for (int row = 0; row < BOARD_SIZE; row++) {
@@ -103,21 +95,24 @@ public class Board {
 
     /**
      * Counts specific units around a position.
-     *
-     * @param pos The center position
-     * @param dirs The directions to check
-     * @param type The owner type to count
-     * @param exclude A position to exclude from counting
-     * @return The amount of matching units
+     * @param pos center
+     * @param dirs directions
+     * @param type type
+     * @param exclude exclude
+     * @return amount
      */
     public int countUnits(Position pos, int[][] dirs, PlayerType type, Position exclude) {
         int count = 0;
+        int pCol = pos.col();
+        int pRow = pos.row();
         for (int[] dir : dirs) {
-            Position check = new Position(pos.col() + dir[0], pos.row() + dir[1]);
-            if (Position.isValid(check.col(), check.row()) && !check.equals(exclude)) {
-                Optional<PlacedUnit> opt = getUnitAt(check);
-                if (opt.isPresent() && opt.get().getOwner() == type) {
-                    count++;
+            int tCol = pCol + dir[0];
+            int tRow = pRow + dir[1];
+            if (Position.isValid(tCol, tRow)) {
+                Position check = new Position(tCol, tRow);
+                if (!check.equals(exclude)) {
+                    Optional<PlacedUnit> opt = getUnitAt(check);
+                    if (opt.isPresent() && opt.get().getOwner() == type) count++;
                 }
             }
         }
@@ -125,21 +120,21 @@ public class Board {
     }
 
     /**
-     * Gets the highest attack value of surrounding enemy units.
-     *
-     * @param pos The center position
-     * @return The maximum attack value found
+     * Gets the highest attack value.
+     * @param pos center
+     * @return max attack
      */
     public int getMaxSurroundingEnemyAtk(Position pos) {
         int maxAtk = 0;
+        int pCol = pos.col();
+        int pRow = pos.row();
         for (int[] dir : DIR_4) {
-            Position check = new Position(pos.col() + dir[0], pos.row() + dir[1]);
-            if (Position.isValid(check.col(), check.row())) {
-                Optional<PlacedUnit> opt = getUnitAt(check);
+            int tCol = pCol + dir[0];
+            int tRow = pRow + dir[1];
+            if (Position.isValid(tCol, tRow)) {
+                Optional<PlacedUnit> opt = getUnitAt(new Position(tCol, tRow));
                 if (opt.isPresent() && opt.get().getOwner() == PlayerType.PLAYER) {
-                    if (opt.get().getAttack() > maxAtk) {
-                        maxAtk = opt.get().getAttack();
-                    }
+                    if (opt.get().getAttack() > maxAtk) maxAtk = opt.get().getAttack();
                 }
             }
         }

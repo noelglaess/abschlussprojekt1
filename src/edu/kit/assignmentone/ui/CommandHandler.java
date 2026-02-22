@@ -1,8 +1,8 @@
 package edu.kit.assignmentone.ui;
 
-import edu.kit.assignmentone.Main;
 import edu.kit.assignmentone.model.Game;
 import edu.kit.assignmentone.model.AIEngine;
+import edu.kit.assignmentone.model.StringConstants;
 import edu.kit.assignmentone.model.player.PlayerType;
 import edu.kit.assignmentone.ui.commands.Command;
 import edu.kit.assignmentone.ui.commands.HandCommand;
@@ -25,10 +25,8 @@ import java.util.Scanner;
  * @version 1.0
  */
 public class CommandHandler {
-    private static final String ERROR_PREFIX = Main.ERROR_ARGUMENT_FORMAT;
     private static final String COMMAND_NOT_FOUND_ERROR = "Command not recognised.";
     private static final String USE_ONE_OF_THE_FOLLOWING_COMMANDS_SELECT_BOARD_MOVE_FLIP_BLOCK_HAND_PLACE_SHOW_YIELD_STATE_QUIT = "Use one of the following commands: select, board, move, flip, block, hand, place, show, yield, state, quit.";
-    private static final String REGEX = "\\s+";
 
     private final Game game;
     private final List<Command> commands;
@@ -83,18 +81,18 @@ public class CommandHandler {
     private void executeCommand(String input) {
         for (Command command : this.commands) {
             if (input.matches(command.getCommandRegex())) {
-                String[] arguments = input.split(REGEX);
+                String[] arguments = input.split(StringConstants.REGEX_WHITESPACE);
                 String[] argsOnly = new String[arguments.length - 1];
                 System.arraycopy(arguments, 1, argsOnly, 0, arguments.length - 1);
 
                 try {
                     command.execute(argsOnly);
                 } catch (IllegalStateException | IllegalArgumentException e) {
-                    System.err.println(ERROR_PREFIX + e.getMessage());
+                    System.err.println(StringConstants.ERROR_PREFIX + e.getMessage());
                 }
                 return;
             }
         }
-        System.err.println(ERROR_PREFIX + COMMAND_NOT_FOUND_ERROR);
+        System.err.println(StringConstants.ERROR_PREFIX + COMMAND_NOT_FOUND_ERROR);
     }
 }

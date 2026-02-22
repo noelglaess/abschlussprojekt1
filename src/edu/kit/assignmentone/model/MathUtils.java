@@ -1,20 +1,16 @@
 package edu.kit.assignmentone.model;
 
 /**
- * Utility class for mathematical operations needed in the game (like GCD and Prime checks).
+ * Utility class for mathematical operations needed in the game.
  *
  * @author Programmieren-Team
  * @version 1.0
  */
 public final class MathUtils {
-
-    private MathUtils() {
-        throw new UnsupportedOperationException(StringConstants.UTILITY_CLASS_ERROR);
-    }
+    private MathUtils() { }
 
     /**
-     * Calculates the greatest common divisor (ggT) of two integers.
-     *
+     * Calculates the greatest common divisor.
      * @param value1 The first integer
      * @param value2 The second integer
      * @return The GCD
@@ -22,7 +18,6 @@ public final class MathUtils {
     public static int gcd(int value1, int value2) {
         int tempValue1 = Math.abs(value1);
         int tempValue2 = Math.abs(value2);
-
         while (tempValue2 != 0) {
             int remainder = tempValue1 % tempValue2;
             tempValue1 = tempValue2;
@@ -33,24 +28,15 @@ public final class MathUtils {
 
     /**
      * Checks if a given number is prime.
-     *
      * @param numberToCheck The number to check
-     * @return true if prime, false otherwise
+     * @return true if prime
      */
     public static boolean isPrime(int numberToCheck) {
-        if (numberToCheck <= 1) {
-            return false;
-        }
-        if (numberToCheck <= 3) {
-            return true;
-        }
-        if (numberToCheck % 2 == 0 || numberToCheck % 3 == 0) {
-            return false;
-        }
+        if (numberToCheck <= 1) return false;
+        if (numberToCheck <= 3) return true;
+        if (numberToCheck % 2 == 0 || numberToCheck % 3 == 0) return false;
         for (int index = 5; index * index <= numberToCheck; index += 6) {
-            if (numberToCheck % index == 0 || numberToCheck % (index + 2) == 0) {
-                return false;
-            }
+            if (numberToCheck % index == 0 || numberToCheck % (index + 2) == 0) return false;
         }
         return true;
     }

@@ -64,6 +64,54 @@ public class PlacedUnit {
     public String getName() { return this.unit.name(); }
 
     /**
+     * Unblocks the unit if it was blocking.
+     * @return true if it was unblocked
+     */
+    public boolean unblockIfBlocking() {
+        if (this.blocking) {
+            this.blocking = false;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Flips the unit if it was covered.
+     * @return true if it was flipped
+     */
+    public boolean flipIfCovered() {
+        if (!this.flipped && !this.isKing()) {
+            this.flipped = true;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Sets the unit to blocking state.
+     */
+    public void block() {
+        this.blocking = true;
+        this.moved = true;
+    }
+
+    /**
+     * Formats the unit info for the show command.
+     * @return The formatted string
+     */
+    public String formatInfo() {
+        return String.format(StringConstants.UNIT_INFO_FORMAT, this.getName(), this.owner.getDisplayName(), this.getAttack(), this.getDefense());
+    }
+
+    /**
+     * Formats the unit info for the select command.
+     * @return The formatted string
+     */
+    public String formatSelectInfo() {
+        return String.format(StringConstants.UNIT_SELECT_FORMAT, this.getName(), this.unit.type().toString(), this.owner.getDisplayName(), this.getAttack(), this.getDefense());
+    }
+
+    /**
      * Executes the battle calculation against a defending unit.
      *
      * @param defender The defending unit

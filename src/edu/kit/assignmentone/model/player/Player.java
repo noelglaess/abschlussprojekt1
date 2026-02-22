@@ -1,5 +1,6 @@
 package edu.kit.assignmentone.model.player;
 
+import edu.kit.assignmentone.model.StringConstants;
 import edu.kit.assignmentone.model.units.Unit;
 
 import java.util.ArrayList;
@@ -49,16 +50,18 @@ public class Player {
     public int getMaxLifePoints() { return MAX_LIFE_POINTS; }
 
     /**
-     * Takes damage.
+     * Takes damage and checks for defeat.
      * @param amount damage amount
+     * @return true if player is defeated
      */
-    public void takeDamage(int amount) {
+    public boolean takeDamageAndCheckDefeat(int amount) {
         if (amount < 0) throw new IllegalArgumentException("Damage cannot be negative.");
         this.lifePoints = Math.max(0, this.lifePoints - amount);
+        return this.lifePoints == 0;
     }
 
     /** @return true if defeated */
-    public boolean isDefeated() { return this.lifePoints <= 0; }
+    public boolean isDefeated() { return this.lifePoints == 0; }
     /** @return the deck */
     public Deck getDeck() { return this.deck; }
 
@@ -69,9 +72,7 @@ public class Player {
 
     /** Draws the initial hand. */
     public void drawInitialHand() {
-        for (int i = 0; i < INITIAL_HAND_SIZE; i++) {
-            drawCard();
-        }
+        for (int i = 0; i < INITIAL_HAND_SIZE; i++) drawCard();
     }
 
     /**
@@ -119,4 +120,12 @@ public class Player {
     public boolean isPlacedThisTurn() { return this.placedThisTurn; }
     /** @param placed bool value */
     public void setPlacedThisTurn(boolean placed) { this.placedThisTurn = placed; }
+
+    /**
+     * Formats the player state as a string.
+     * @return the formatted state
+     */
+    public String formatState() {
+        return String.format(StringConstants.FMT_STATE, this.type.getDisplayName(), this.lifePoints, MAX_LIFE_POINTS, this.deck.size(), MAX_DECK_CAPACITY, this.boardCount, MAX_BOARD_CAPACITY);
+    }
 }

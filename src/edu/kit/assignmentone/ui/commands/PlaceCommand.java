@@ -22,19 +22,12 @@ import java.util.Optional;
  */
 public class PlaceCommand extends Command {
 
-    private static final String COMMAND_NAME = "place";
-    private static final String ERROR_NO_SELECTION = "No field selected.";
-    private static final String ERROR_ALREADY_PLACED = "You have already placed units this turn.";
-    private static final String ERROR_INVALID_INDEX = "One or more provided hand indices are invalid.";
-    private static final String ERROR_DUPLICATE_INDEX = "An index cannot be provided multiple times.";
-    private static final String ERROR_OCCUPIED_BY_ENEMY = "Cannot place on a field occupied by the enemy.";
-
     /**
      * Creates a new place command.
      * @param game The game instance
      */
     public PlaceCommand(Game game) {
-        super(COMMAND_NAME, StringConstants.REGEX_PLACE, game);
+        super(StringConstants.REGEX_PLACE, game);
     }
 
     @Override
@@ -43,19 +36,19 @@ public class PlaceCommand extends Command {
         Position targetPos = this.getGame().getSelectedPosition();
 
         if (targetPos == null) {
-            throw new IllegalStateException(ERROR_NO_SELECTION);
+            throw new IllegalStateException(StringConstants.ERR_NO_SEL_PLACE);
         }
 
         Player active = this.getGame().getActivePlayerObject();
         if (active.isPlacedThisTurn()) {
-            throw new IllegalStateException(ERROR_ALREADY_PLACED);
+            throw new IllegalStateException(StringConstants.ERR_ALREADY_PLACED);
         }
 
         List<Integer> parsedIndices = parseAndValidateIndices(arguments, active.getHand().size());
         boolean targetIsEmpty = board.isEmpty(targetPos);
 
         if (!targetIsEmpty && board.getUnitAt(targetPos).orElseThrow().getOwner() != active.getType()) {
-            throw new IllegalStateException(ERROR_OCCUPIED_BY_ENEMY);
+            throw new IllegalStateException(StringConstants.ERR_OCC_ENEMY);
         }
 
         List<Unit> unitsToPlace = extractUnits(active, parsedIndices);
@@ -122,10 +115,10 @@ public class PlaceCommand extends Command {
         for (String arg : arguments) {
             int idx = Integer.parseInt(arg) - 1;
             if (idx < 0 || idx >= handSize) {
-                throw new IllegalArgumentException(ERROR_INVALID_INDEX);
+                throw new IllegalArgumentException(StringConstants.ERR_INV_IDX);
             }
             if (parsedIndices.contains(idx)) {
-                throw new IllegalArgumentException(ERROR_DUPLICATE_INDEX);
+                throw new IllegalArgumentException(StringConstants.ERR_DUP_IDX);
             }
             parsedIndices.add(idx);
         }

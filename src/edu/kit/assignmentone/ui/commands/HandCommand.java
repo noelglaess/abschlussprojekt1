@@ -15,21 +15,20 @@ import java.util.List;
  */
 public class HandCommand extends Command {
 
-    private static final String COMMAND_NAME = "hand";
+    private static final String HAND = "hand";
 
     /**
      * Creates a new hand command.
-     *
      * @param game The game to execute the command on
      */
     public HandCommand(Game game) {
-        super(COMMAND_NAME, COMMAND_NAME, game);
+        super(HAND, game);
     }
 
     @Override
     public void execute(String[] arguments) {
         if (arguments.length > 0) {
-            throw new IllegalArgumentException("The hand command does not take any arguments.");
+            throw new IllegalArgumentException(StringConstants.ERR_NO_ARGS);
         }
 
         Player active = this.getGame().getActivePlayerObject();

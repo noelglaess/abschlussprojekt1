@@ -23,33 +23,23 @@ public final class ResourceLoader {
     private static final String UNIT_DELIMITER = ";";
     private static final int UNIT_PARTS_COUNT = 4;
 
-    private ResourceLoader() {
-        // Prevent instantiation
-    }
+    private ResourceLoader() { }
 
     /**
-     * Loads the units from the specified file.
-     *
+     * Loads the units.
      * @param filePath The path to the units file
      * @return A list of loaded units
-     * @throws IOException If the file cannot be read or has an invalid format
+     * @throws IOException If the file cannot be read
      */
     public static List<Unit> loadUnits(String filePath) throws IOException {
         List<Unit> units = new ArrayList<>();
         try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath))) {
             while (true) {
                 String line = reader.readLine();
-                if (line == null) {
-                    break;
-                }
-                if (line.trim().isEmpty()) {
-                    continue;
-                }
-
+                if (line == null) break;
+                if (line.trim().isEmpty()) continue;
                 String[] parts = line.split(UNIT_DELIMITER);
-                if (parts.length != UNIT_PARTS_COUNT) {
-                    throw new IOException(INVALID_UNIT_FORMAT_ERROR);
-                }
+                if (parts.length != UNIT_PARTS_COUNT) throw new IOException(INVALID_UNIT_FORMAT_ERROR);
 
                 String name = parts[0].trim();
                 UnitType type = UnitType.fromString(parts[1].trim());
@@ -60,29 +50,25 @@ public final class ResourceLoader {
         } catch (NumberFormatException e) {
             throw new RuntimeException(e);
         } catch (IllegalArgumentException e) {
+            // IllegalArgumentException catches NumberFormatException automatically
             throw new IOException(INVALID_UNIT_FORMAT_ERROR, e);
         }
         return units;
     }
 
     /**
-     * Loads the deck from the specified file.
-     *
+     * Loads the deck.
      * @param filePath The path to the deck file
      * @return A list of integers representing the deck values
-     * @throws IOException If the file cannot be read or has an invalid format
+     * @throws IOException If the file cannot be read
      */
     public static List<Integer> loadDeck(String filePath) throws IOException {
         List<Integer> deck = new ArrayList<>();
         try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath))) {
             while (true) {
                 String line = reader.readLine();
-                if (line == null) {
-                    break;
-                }
-                if (line.trim().isEmpty()) {
-                    continue;
-                }
+                if (line == null) break;
+                if (line.trim().isEmpty()) continue;
                 deck.add(Integer.parseInt(line.trim()));
             }
         } catch (NumberFormatException e) {

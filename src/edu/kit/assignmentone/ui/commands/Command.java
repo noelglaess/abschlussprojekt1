@@ -16,11 +16,10 @@ public abstract class Command {
     /**
      * Creates a new Command.
      *
-     * @param commandName The name of the command
      * @param commandRegex The regular expression to match the command
      * @param game The game model
      */
-    protected Command(String commandName, String commandRegex, Game game) {
+    protected Command(String commandRegex, Game game) {
         this.commandRegex = commandRegex;
         this.game = game;
     }
@@ -35,14 +34,18 @@ public abstract class Command {
     }
 
     /**
+     * Returns the game instance the command operates on.
+     *
+     * @return The game model
+     */
+    protected Game getGame() {
+        return this.game;
+    }
+
+    /**
      * Executes the command.
      *
      * @param arguments The command arguments
      */
     public abstract void execute(String[] arguments);
-
-    /** The game instance the command operates on. */
-    public Game getGame() {
-        return game;
-    }
 }

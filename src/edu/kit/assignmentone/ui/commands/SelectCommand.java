@@ -16,15 +16,12 @@ import java.util.Optional;
  */
 public class SelectCommand extends Command {
 
-    private static final String COMMAND_NAME = "select";
-    private static final String UNIT_INFO_FORMAT = "%s %s (Team %s)%nATK: %d%nDEF: %d";
-
     /**
      * Creates a new select command.
      * @param game The game to execute the command on
      */
     public SelectCommand(Game game) {
-        super(COMMAND_NAME, StringConstants.REGEX_SELECT, game);
+        super(StringConstants.REGEX_SELECT, game);
     }
 
     @Override
@@ -35,15 +32,6 @@ public class SelectCommand extends Command {
         System.out.print(BoardFormatter.formatBoard(this.getGame().getBoard(), pos));
 
         Optional<PlacedUnit> unitOpt = this.getGame().getBoard().getUnitAt(pos);
-        if (unitOpt.isPresent()) {
-            PlacedUnit unit = unitOpt.get();
-            String info = String.format(UNIT_INFO_FORMAT,
-                    unit.getName(),
-                    unit.getUnit().type().toString(),
-                    unit.getOwner().getDisplayName(),
-                    unit.getAttack(),
-                    unit.getDefense());
-            System.out.println(info);
-        }
+        unitOpt.ifPresent(placedUnit -> System.out.println(placedUnit.formatSelectInfo()));
     }
 }

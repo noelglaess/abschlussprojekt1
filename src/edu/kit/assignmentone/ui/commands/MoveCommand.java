@@ -22,17 +22,12 @@ import java.util.Optional;
  */
 public class MoveCommand extends Command {
 
-    private static final String COMMAND_NAME = "move";
-    private static final String ERROR_NO_SELECTION = "No field selected or selected field is empty.";
-    private static final String ERROR_ALREADY_MOVED = "This unit has already moved this turn.";
-    private static final String ERROR_KING_MOVE = "Invalid king move. Kings cannot attack or be attacked by own king.";
-
     /**
      * Creates a new move command.
      * @param game The game to execute the command on
      */
     public MoveCommand(Game game) {
-        super(COMMAND_NAME, StringConstants.REGEX_MOVE, game);
+        super(StringConstants.REGEX_MOVE, game);
     }
 
     @Override
@@ -41,14 +36,17 @@ public class MoveCommand extends Command {
         Position sourcePos = this.getGame().getSelectedPosition();
 
         if (sourcePos == null || board.isEmpty(sourcePos)) {
-            throw new IllegalStateException(ERROR_NO_SELECTION);
+            throw new IllegalStateException(StringConstants.ERR_NO_SELECTION);
         }
 
         Position targetPos = Position.fromString(arguments[0]);
         PlacedUnit movingUnit = board.getUnitAt(sourcePos).orElseThrow();
 
         validateMovementRules(board, movingUnit, sourcePos, targetPos);
-        unblockIfNecessary(movingUnit);
+
+        if (movingUnit.unblockIfBlocking()) {
+            System.out.printf(StringConstants.FMT_NO_LONGER_BLOCKS, movingUnit.getName());
+        }
 
         if (sourcePos.distanceTo(targetPos) == 0) {
             movingUnit.setMoved(true);
@@ -59,13 +57,6 @@ public class MoveCommand extends Command {
 
         executeMovement(board, movingUnit, sourcePos, targetPos);
         printBoard(this.getGame().getSelectedPosition());
-    }
-
-    private void unblockIfNecessary(PlacedUnit unit) {
-        if (unit.isBlocking()) {
-            unit.setBlocking(false);
-            System.out.printf(StringConstants.FMT_NO_LONGER_BLOCKS, unit.getName());
-        }
     }
 
     private void executeMovement(Board board, PlacedUnit movingUnit, Position source, Position target) {
@@ -87,7 +78,7 @@ public class MoveCommand extends Command {
 
     private void validateMovementRules(Board board, PlacedUnit movingUnit, Position sourcePos, Position targetPos) {
         if (movingUnit.isMoved()) {
-            throw new IllegalStateException(ERROR_ALREADY_MOVED);
+            throw new IllegalStateException(StringConstants.ERR_ALREADY_MOVED);
         }
         if (sourcePos.distanceTo(targetPos) > 1) {
             throw new IllegalStateException(StringConstants.ERR_MOVE_DIST);
@@ -95,14 +86,11 @@ public class MoveCommand extends Command {
         Optional<PlacedUnit> targetUnitOpt = board.getUnitAt(targetPos);
         if (targetUnitOpt.isPresent()) {
             PlacedUnit targetUnit = targetUnitOpt.get();
-            boolean isMovingKing = movingUnit.isKing();
-            boolean isTargetKing = targetUnit.isKing();
-
-            if (isTargetKing && movingUnit.getOwner() == targetUnit.getOwner()) {
-                throw new IllegalStateException(ERROR_KING_MOVE);
+            if (targetUnit.isKing() && movingUnit.getOwner() == targetUnit.getOwner()) {
+                throw new IllegalStateException(StringConstants.ERR_KING_MOVE);
             }
-            if (isMovingKing && movingUnit.getOwner() != targetUnit.getOwner()) {
-                throw new IllegalStateException(ERROR_KING_MOVE);
+            if (movingUnit.isKing() && movingUnit.getOwner() != targetUnit.getOwner()) {
+                throw new IllegalStateException(StringConstants.ERR_KING_MOVE);
             }
         }
     }
@@ -134,53 +122,45 @@ public class MoveCommand extends Command {
 
         System.out.printf(StringConstants.FMT_ATTACKS, attacker.getName(), atkStats, defender.getName(), defStats, target);
 
-        flipUnitIfCovered(attacker, source);
-        flipUnitIfCovered(defender, target);
+        if (attacker.flipIfCovered()) {
+            System.out.printf(StringConstants.FMT_FLIPPED, attacker.getName(), attacker.getAttack(), attacker.getDefense(), source);
+        }
+        if (defender.flipIfCovered()) {
+            System.out.printf(StringConstants.FMT_FLIPPED, defender.getName(), defender.getAttack(), defender.getDefense(), target);
+        }
 
         DuelResult result = attacker.fightAgainst(defender);
         if (result.damage() > 0) {
-            applyDamage(result.victim(), result.damage());
+            Player victim = getPlayer(result.victim());
+            System.out.printf(StringConstants.FMT_DAMAGE, result.victim().getDisplayName(), result.damage());
+            if (victim.takeDamageAndCheckDefeat(result.damage())) {
+                System.out.printf(StringConstants.FMT_DROPPED_ZERO, result.victim().getDisplayName());
+                PlayerType winner = result.victim() == PlayerType.PLAYER ? PlayerType.ENEMY : PlayerType.PLAYER;
+                System.out.printf(StringConstants.FMT_WINS, winner.getDisplayName());
+                this.getGame().quit();
+            }
         }
 
-        resolveDuelOutcome(board, attacker, defender, source, target, result.atkEliminated(), result.defEliminated(), result.moves());
+        resolveDuelOutcome(board, attacker, defender, source, target, result);
     }
 
-    private void flipUnitIfCovered(PlacedUnit unit, Position pos) {
-        if (!unit.isFlipped() && !unit.isKing()) {
-            unit.setFlipped(true);
-            System.out.printf(StringConstants.FMT_FLIPPED, unit.getName(), unit.getAttack(), unit.getDefense(), pos);
-        }
-    }
-
-    private void applyDamage(PlayerType victimType, int damage) {
-        Player victim = getPlayer(victimType);
-        victim.takeDamage(damage);
-        System.out.printf(StringConstants.FMT_DAMAGE, victimType.getDisplayName(), damage);
-        if (victim.isDefeated()) {
-            System.out.printf(StringConstants.FMT_DROPPED_ZERO, victimType.getDisplayName());
-            PlayerType winner = victimType == PlayerType.PLAYER ? PlayerType.ENEMY : PlayerType.PLAYER;
-            System.out.printf(StringConstants.FMT_WINS, winner.getDisplayName());
-            this.getGame().quit();
-        }
-    }
-
-    private void resolveDuelOutcome(Board board, PlacedUnit attacker, PlacedUnit defender, Position source, Position target, boolean atkElim, boolean defElim, boolean moves) {
-        if (defElim) {
+    private void resolveDuelOutcome(Board board, PlacedUnit attacker, PlacedUnit defender, Position source, Position target, DuelResult result) {
+        if (result.defEliminated()) {
             System.out.printf(StringConstants.FMT_ELIMINATED, defender.getName());
             board.removeUnit(target);
             getPlayer(defender.getOwner()).decrementBoardCount();
         }
-        if (atkElim) {
+        if (result.atkEliminated()) {
             System.out.printf(StringConstants.FMT_ELIMINATED, attacker.getName());
             board.removeUnit(source);
             getPlayer(attacker.getOwner()).decrementBoardCount();
             this.getGame().setSelectedPosition(null);
         }
-        if (moves && !atkElim) {
+        if (result.moves() && !result.atkEliminated()) {
             System.out.printf(StringConstants.FMT_MOVES_TO, attacker.getName(), target);
             board.moveUnit(source, target);
             this.getGame().setSelectedPosition(target);
-        } else if (!atkElim) {
+        } else if (!result.atkEliminated()) {
             this.getGame().setSelectedPosition(source);
         }
     }
