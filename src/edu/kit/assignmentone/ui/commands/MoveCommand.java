@@ -22,9 +22,9 @@ import java.util.Optional;
  */
 public class MoveCommand extends Command {
 
+    private static final String COMMAND_NAME = "move";
     private static final String ERROR_NO_SELECTION = "No field selected or selected field is empty.";
     private static final String ERROR_ALREADY_MOVED = "This unit has already moved this turn.";
-    private static final String ERROR_INVALID_DISTANCE = "Invalid move distance. Only 1 step horizontally/vertically or en place allowed.";
     private static final String ERROR_KING_MOVE = "Invalid king move. Kings cannot attack or be attacked by own king.";
 
     /**
@@ -32,7 +32,7 @@ public class MoveCommand extends Command {
      * @param game The game to execute the command on
      */
     public MoveCommand(Game game) {
-        super(StringConstants.REGEX_MOVE, game);
+        super(COMMAND_NAME, StringConstants.REGEX_MOVE, game);
     }
 
     @Override
@@ -50,8 +50,7 @@ public class MoveCommand extends Command {
         validateMovementRules(board, movingUnit, sourcePos, targetPos);
         unblockIfNecessary(movingUnit);
 
-        int distance = sourcePos.distanceTo(targetPos);
-        if (distance == 0) {
+        if (sourcePos.distanceTo(targetPos) == 0) {
             movingUnit.setMoved(true);
             System.out.printf(StringConstants.FMT_MOVES_TO, movingUnit.getName(), targetPos);
             printBoard(targetPos);
@@ -91,7 +90,7 @@ public class MoveCommand extends Command {
             throw new IllegalStateException(ERROR_ALREADY_MOVED);
         }
         if (sourcePos.distanceTo(targetPos) > 1) {
-            throw new IllegalStateException(ERROR_INVALID_DISTANCE);
+            throw new IllegalStateException(StringConstants.ERR_MOVE_DIST);
         }
         Optional<PlacedUnit> targetUnitOpt = board.getUnitAt(targetPos);
         if (targetUnitOpt.isPresent()) {

@@ -22,6 +22,7 @@ import java.util.Optional;
  */
 public class PlaceCommand extends Command {
 
+    private static final String COMMAND_NAME = "place";
     private static final String ERROR_NO_SELECTION = "No field selected.";
     private static final String ERROR_ALREADY_PLACED = "You have already placed units this turn.";
     private static final String ERROR_INVALID_INDEX = "One or more provided hand indices are invalid.";
@@ -33,7 +34,7 @@ public class PlaceCommand extends Command {
      * @param game The game instance
      */
     public PlaceCommand(Game game) {
-        super(StringConstants.REGEX_PLACE, game);
+        super(COMMAND_NAME, StringConstants.REGEX_PLACE, game);
     }
 
     @Override
@@ -53,7 +54,7 @@ public class PlaceCommand extends Command {
         List<Integer> parsedIndices = parseAndValidateIndices(arguments, active.getHand().size());
         boolean targetIsEmpty = board.isEmpty(targetPos);
 
-        if (!targetIsEmpty && board.getUnitAt(targetPos).get().getOwner() != active.getType()) {
+        if (!targetIsEmpty && board.getUnitAt(targetPos).orElseThrow().getOwner() != active.getType()) {
             throw new IllegalStateException(ERROR_OCCUPIED_BY_ENEMY);
         }
 

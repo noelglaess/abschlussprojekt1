@@ -28,7 +28,7 @@ public class Game {
     private final Player humanPlayer;
     private final Player enemyPlayer;
 
-    private boolean isRunning;
+    private boolean running;
     private Position selectedPosition;
     private PlayerType activePlayer;
 
@@ -42,7 +42,7 @@ public class Game {
      */
     public Game(long seed, String deckPath, String unitsPath) throws IOException {
         this.random = new Random(seed);
-        this.isRunning = true;
+        this.running = true;
 
         this.allUnits = ResourceLoader.loadUnits(unitsPath);
         this.deckBlueprint = ResourceLoader.loadDeck(deckPath);
@@ -80,72 +80,54 @@ public class Game {
      * Checks if the game is still running.
      * @return true if running, false otherwise
      */
-    public boolean isRunning() {
-        return this.isRunning;
-    }
+    public boolean isRunning() { return this.running; }
 
     /**
      * Stops the game.
      */
-    public void quit() {
-        this.isRunning = false;
-    }
+    public void quit() { this.running = false; }
 
     /**
      * Gets the game's random instance.
      * @return the random instance
      */
-    public Random getRandom() {
-        return this.random;
-    }
+    public Random getRandom() { return this.random; }
 
     /**
      * Gets the human player.
      * @return the human player
      */
-    public Player getHumanPlayer() {
-        return this.humanPlayer;
-    }
+    public Player getHumanPlayer() { return this.humanPlayer; }
 
     /**
      * Gets the enemy player.
      * @return the enemy player
      */
-    public Player getEnemyPlayer() {
-        return this.enemyPlayer;
-    }
+    public Player getEnemyPlayer() { return this.enemyPlayer; }
 
     /**
      * Gets the game board.
      * @return the board
      */
-    public Board getBoard() {
-        return this.board;
-    }
+    public Board getBoard() { return this.board; }
 
     /**
      * Gets the currently selected position.
      * @return the selected position, or null if none
      */
-    public Position getSelectedPosition() {
-        return this.selectedPosition;
-    }
+    public Position getSelectedPosition() { return this.selectedPosition; }
 
     /**
      * Sets the currently selected position.
      * @param position the position to select
      */
-    public void setSelectedPosition(Position position) {
-        this.selectedPosition = position;
-    }
+    public void setSelectedPosition(Position position) { this.selectedPosition = position; }
 
     /**
      * Gets the player type currently taking their turn.
      * @return the active player type
      */
-    public PlayerType getActivePlayer() {
-        return this.activePlayer;
-    }
+    public PlayerType getActivePlayer() { return this.activePlayer; }
 
     /**
      * Gets the player object currently taking their turn.
@@ -167,18 +149,20 @@ public class Game {
             }
         }
 
-        this.activePlayer = (this.activePlayer == PlayerType.PLAYER) ? PlayerType.ENEMY : PlayerType.PLAYER;
-        Player next = getActivePlayerObject();
-        next.setPlacedThisTurn(false);
+        PlayerType nextActive = (this.activePlayer == PlayerType.PLAYER) ? PlayerType.ENEMY : PlayerType.PLAYER;
+        this.activePlayer = nextActive;
 
-        boolean canDraw = next.drawCard();
+        Player nextPlayer = getActivePlayerObject();
+        nextPlayer.setPlacedThisTurn(false);
+
+        boolean canDraw = nextPlayer.drawCard();
         if (!canDraw) {
-            System.out.printf(StringConstants.EMPTY + StringConstants.FMT_NO_CARDS, next.getType().getDisplayName());
-            PlayerType winner = next.getType() == PlayerType.PLAYER ? PlayerType.ENEMY : PlayerType.PLAYER;
-            System.out.printf(StringConstants.EMPTY + "%s wins!%n", winner.getDisplayName());
+            System.out.printf(StringConstants.FMT_NO_CARDS, nextActive.getDisplayName());
+            PlayerType winner = nextActive == PlayerType.PLAYER ? PlayerType.ENEMY : PlayerType.PLAYER;
+            System.out.printf(StringConstants.FMT_WINS, winner.getDisplayName());
             quit();
             return;
         }
-        System.out.printf(StringConstants.EMPTY + "It is %s's turn!%n", next.getType().getDisplayName());
+        System.out.printf(StringConstants.FMT_TURN, nextActive.getDisplayName());
     }
 }

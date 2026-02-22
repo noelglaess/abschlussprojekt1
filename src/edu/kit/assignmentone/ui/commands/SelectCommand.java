@@ -16,6 +16,7 @@ import java.util.Optional;
  */
 public class SelectCommand extends Command {
 
+    private static final String COMMAND_NAME = "select";
     private static final String UNIT_INFO_FORMAT = "%s %s (Team %s)%nATK: %d%nDEF: %d";
 
     /**
@@ -23,7 +24,7 @@ public class SelectCommand extends Command {
      * @param game The game to execute the command on
      */
     public SelectCommand(Game game) {
-        super(StringConstants.REGEX_SELECT, game);
+        super(COMMAND_NAME, StringConstants.REGEX_SELECT, game);
     }
 
     @Override

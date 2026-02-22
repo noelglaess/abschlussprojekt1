@@ -13,6 +13,7 @@ import edu.kit.assignmentone.model.units.Unit;
  */
 public class YieldCommand extends Command {
 
+    private static final String COMMAND_NAME = "yield";
     private static final String ERROR_MUST_DISCARD = "You hold 5 units and must discard one using 'yield <idx>'.";
     private static final String ERROR_CANNOT_DISCARD = "You hold less than 5 units and cannot discard.";
     private static final String ERROR_INVALID_INDEX = "The provided index is invalid.";
@@ -23,7 +24,7 @@ public class YieldCommand extends Command {
      * @param game The game to execute the command on
      */
     public YieldCommand(Game game) {
-        super(StringConstants.REGEX_YIELD, game);
+        super(COMMAND_NAME, StringConstants.REGEX_YIELD, game);
     }
 
     @Override

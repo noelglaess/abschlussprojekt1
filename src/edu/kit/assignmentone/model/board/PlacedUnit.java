@@ -70,24 +70,30 @@ public class PlacedUnit {
      * @return The resulting DuelResult holding all damage and elimination states
      */
     public DuelResult fightAgainst(PlacedUnit defender) {
+        DuelResult result;
+        int atk = this.getAttack();
+        int def = defender.getDefense();
+        int defAtk = defender.getAttack();
+
         if (defender.isKing()) {
-            return new DuelResult(defender.getOwner(), this.getAttack(), false, false, false);
-        }
-
-        if (defender.isBlocking()) {
-            if (this.getAttack() > defender.getDefense()) {
-                return new DuelResult(null, 0, false, true, true);
-            } else if (this.getAttack() < defender.getDefense()) {
-                return new DuelResult(this.getOwner(), defender.getDefense() - this.getAttack(), false, false, false);
+            result = new DuelResult(defender.getOwner(), atk, false, false, false);
+        } else if (defender.isBlocking()) {
+            if (atk > def) {
+                result = new DuelResult(null, 0, false, true, true);
+            } else if (atk < def) {
+                result = new DuelResult(this.getOwner(), def - atk, false, false, false);
+            } else {
+                result = new DuelResult(null, 0, false, false, false);
             }
-            return new DuelResult(null, 0, false, false, false);
+        } else {
+            if (atk > defAtk) {
+                result = new DuelResult(defender.getOwner(), atk - defAtk, false, true, true);
+            } else if (atk < defAtk) {
+                result = new DuelResult(this.getOwner(), defAtk - atk, true, false, false);
+            } else {
+                result = new DuelResult(null, 0, true, true, false);
+            }
         }
-
-        if (this.getAttack() > defender.getAttack()) {
-            return new DuelResult(defender.getOwner(), this.getAttack() - defender.getAttack(), false, true, true);
-        } else if (this.getAttack() < defender.getAttack()) {
-            return new DuelResult(this.getOwner(), defender.getAttack() - this.getAttack(), true, false, false);
-        }
-        return new DuelResult(null, 0, true, true, false);
+        return result;
     }
 }

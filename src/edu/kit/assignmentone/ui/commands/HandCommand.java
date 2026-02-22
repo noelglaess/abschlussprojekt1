@@ -23,7 +23,7 @@ public class HandCommand extends Command {
      * @param game The game to execute the command on
      */
     public HandCommand(Game game) {
-        super(game);
+        super(COMMAND_NAME, COMMAND_NAME, game);
     }
 
     @Override

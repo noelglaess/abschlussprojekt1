@@ -24,7 +24,7 @@ public class ShowCommand extends Command {
      * @param game The game to execute the command on
      */
     public ShowCommand(Game game) {
-        super(COMMAND_NAME, game);
+        super(COMMAND_NAME, COMMAND_NAME, game);
     }
 
     @Override

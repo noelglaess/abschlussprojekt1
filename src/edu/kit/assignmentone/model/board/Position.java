@@ -1,5 +1,8 @@
 package edu.kit.assignmentone.model.board;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Represents a position on the game board.
  * The board uses columns A-G and rows 1-7.
@@ -7,6 +10,7 @@ package edu.kit.assignmentone.model.board;
  * @param col The column index (0 to 6, where 0 = 'A')
  * @param row The row index (0 to 6, where 0 = '1')
  * @author Programmieren-Team
+ * @version 1.0
  */
 public record Position(int col, int row) {
 
@@ -15,7 +19,6 @@ public record Position(int col, int row) {
     private static final char COL_OFFSET = 'A';
     private static final char ROW_OFFSET = '1';
     private static final int EXPECTED_LENGTH = 2;
-    private static final String POSITION = "Position ";
 
     /**
      * Parses a string representation (e.g., "D5") into a Position.
@@ -36,7 +39,7 @@ public record Position(int col, int row) {
         int row = rowChar - ROW_OFFSET;
 
         if (!isValid(col, row)) {
-            throw new IllegalArgumentException(POSITION + posString + " is out of bounds.");
+            throw new IllegalArgumentException("Position " + posString + " is out of bounds.");
         }
 
         return new Position(col, row);
@@ -55,13 +58,27 @@ public record Position(int col, int row) {
 
     /**
      * Calculates the Manhattan distance between this position and another one.
-     * (Required for movement validation and AI scoring).
      *
      * @param other The other position
      * @return The distance in steps
      */
     public int distanceTo(Position other) {
         return Math.abs(this.col - other.col()) + Math.abs(this.row - other.row());
+    }
+
+    /**
+     * Returns a list of adjacent positions (up, right, down, left) including the current position itself.
+     *
+     * @return List of positions
+     */
+    public List<Position> getAdjacentAndCenter() {
+        List<Position> list = new ArrayList<>();
+        list.add(new Position(this.col, this.row + 1));
+        list.add(new Position(this.col + 1, this.row));
+        list.add(new Position(this.col, this.row - 1));
+        list.add(new Position(this.col - 1, this.row));
+        list.add(this);
+        return list;
     }
 
     @Override

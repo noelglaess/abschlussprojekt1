@@ -1,6 +1,5 @@
 package edu.kit.assignmentone.model.io;
 
-import edu.kit.assignmentone.model.StringConstants;
 import edu.kit.assignmentone.model.units.Unit;
 import edu.kit.assignmentone.model.units.UnitType;
 
@@ -25,7 +24,7 @@ public final class ResourceLoader {
     private static final int UNIT_PARTS_COUNT = 4;
 
     private ResourceLoader() {
-        throw new UnsupportedOperationException(StringConstants.UTILITY_CLASS_ERROR);
+        // Prevent instantiation
     }
 
     /**

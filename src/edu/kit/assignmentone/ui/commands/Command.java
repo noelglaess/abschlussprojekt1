@@ -16,10 +16,11 @@ public abstract class Command {
     /**
      * Creates a new Command.
      *
+     * @param commandName The name of the command
      * @param commandRegex The regular expression to match the command
      * @param game The game model
      */
-    protected Command(String commandRegex, Game game) {
+    protected Command(String commandName, String commandRegex, Game game) {
         this.commandRegex = commandRegex;
         this.game = game;
     }

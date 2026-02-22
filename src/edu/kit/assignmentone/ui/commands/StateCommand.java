@@ -12,13 +12,15 @@ import edu.kit.assignmentone.model.player.Player;
  */
 public class StateCommand extends Command {
 
+    private static final String COMMAND_NAME = "state";
+
     /**
      * Creates a new state command.
      *
      * @param game The game to execute the command on
      */
     public StateCommand(Game game) {
-        super(game);
+        super(COMMAND_NAME, COMMAND_NAME, game);
     }
 
     @Override
