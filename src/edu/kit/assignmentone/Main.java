@@ -17,7 +17,7 @@ public final class Main {
     private static final int REQUIRED_ARGS_COUNT = 4;
 
     private Main() {
-        throw new UnsupportedOperationException("Utility classes cannot be instantiated");
+        throw new UnsupportedOperationException(StringConstants.UTILITY_CLASS_ERROR);
     }
 
     /**
@@ -32,8 +32,8 @@ public final class Main {
         }
 
         long seed = 0;
-        String deckPath = "";
-        String unitsPath = "";
+        String deckPath = StringConstants.EMPTY;
+        String unitsPath = StringConstants.EMPTY;
 
         try {
             for (String arg : args) {
@@ -45,7 +45,7 @@ public final class Main {
                 switch (parts[0]) {
                     case "seed" -> seed = Long.parseLong(parts[1]);
                     case "deck" -> deckPath = parts[1];
-                    case "verbosity" -> { /* Parsed but internally ignored as per inspection */ }
+                    case "verbosity" -> { /* Parsed but ignored */ }
                     case "units" -> unitsPath = parts[1];
                     default -> {
                         System.err.println(ERROR_PREFIX + ERROR_ARGUMENT_FORMAT);
