@@ -3,6 +3,8 @@ package edu.kit.assignmentone;
 import edu.kit.assignmentone.model.Game;
 import edu.kit.assignmentone.ui.CommandHandler;
 
+import java.io.IOException;
+
 /**
  * The main entry point for the application.
  *
@@ -10,13 +12,12 @@ import edu.kit.assignmentone.ui.CommandHandler;
  */
 public final class Main {
 
-    private static final String UTILITY_CLASS_ERROR = "Utility classes cannot be instantiated";
     private static final String ERROR_PREFIX = "Error, ";
     private static final String ERROR_ARGUMENT_FORMAT = "Invalid command line arguments.";
     private static final int REQUIRED_ARGS_COUNT = 4;
 
     private Main() {
-        throw new UnsupportedOperationException(UTILITY_CLASS_ERROR);
+        throw new UnsupportedOperationException("Utility classes cannot be instantiated.");
     }
 
     /**
@@ -39,26 +40,30 @@ public final class Main {
             for (String arg : args) {
                 String[] parts = arg.split("=", 2);
                 if (parts.length != 2) {
-                    throw new IllegalArgumentException();
+                    System.err.println(ERROR_PREFIX + ERROR_ARGUMENT_FORMAT);
+                    return;
                 }
                 switch (parts[0]) {
                     case "seed" -> seed = Long.parseLong(parts[1]);
                     case "deck" -> deckPath = parts[1];
                     case "verbosity" -> verbosity = parts[1];
                     case "units" -> unitsPath = parts[1];
-                    default -> throw new IllegalArgumentException();
+                    default -> {
+                        System.err.println(ERROR_PREFIX + ERROR_ARGUMENT_FORMAT);
+                        return;
+                    }
                 }
             }
-        } catch (IllegalArgumentException e) {
+        } catch (NumberFormatException e) {
             System.err.println(ERROR_PREFIX + ERROR_ARGUMENT_FORMAT);
             return;
         }
 
         try {
-            Game game = new Game(seed, deckPath, verbosity, unitsPath);
+            Game game = new Game(seed, deckPath, unitsPath);
             CommandHandler handler = new CommandHandler(game);
             handler.handleUserInput();
-        } catch (Exception e) {
+        } catch (IOException | IllegalArgumentException | IllegalStateException e) {
             System.err.println(ERROR_PREFIX + e.getMessage());
         }
     }

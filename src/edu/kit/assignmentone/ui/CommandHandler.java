@@ -17,8 +17,6 @@ import java.util.Scanner;
 
 /**
  * Handles the user input and executes the corresponding commands.
- *
- * @author Programmieren-Team
  */
 public class CommandHandler {
     private static final String ERROR_PREFIX = "Error, ";
@@ -27,11 +25,6 @@ public class CommandHandler {
     private final Game game;
     private final List<Command> commands;
 
-    /**
-     * Creates a new CommandHandler.
-     *
-     * @param game The game model
-     */
     public CommandHandler(Game game) {
         this.game = game;
         this.commands = new ArrayList<>();
@@ -49,11 +42,7 @@ public class CommandHandler {
         this.commands.add(new YieldCommand(this.game));
     }
 
-    /**
-     * Starts the input loop.
-     */
     public void handleUserInput() {
-        System.out.println("Use one of the following commands: select, board, move, flip, block, hand, place, show, yield, state, quit.");
         try (Scanner scanner = new Scanner(System.in)) {
             while (this.game.isRunning() && scanner.hasNextLine()) {
                 String input = scanner.nextLine().trim();
@@ -74,7 +63,7 @@ public class CommandHandler {
 
                 try {
                     command.execute(argsOnly);
-                } catch (Exception e) {
+                } catch (IllegalArgumentException | IllegalStateException e) {
                     System.err.println(ERROR_PREFIX + e.getMessage());
                 }
                 return;

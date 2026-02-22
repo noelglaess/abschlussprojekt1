@@ -6,11 +6,6 @@ import edu.kit.assignmentone.model.board.Position;
 
 import java.util.Optional;
 
-/**
- * Command to show the current state of the game board.
- *
- * @author Programmieren-Team
- */
 public class ShowCommand extends Command {
 
     private static final String COMMAND_NAME = "show";
@@ -18,7 +13,7 @@ public class ShowCommand extends Command {
     private static final String UNIT_INFO_FORMAT = "%s (Team %s)%nATK: %d%nDEF: %d";
 
     public ShowCommand(Game game) {
-        super(COMMAND_NAME, COMMAND_NAME, game);
+        super(COMMAND_NAME, game);
     }
 
     @Override
@@ -27,13 +22,13 @@ public class ShowCommand extends Command {
             throw new IllegalArgumentException(ERROR_NO_ARGS_EXPECTED);
         }
 
-        Position selected = this.game.getSelectedPosition();
+        Position selected = this.getGame().getSelectedPosition();
         if (selected == null) {
             System.out.println("<no unit>");
             return;
         }
 
-        Optional<PlacedUnit> unitOpt = this.game.getBoard().getUnitAt(selected);
+        Optional<PlacedUnit> unitOpt = this.getGame().getBoard().getUnitAt(selected);
         if (unitOpt.isPresent()) {
             PlacedUnit pu = unitOpt.get();
             System.out.printf(UNIT_INFO_FORMAT,

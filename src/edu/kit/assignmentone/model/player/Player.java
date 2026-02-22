@@ -3,13 +3,12 @@ package edu.kit.assignmentone.model.player;
 import edu.kit.assignmentone.model.units.Unit;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 /**
  * Represents a player in the game, keeping track of their health, deck, hand, and board limits.
- *
- * @author Programmieren-Team
  */
 public class Player {
 
@@ -25,12 +24,6 @@ public class Player {
     private int boardCount;
     private boolean hasPlacedThisTurn;
 
-    /**
-     * Creates a new player.
-     *
-     * @param type The type of the player (e.g., PLAYER or ENEMY)
-     * @param deck The player's assigned deck
-     */
     public Player(PlayerType type, Deck deck) {
         this.type = type;
         this.deck = deck;
@@ -68,7 +61,7 @@ public class Player {
     }
 
     public List<Unit> getHand() {
-        return this.hand;
+        return Collections.unmodifiableList(this.hand);
     }
 
     public void drawInitialHand() {

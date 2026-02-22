@@ -9,12 +9,9 @@ import java.util.Optional;
 
 /**
  * Utility class to format the game board for console output.
- *
- * @author Programmieren-Team
  */
 public final class BoardFormatter {
 
-    private static final String UTILITY_CLASS_ERROR = "Utility classes cannot be instantiated";
     private static final int BOARD_SIZE = 7;
     private static final String ROW_PREFIX_FORMAT = "%d |";
     private static final String COLUMN_FOOTER = "    A   B   C   D   E   F   G";
@@ -23,16 +20,9 @@ public final class BoardFormatter {
     private static final String SYMBOL_HIGHLIGHT = "*";
 
     private BoardFormatter() {
-        throw new UnsupportedOperationException(UTILITY_CLASS_ERROR);
+        throw new UnsupportedOperationException("Utility classes cannot be instantiated.");
     }
 
-    /**
-     * Formats the board.
-     *
-     * @param board The board to format
-     * @param highlightPos The position to highlight with a '*', or null if none
-     * @return The formatted board string
-     */
     public static String formatBoard(Board board, Position highlightPos) {
         StringBuilder builder = new StringBuilder();
 
@@ -48,7 +38,7 @@ public final class BoardFormatter {
                     cellContent = unitAtPos.get().getOwner() == PlayerType.PLAYER ? SYMBOL_PLAYER : SYMBOL_ENEMY;
                 }
 
-                String prefix = (highlightPos != null && highlightPos.equals(currentPos)) ? SYMBOL_HIGHLIGHT : " ";
+                String prefix = currentPos.equals(highlightPos) ? SYMBOL_HIGHLIGHT : " ";
                 builder.append(String.format("%s%s |", prefix, cellContent));
             }
             builder.append(System.lineSeparator());

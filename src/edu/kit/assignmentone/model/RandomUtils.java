@@ -2,30 +2,18 @@ package edu.kit.assignmentone.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.random.RandomGenerator;
 
 /**
  * Utility class for weighted random selections as specified in the assignment.
- *
- * @author Programmieren-Team
  */
 public final class RandomUtils {
 
-    private static final String UTILITY_CLASS_ERROR = "Utility classes cannot be instantiated";
-
     private RandomUtils() {
-        throw new UnsupportedOperationException(UTILITY_CLASS_ERROR);
+        throw new UnsupportedOperationException("Utility classes cannot be instantiated.");
     }
 
-    /**
-     * Performs a weighted random selection based on the given weights.
-     * Negative weights are treated as 0.
-     *
-     * @param weights The list of weights
-     * @param rnd The global random instance
-     * @return The index of the selected option
-     */
-    public static int weightedRandom(List<Integer> weights, Random rnd) {
+    public static int weightedRandom(List<Integer> weights, RandomGenerator rnd) {
         int totalSum = 0;
         int[] sums = new int[weights.size()];
 
@@ -36,10 +24,10 @@ public final class RandomUtils {
         }
 
         if (totalSum == 0) {
-            return 0; // Fallback
+            return 0;
         }
 
-        int r = rnd.nextInt(totalSum) + 1; // Zieht zwischen 1 und totalSum (inklusive)
+        int r = rnd.nextInt(totalSum) + 1;
 
         for (int i = 0; i < sums.length; i++) {
             if (r <= sums[i]) {
@@ -49,14 +37,7 @@ public final class RandomUtils {
         return weights.size() - 1;
     }
 
-    /**
-     * Performs a reverse weighted random selection.
-     *
-     * @param weights The original weights
-     * @param rnd The global random instance
-     * @return The index of the selected option
-     */
-    public static int reverseWeightedRandom(List<Integer> weights, Random rnd) {
+    public static int reverseWeightedRandom(List<Integer> weights, RandomGenerator rnd) {
         int max = 0;
         for (int w : weights) {
             if (w > max) {

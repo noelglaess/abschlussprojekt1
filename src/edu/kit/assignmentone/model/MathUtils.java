@@ -1,25 +1,14 @@
 package edu.kit.assignmentone.model;
 
 /**
- * Utility class for mathematical operations needed in the game (like GCD and Prime checks).
- *
- * @author Programmieren-Team
+ * Utility class for mathematical operations needed in the game.
  */
 public final class MathUtils {
 
-    private static final String UTILITY_CLASS_ERROR = "Utility classes cannot be instantiated";
-
     private MathUtils() {
-        throw new UnsupportedOperationException(UTILITY_CLASS_ERROR);
+        throw new UnsupportedOperationException("Utility classes cannot be instantiated.");
     }
 
-    /**
-     * Calculates the greatest common divisor (ggT) of two integers.
-     *
-     * @param a The first integer
-     * @param b The second integer
-     * @return The GCD
-     */
     public static int gcd(int a, int b) {
         if (b == 0) {
             return Math.abs(a);
@@ -27,12 +16,6 @@ public final class MathUtils {
         return gcd(b, a % b);
     }
 
-    /**
-     * Checks if a given number is prime.
-     *
-     * @param n The number to check
-     * @return true if prime, false otherwise
-     */
     public static boolean isPrime(int n) {
         if (n <= 1) {
             return false;

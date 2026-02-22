@@ -11,27 +11,18 @@ import java.util.List;
 
 /**
  * Utility class to load game resources from files.
- *
- * @author Programmieren-Team
  */
 public final class ResourceLoader {
 
-    private static final String UTILITY_CLASS_ERROR = "Utility classes cannot be instantiated";
     private static final String INVALID_UNIT_FORMAT_ERROR = "Invalid unit format in file.";
     private static final String INVALID_DECK_FORMAT_ERROR = "Invalid deck format in file.";
     private static final String UNIT_DELIMITER = ";";
     private static final int UNIT_PARTS_COUNT = 4;
 
     private ResourceLoader() {
-        throw new UnsupportedOperationException(UTILITY_CLASS_ERROR);
+        throw new UnsupportedOperationException("Utility classes cannot be instantiated.");
     }
 
-    /**
-     * Loads the units from the specified file.
-     * @param filePath The path to the units file
-     * @return A list of loaded units
-     * @throws IOException If the file cannot be read or has an invalid format
-     */
     public static List<Unit> loadUnits(String filePath) throws IOException {
         List<Unit> units = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
@@ -53,18 +44,14 @@ public final class ResourceLoader {
                 int defense = Integer.parseInt(parts[3].trim());
                 units.add(new Unit(name, type, attack, defense));
             }
+        } catch (java.io.FileNotFoundException e) {
+            throw new IOException("File not found.", e);
         } catch (NumberFormatException | IllegalArgumentException e) {
-            throw new IOException(INVALID_UNIT_FORMAT_ERROR);
+            throw new IOException(INVALID_UNIT_FORMAT_ERROR, e);
         }
         return units;
     }
 
-    /**
-     * Loads the deck (list of integers) from the specified file.
-     * @param filePath The path to the deck file
-     * @return A list of integers representing the deck values
-     * @throws IOException If the file cannot be read or has an invalid format
-     */
     public static List<Integer> loadDeck(String filePath) throws IOException {
         List<Integer> deck = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
@@ -78,8 +65,10 @@ public final class ResourceLoader {
                 }
                 deck.add(Integer.parseInt(line.trim()));
             }
+        } catch (java.io.FileNotFoundException e) {
+            throw new IOException("File not found.", e);
         } catch (NumberFormatException e) {
-            throw new IOException(INVALID_DECK_FORMAT_ERROR);
+            throw new IOException(INVALID_DECK_FORMAT_ERROR, e);
         }
         return deck;
     }

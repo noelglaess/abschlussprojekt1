@@ -6,17 +6,12 @@ import edu.kit.assignmentone.model.units.Unit;
 
 import java.util.List;
 
-/**
- * Command to show the current hand of the active player.
- *
- * @author Programmieren-Team
- */
 public class HandCommand extends Command {
 
     private static final String COMMAND_NAME = "hand";
 
     public HandCommand(Game game) {
-        super(COMMAND_NAME, COMMAND_NAME, game);
+        super(COMMAND_NAME, game);
     }
 
     @Override
@@ -25,7 +20,7 @@ public class HandCommand extends Command {
             throw new IllegalArgumentException("The hand command does not take any arguments.");
         }
 
-        Player active = this.game.getActivePlayerObject();
+        Player active = this.getGame().getActivePlayerObject();
         List<Unit> hand = active.getHand();
 
         for (int i = 0; i < hand.size(); i++) {
