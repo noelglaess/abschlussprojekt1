@@ -8,7 +8,6 @@ import edu.kit.assignmentone.model.player.PlayerType;
 import edu.kit.assignmentone.model.units.Unit;
 import edu.kit.assignmentone.model.units.UnitCombiner;
 import edu.kit.assignmentone.ui.BoardFormatter;
-import edu.kit.assignmentone.ui.commands.Command;
 import edu.kit.assignmentone.ui.commands.MoveCommand;
 import edu.kit.assignmentone.ui.commands.PlaceCommand;
 import edu.kit.assignmentone.ui.commands.YieldCommand;
@@ -19,46 +18,46 @@ import java.util.Optional;
 
 /**
  * Handles the fully automated turn for the AI Enemy.
+ *
+ * @author Programmieren-Team
  */
 public final class AIEngine {
 
     private static final String KING_NAME = "Farmer King";
     private static final int[][] DIR_4 = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
     private static final int[][] DIR_8 = {{0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}};
-    private static final int HUNDRED = 100;
 
+    private static final int HUNDRED = 100;
     private static final int FLIPPED_PENALTY = 500;
     private static final int BASE_SCORE = 10;
     private static final int ENEMY_MULTIPLIER = 2;
     private static final int FELLOW_MULTIPLIER = 3;
     private static final int BOARD_SIZE = 7;
     private static final int MAX_HAND_SIZE = 5;
+    private static final int WEIGHT_DEFAULT = 1;
 
     private AIEngine() {
-        throw new UnsupportedOperationException("Utility classes cannot be instantiated.");
+        throw new UnsupportedOperationException("Utility classes cannot be instantiated");
     }
 
+    /**
+     * Executes all phases of the AI turn.
+     *
+     * @param game The game instance
+     */
     public static void playTurn(Game game) {
-        if (!game.isRunning()) {
-            return;
-        }
+        if (!game.isRunning()) return;
         moveKing(game);
-        if (!game.isRunning()) {
-            return;
-        }
+        if (!game.isRunning()) return;
         placeUnit(game);
         moveUnits(game);
-        if (game.isRunning()) {
-            endTurn(game);
-        }
+        if (game.isRunning()) endTurn(game);
     }
 
     private static void moveKing(Game game) {
         Board board = game.getBoard();
-        Position kingPos = findUnit(board, PlayerType.ENEMY);
-        if (kingPos == null) {
-            return;
-        }
+        Position kingPos = findUnit(board, KING_NAME, PlayerType.ENEMY);
+        if (kingPos == null) return;
 
         List<Position> options = new ArrayList<>();
         options.add(new Position(kingPos.col(), kingPos.row() + 1));
@@ -71,13 +70,10 @@ public final class AIEngine {
         List<Position> bestOptions = new ArrayList<>();
 
         for (Position pos : options) {
-            if (!Position.isValid(pos.col(), pos.row())) {
-                continue;
-            }
+            if (!Position.isValid(pos.col(), pos.row())) continue;
+
             Optional<PlacedUnit> unitOpt = board.getUnitAt(pos);
-            if (unitOpt.isPresent() && unitOpt.get().getOwner() == PlayerType.PLAYER) {
-                continue;
-            }
+            if (unitOpt.isPresent() && unitOpt.get().getOwner() == PlayerType.PLAYER) continue;
 
             int fellows = countUnits(board, pos, DIR_8, PlayerType.ENEMY, kingPos);
             int enemies = countUnits(board, pos, DIR_8, PlayerType.PLAYER, null);
@@ -98,9 +94,7 @@ public final class AIEngine {
         Position chosen = bestOptions.get(0);
         if (bestOptions.size() > 1) {
             List<Integer> weights = new ArrayList<>();
-            for (int i = 0; i < bestOptions.size(); i++) {
-                weights.add(1);
-            }
+            for (int i = 0; i < bestOptions.size(); i++) weights.add(WEIGHT_DEFAULT);
             int chosenIdx = RandomUtils.weightedRandom(weights, game.getRandom());
             chosen = bestOptions.get(chosenIdx);
         }
@@ -112,12 +106,10 @@ public final class AIEngine {
     private static void placeUnit(Game game) {
         Board board = game.getBoard();
         Player enemy = game.getEnemyPlayer();
-        if (enemy.getHand().isEmpty() || enemy.getBoardCount() >= enemy.getMaxBoardCapacity()) {
-            return;
-        }
+        if (enemy.getHand().isEmpty() || enemy.getBoardCount() >= enemy.getMaxBoardCapacity()) return;
 
-        Position kingPos = findUnit(board, PlayerType.ENEMY);
-        Position playerKingPos = findUnit(board, PlayerType.PLAYER);
+        Position kingPos = findUnit(board, KING_NAME, PlayerType.ENEMY);
+        Position playerKingPos = findUnit(board, KING_NAME, PlayerType.PLAYER);
 
         List<Position> validFields = new ArrayList<>();
         List<Integer> scores = new ArrayList<>();
@@ -138,9 +130,7 @@ public final class AIEngine {
             }
         }
 
-        if (validFields.isEmpty()) {
-            return;
-        }
+        if (validFields.isEmpty()) return;
 
         int maxScore = Integer.MIN_VALUE;
         List<Position> bestFields = new ArrayList<>();
@@ -157,9 +147,7 @@ public final class AIEngine {
         Position chosenField = bestFields.get(0);
         if (bestFields.size() > 1) {
             List<Integer> weights = new ArrayList<>();
-            for (int i = 0; i < bestFields.size(); i++) {
-                weights.add(1);
-            }
+            for (int i = 0; i < bestFields.size(); i++) weights.add(WEIGHT_DEFAULT);
             chosenField = bestFields.get(RandomUtils.weightedRandom(weights, game.getRandom()));
         }
 
@@ -175,7 +163,7 @@ public final class AIEngine {
 
     private static void moveUnits(Game game) {
         Board board = game.getBoard();
-        Position playerKingPos = findUnit(board, PlayerType.PLAYER);
+        Position playerKingPos = findUnit(board, KING_NAME, PlayerType.PLAYER);
 
         while (true) {
             List<Position> unmovedUnits = new ArrayList<>();
@@ -190,9 +178,7 @@ public final class AIEngine {
                 }
             }
 
-            if (unmovedUnits.isEmpty()) {
-                break;
-            }
+            if (unmovedUnits.isEmpty()) break;
 
             Position bestUnitPos = null;
             int bestUnitTotalScore = Integer.MIN_VALUE;
@@ -207,9 +193,8 @@ public final class AIEngine {
 
                 for (int i = 0; i < 4; i++) {
                     Position target = new Position(p.col() + DIR_4[i][0], p.row() + DIR_4[i][1]);
-                    if (!Position.isValid(target.col(), target.row())) {
-                        continue;
-                    }
+                    if (!Position.isValid(target.col(), target.row())) continue;
+
                     Optional<PlacedUnit> targetOpt = board.getUnitAt(target);
                     if (targetOpt.isPresent() && targetOpt.get().getUnit().name().equals(KING_NAME) && targetOpt.get().getOwner() == PlayerType.ENEMY) {
                         continue;
@@ -271,10 +256,7 @@ public final class AIEngine {
 
             boolean hasPositive = false;
             for (int s : bestUnitOptionScores) {
-                if (s > 0) {
-                    hasPositive = true;
-                    break;
-                }
+                if (s > 0) hasPositive = true;
             }
 
             if (!hasPositive) {
@@ -287,10 +269,8 @@ public final class AIEngine {
                 int actualAction = bestUnitValidIndices.get(chosenActionIdx);
 
                 if (actualAction < 4) {
-                    int targetCol = bestUnitPos.col() + DIR_4[actualAction][0];
-                    int targetRow = bestUnitPos.row() + DIR_4[actualAction][1];
-                    String targetStr = new Position(targetCol, targetRow).toString();
-                    executeCommandSilently(new MoveCommand(game), new String[]{targetStr});
+                    Position target = new Position(bestUnitPos.col() + DIR_4[actualAction][0], bestUnitPos.row() + DIR_4[actualAction][1]);
+                    executeCommandSilently(new MoveCommand(game), new String[]{target.toString()});
                 } else if (actualAction == 4) {
                     activeUnit.setBlocking(true);
                     activeUnit.setMoved(true);
@@ -317,11 +297,11 @@ public final class AIEngine {
         }
     }
 
-    private static Position findUnit(Board board, PlayerType owner) {
+    private static Position findUnit(Board board, String name, PlayerType owner) {
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int col = 0; col < BOARD_SIZE; col++) {
                 Optional<PlacedUnit> opt = board.getUnitAt(new Position(col, row));
-                if (opt.isPresent() && opt.get().getOwner() == owner && opt.get().getUnit().name().equals(KING_NAME)) {
+                if (opt.isPresent() && opt.get().getOwner() == owner && opt.get().getUnit().name().equals(name)) {
                     return new Position(col, row);
                 }
             }
@@ -359,11 +339,11 @@ public final class AIEngine {
         return maxAtk;
     }
 
-    private static void executeCommandSilently(Command command, String[] args) {
+    private static void executeCommandSilently(edu.kit.assignmentone.ui.commands.Command command, String[] args) {
         try {
             command.execute(args);
         } catch (IllegalStateException | IllegalArgumentException ignored) {
-            // Error falls back safely
+            // Die KI berechnet Züge vorher, Fehler sollten hier nicht auftreten
         }
     }
 }

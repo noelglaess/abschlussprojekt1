@@ -6,8 +6,9 @@ package edu.kit.assignmentone.model;
 public final class MathUtils {
 
     private MathUtils() {
-        throw new UnsupportedOperationException("Utility classes cannot be instantiated.");
+        throw new UnsupportedOperationException("Utility classes cannot be instantiated");
     }
+
 
     public static int gcd(int a, int b) {
         while (true) {

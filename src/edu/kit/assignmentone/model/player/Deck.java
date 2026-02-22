@@ -10,6 +10,8 @@ import java.util.Random;
 
 /**
  * Represents a deck of units for a player.
+ *
+ * @author Programmieren-Team
  */
 public class Deck {
 

@@ -10,11 +10,10 @@ import java.util.Optional;
  */
 public final class UnitCombiner {
 
-    private static final String UTILITY_CLASS_ERROR = "Utility classes cannot be instantiated";
     private static final int HUNDRED = 100;
 
     private UnitCombiner() {
-        throw new UnsupportedOperationException(UTILITY_CLASS_ERROR);
+        throw new UnsupportedOperationException("Utility classes cannot be instantiated");
     }
 
     /**

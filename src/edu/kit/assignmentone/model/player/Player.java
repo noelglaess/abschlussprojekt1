@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Represents a player in the game, keeping track of their health, deck, hand, and board limits.
+ * Represents a player in the game.
+ *
+ * @author Programmieren-Team
  */
 public class Player {
 
@@ -33,32 +35,17 @@ public class Player {
         this.hasPlacedThisTurn = false;
     }
 
-    public PlayerType getType() {
-        return this.type;
-    }
-
-    public int getLifePoints() {
-        return this.lifePoints;
-    }
-
-    public int getMaxLifePoints() {
-        return MAX_LIFE_POINTS;
-    }
+    public PlayerType getType() { return this.type; }
+    public int getLifePoints() { return this.lifePoints; }
+    public int getMaxLifePoints() { return MAX_LIFE_POINTS; }
 
     public void takeDamage(int amount) {
-        if (amount < 0) {
-            throw new IllegalArgumentException("Damage cannot be negative.");
-        }
+        if (amount < 0) throw new IllegalArgumentException("Damage cannot be negative.");
         this.lifePoints = Math.max(0, this.lifePoints - amount);
     }
 
-    public boolean isDefeated() {
-        return this.lifePoints <= 0;
-    }
-
-    public Deck getDeck() {
-        return this.deck;
-    }
+    public boolean isDefeated() { return this.lifePoints <= 0; }
+    public Deck getDeck() { return this.deck; }
 
     public List<Unit> getHand() {
         return Collections.unmodifiableList(this.hand);
@@ -83,37 +70,20 @@ public class Player {
         return this.hand.remove(index);
     }
 
-    public int getBoardCount() {
-        return this.boardCount;
-    }
+    public int getBoardCount() { return this.boardCount; }
 
     public void incrementBoardCount() {
-        if (this.boardCount >= MAX_BOARD_CAPACITY) {
-            throw new IllegalStateException("Maximum board capacity reached.");
-        }
+        if (this.boardCount >= MAX_BOARD_CAPACITY) throw new IllegalStateException("Maximum board capacity reached.");
         this.boardCount++;
     }
 
     public void decrementBoardCount() {
-        if (this.boardCount <= 0) {
-            throw new IllegalStateException("Board count is already zero.");
-        }
+        if (this.boardCount <= 0) throw new IllegalStateException("Board count is already zero.");
         this.boardCount--;
     }
 
-    public int getMaxDeckCapacity() {
-        return MAX_DECK_CAPACITY;
-    }
-
-    public int getMaxBoardCapacity() {
-        return MAX_BOARD_CAPACITY;
-    }
-
-    public boolean hasPlacedThisTurn() {
-        return this.hasPlacedThisTurn;
-    }
-
-    public void setPlacedThisTurn(boolean placed) {
-        this.hasPlacedThisTurn = placed;
-    }
+    public int getMaxDeckCapacity() { return MAX_DECK_CAPACITY; }
+    public int getMaxBoardCapacity() { return MAX_BOARD_CAPACITY; }
+    public boolean hasPlacedThisTurn() { return this.hasPlacedThisTurn; }
+    public void setPlacedThisTurn(boolean placed) { this.hasPlacedThisTurn = placed; }
 }

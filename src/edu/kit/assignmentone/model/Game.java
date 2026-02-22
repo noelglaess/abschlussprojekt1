@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * The main game logic class.
+ * The main game logic class (Facade).
+ *
+ * @author Programmieren-Team
  */
 public class Game {
 
@@ -29,6 +31,14 @@ public class Game {
     private Position selectedPosition;
     private PlayerType activePlayer;
 
+    /**
+     * Initializes a new Game.
+     *
+     * @param seed The random seed
+     * @param deckPath Path to the deck file
+     * @param unitsPath Path to the units file
+     * @throws IOException If files cannot be read
+     */
     public Game(long seed, String deckPath, String unitsPath) throws IOException {
         this.random = new Random(seed);
         this.isRunning = true;
@@ -101,6 +111,9 @@ public class Game {
         return this.activePlayer == PlayerType.PLAYER ? this.humanPlayer : this.enemyPlayer;
     }
 
+    /**
+     * Switches the turn to the other player, handles drawing, and triggers the AI if needed.
+     */
     public void switchTurn() {
         this.selectedPosition = null;
 

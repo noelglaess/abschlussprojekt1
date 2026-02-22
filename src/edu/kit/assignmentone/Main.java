@@ -17,7 +17,7 @@ public final class Main {
     private static final int REQUIRED_ARGS_COUNT = 4;
 
     private Main() {
-        throw new UnsupportedOperationException("Utility classes cannot be instantiated.");
+        throw new UnsupportedOperationException("Utility classes cannot be instantiated");
     }
 
     /**
@@ -33,7 +33,6 @@ public final class Main {
 
         long seed = 0;
         String deckPath = "";
-        String verbosity = "";
         String unitsPath = "";
 
         try {
@@ -46,7 +45,7 @@ public final class Main {
                 switch (parts[0]) {
                     case "seed" -> seed = Long.parseLong(parts[1]);
                     case "deck" -> deckPath = parts[1];
-                    case "verbosity" -> verbosity = parts[1];
+                    case "verbosity" -> { /* Parsed but internally ignored as per inspection */ }
                     case "units" -> unitsPath = parts[1];
                     default -> {
                         System.err.println(ERROR_PREFIX + ERROR_ARGUMENT_FORMAT);
@@ -54,16 +53,10 @@ public final class Main {
                     }
                 }
             }
-        } catch (NumberFormatException e) {
-            System.err.println(ERROR_PREFIX + ERROR_ARGUMENT_FORMAT);
-            return;
-        }
-
-        try {
             Game game = new Game(seed, deckPath, unitsPath);
             CommandHandler handler = new CommandHandler(game);
             handler.handleUserInput();
-        } catch (IOException | IllegalArgumentException | IllegalStateException e) {
+        } catch (NumberFormatException | IllegalStateException | IllegalArgumentException | IOException e) {
             System.err.println(ERROR_PREFIX + e.getMessage());
         }
     }

@@ -9,6 +9,8 @@ import java.util.Optional;
 
 /**
  * Utility class to format the game board for console output.
+ *
+ * @author Programmieren-Team
  */
 public final class BoardFormatter {
 
@@ -20,7 +22,7 @@ public final class BoardFormatter {
     private static final String SYMBOL_HIGHLIGHT = "*";
 
     private BoardFormatter() {
-        throw new UnsupportedOperationException("Utility classes cannot be instantiated.");
+        throw new UnsupportedOperationException("Utility classes cannot be instantiated");
     }
 
     public static String formatBoard(Board board, Position highlightPos) {

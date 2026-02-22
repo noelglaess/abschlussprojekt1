@@ -1,6 +1,7 @@
 package edu.kit.assignmentone.ui.commands;
 
 import edu.kit.assignmentone.model.Game;
+import edu.kit.assignmentone.model.board.Board;
 import edu.kit.assignmentone.model.board.PlacedUnit;
 import edu.kit.assignmentone.model.board.Position;
 import edu.kit.assignmentone.model.player.Player;
@@ -11,8 +12,15 @@ import edu.kit.assignmentone.ui.BoardFormatter;
 
 import java.util.Optional;
 
+/**
+ * Command to move the selected unit on the board.
+ * Handles movement, unblocking, unions, and duels.
+ *
+ * @author Programmieren-Team
+ */
 public class MoveCommand extends Command {
 
+    private static final String COMMAND_NAME = "move";
     private static final String COMMAND_REGEX = "move [a-zA-Z]\\d";
     private static final String ERROR_NO_SELECTION = "No field selected or selected field is empty.";
     private static final String ERROR_ALREADY_MOVED = "This unit has already moved this turn.";
@@ -21,27 +29,29 @@ public class MoveCommand extends Command {
     private static final String KING_NAME = "Farmer King";
 
     public MoveCommand(Game game) {
-        super(COMMAND_REGEX, game);
+        super(COMMAND_NAME, COMMAND_REGEX, game);
     }
 
     @Override
     public void execute(String[] arguments) {
-        Position sourcePos = this.getGame().getSelectedPosition();
-        if (sourcePos == null || this.getGame().getBoard().isEmpty(sourcePos)) {
+        Board board = this.game.getBoard();
+        Position sourcePos = this.game.getSelectedPosition();
+
+        if (sourcePos == null || board.isEmpty(sourcePos)) {
             throw new IllegalStateException(ERROR_NO_SELECTION);
         }
 
         Position targetPos = Position.fromString(arguments[0]);
-        PlacedUnit movingUnit = this.getGame().getBoard().getUnitAt(sourcePos).get();
+        PlacedUnit movingUnit = board.getUnitAt(sourcePos).get();
 
-        validateMovementRules(movingUnit, sourcePos, targetPos);
+        validateMovementRules(board, movingUnit, sourcePos, targetPos);
 
         if (movingUnit.isBlocking()) {
             movingUnit.setBlocking(false);
             System.out.println(movingUnit.getUnit().name() + " no longer blocks.");
         }
 
-        Optional<PlacedUnit> targetUnitOpt = this.getGame().getBoard().getUnitAt(targetPos);
+        Optional<PlacedUnit> targetUnitOpt = board.getUnitAt(targetPos);
         int distance = sourcePos.distanceTo(targetPos);
 
         if (distance == 0) {
@@ -52,32 +62,31 @@ public class MoveCommand extends Command {
         }
 
         if (targetUnitOpt.isEmpty()) {
-            this.getGame().getBoard().moveUnit(sourcePos, targetPos);
+            board.moveUnit(sourcePos, targetPos);
             movingUnit.setMoved(true);
-            this.getGame().setSelectedPosition(targetPos);
+            this.game.setSelectedPosition(targetPos);
             System.out.println(movingUnit.getUnit().name() + " moves to " + targetPos + ".");
         } else {
             PlacedUnit targetUnit = targetUnitOpt.get();
             if (movingUnit.getOwner() == targetUnit.getOwner()) {
-                handleUnion(movingUnit, targetUnit, sourcePos, targetPos);
+                handleUnion(board, movingUnit, targetUnit, sourcePos, targetPos);
             } else {
-                handleDuel(movingUnit, targetUnit, sourcePos, targetPos);
+                handleDuel(board, movingUnit, targetUnit, sourcePos, targetPos);
             }
             movingUnit.setMoved(true);
         }
 
-        printBoard(this.getGame().getSelectedPosition());
+        printBoard(this.game.getSelectedPosition());
     }
 
-    private void validateMovementRules(PlacedUnit movingUnit, Position sourcePos, Position targetPos) {
+    private void validateMovementRules(Board board, PlacedUnit movingUnit, Position sourcePos, Position targetPos) {
         if (movingUnit.hasMoved()) {
             throw new IllegalStateException(ERROR_ALREADY_MOVED);
         }
-        int distance = sourcePos.distanceTo(targetPos);
-        if (distance > 1) {
+        if (sourcePos.distanceTo(targetPos) > 1) {
             throw new IllegalStateException(ERROR_INVALID_DISTANCE);
         }
-        Optional<PlacedUnit> targetUnitOpt = this.getGame().getBoard().getUnitAt(targetPos);
+        Optional<PlacedUnit> targetUnitOpt = board.getUnitAt(targetPos);
         if (targetUnitOpt.isPresent()) {
             PlacedUnit targetUnit = targetUnitOpt.get();
             boolean isMovingKing = movingUnit.getUnit().name().equals(KING_NAME);
@@ -92,7 +101,7 @@ public class MoveCommand extends Command {
         }
     }
 
-    private void handleUnion(PlacedUnit movingUnit, PlacedUnit targetUnit, Position sourcePos, Position targetPos) {
+    private void handleUnion(Board board, PlacedUnit movingUnit, PlacedUnit targetUnit, Position sourcePos, Position targetPos) {
         System.out.println(movingUnit.getUnit().name() + " moves to " + targetPos + ".");
         System.out.println(movingUnit.getUnit().name() + " and " + targetUnit.getUnit().name() + " on " + targetPos + " join forces!");
 
@@ -100,20 +109,20 @@ public class MoveCommand extends Command {
 
         if (combinedOpt.isPresent()) {
             System.out.println("Success!");
-            this.getGame().getBoard().removeUnit(sourcePos);
+            board.removeUnit(sourcePos);
             targetUnit.setUnit(combinedOpt.get());
             targetUnit.setFlipped(movingUnit.isFlipped() && targetUnit.isFlipped());
-            this.getGame().setSelectedPosition(targetPos);
+            this.game.setSelectedPosition(targetPos);
         } else {
             System.out.println("Union failed. " + targetUnit.getUnit().name() + " was eliminated.");
-            this.getGame().getBoard().removeUnit(targetPos);
-            this.getGame().getBoard().moveUnit(sourcePos, targetPos);
+            board.removeUnit(targetPos);
+            board.moveUnit(sourcePos, targetPos);
             getPlayer(targetUnit.getOwner()).decrementBoardCount();
-            this.getGame().setSelectedPosition(targetPos);
+            this.game.setSelectedPosition(targetPos);
         }
     }
 
-    private void handleDuel(PlacedUnit attacker, PlacedUnit defender, Position sourcePos, Position targetPos) {
+    private void handleDuel(Board board, PlacedUnit attacker, PlacedUnit defender, Position sourcePos, Position targetPos) {
         boolean isDefenderKing = defender.getUnit().name().equals(KING_NAME);
 
         String atkStats = String.format("(%d/%d)", attacker.getUnit().attack(), attacker.getUnit().defense());
@@ -124,7 +133,7 @@ public class MoveCommand extends Command {
         flipUnitIfCovered(attacker, sourcePos);
         flipUnitIfCovered(defender, targetPos);
 
-        int damage;
+        int damage = 0;
         boolean attackerEliminated = false;
         boolean defenderEliminated = false;
         boolean attackerMovesToTarget = false;
@@ -156,7 +165,7 @@ public class MoveCommand extends Command {
             }
         }
 
-        resolveDuelOutcome(attacker, defender, sourcePos, targetPos, attackerEliminated, defenderEliminated, attackerMovesToTarget);
+        resolveDuelOutcome(board, attacker, defender, sourcePos, targetPos, attackerEliminated, defenderEliminated, attackerMovesToTarget);
     }
 
     private void flipUnitIfCovered(PlacedUnit unit, Position pos) {
@@ -175,39 +184,39 @@ public class MoveCommand extends Command {
                 System.out.printf("%s's life points dropped to 0!%n", victimType.getDisplayName());
                 PlayerType winner = victimType == PlayerType.PLAYER ? PlayerType.ENEMY : PlayerType.PLAYER;
                 System.out.printf("%s wins!%n", winner.getDisplayName());
-                this.getGame().quit();
+                this.game.quit();
             }
         }
     }
 
-    private void resolveDuelOutcome(PlacedUnit attacker, PlacedUnit defender, Position sourcePos, Position targetPos, boolean atkElim, boolean defElim, boolean moves) {
+    private void resolveDuelOutcome(Board board, PlacedUnit attacker, PlacedUnit defender, Position sourcePos, Position targetPos, boolean atkElim, boolean defElim, boolean moves) {
         if (defElim) {
             System.out.println(defender.getUnit().name() + " was eliminated!");
-            this.getGame().getBoard().removeUnit(targetPos);
+            board.removeUnit(targetPos);
             getPlayer(defender.getOwner()).decrementBoardCount();
         }
         if (atkElim) {
             System.out.println(attacker.getUnit().name() + " was eliminated!");
-            this.getGame().getBoard().removeUnit(sourcePos);
+            board.removeUnit(sourcePos);
             getPlayer(attacker.getOwner()).decrementBoardCount();
-            this.getGame().setSelectedPosition(null);
+            this.game.setSelectedPosition(null);
         }
         if (moves && !atkElim) {
             System.out.println(attacker.getUnit().name() + " moves to " + targetPos + ".");
-            this.getGame().getBoard().moveUnit(sourcePos, targetPos);
-            this.getGame().setSelectedPosition(targetPos);
+            board.moveUnit(sourcePos, targetPos);
+            this.game.setSelectedPosition(targetPos);
         } else if (!atkElim) {
-            this.getGame().setSelectedPosition(sourcePos);
+            this.game.setSelectedPosition(sourcePos);
         }
     }
 
     private Player getPlayer(PlayerType type) {
-        return type == PlayerType.PLAYER ? this.getGame().getHumanPlayer() : this.getGame().getEnemyPlayer();
+        return type == PlayerType.PLAYER ? this.game.getHumanPlayer() : this.game.getEnemyPlayer();
     }
 
     private void printBoard(Position highlight) {
-        if (this.getGame().isRunning()) {
-            System.out.print(BoardFormatter.formatBoard(this.getGame().getBoard(), highlight));
+        if (this.game.isRunning()) {
+            System.out.print(BoardFormatter.formatBoard(this.game.getBoard(), highlight));
         }
     }
 }
