@@ -10,10 +10,14 @@ public final class MathUtils {
     }
 
     public static int gcd(int a, int b) {
-        if (b == 0) {
-            return Math.abs(a);
+        while (true) {
+            if (b == 0) {
+                return Math.abs(a);
+            }
+            int a1 = a;
+            a = b;
+            b = a1 % b;
         }
-        return gcd(b, a % b);
     }
 
     public static boolean isPrime(int n) {

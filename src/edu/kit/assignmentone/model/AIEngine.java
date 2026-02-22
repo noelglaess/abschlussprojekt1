@@ -273,6 +273,7 @@ public final class AIEngine {
             for (int s : bestUnitOptionScores) {
                 if (s > 0) {
                     hasPositive = true;
+                    break;
                 }
             }
 

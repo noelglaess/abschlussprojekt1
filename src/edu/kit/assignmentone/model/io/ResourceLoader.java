@@ -4,6 +4,7 @@ import edu.kit.assignmentone.model.units.Unit;
 import edu.kit.assignmentone.model.units.UnitType;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public final class ResourceLoader {
                 int defense = Integer.parseInt(parts[3].trim());
                 units.add(new Unit(name, type, attack, defense));
             }
-        } catch (java.io.FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             throw new IOException("File not found.", e);
         } catch (NumberFormatException | IllegalArgumentException e) {
             throw new IOException(INVALID_UNIT_FORMAT_ERROR, e);
@@ -65,7 +66,7 @@ public final class ResourceLoader {
                 }
                 deck.add(Integer.parseInt(line.trim()));
             }
-        } catch (java.io.FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             throw new IOException("File not found.", e);
         } catch (NumberFormatException e) {
             throw new IOException(INVALID_DECK_FORMAT_ERROR, e);

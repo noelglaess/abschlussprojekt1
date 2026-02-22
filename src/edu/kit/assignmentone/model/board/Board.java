@@ -20,7 +20,7 @@ public class Board {
 
     public void placeUnit(Position position, PlacedUnit unit) {
         if (!isEmpty(position)) {
-            throw new IllegalStateException("Position " + position.toString() + " is already occupied.");
+            throw new IllegalStateException("Position " + position + " is already occupied.");
         }
         this.grid[position.col()][position.row()] = unit;
     }
@@ -39,10 +39,10 @@ public class Board {
 
     public void moveUnit(Position from, Position to) {
         if (isEmpty(from)) {
-            throw new IllegalStateException("No unit at source position " + from.toString());
+            throw new IllegalStateException("No unit at source position " + from);
         }
         if (!isEmpty(to)) {
-            throw new IllegalStateException("Target position " + to.toString() + " is occupied.");
+            throw new IllegalStateException("Target position " + to + " is occupied.");
         }
         PlacedUnit unit = removeUnit(from);
         placeUnit(to, unit);
