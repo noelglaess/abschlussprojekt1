@@ -1,5 +1,6 @@
 package edu.kit.assignmentone.ui.commands;
 
+import edu.kit.assignmentone.StringConstants;
 import edu.kit.assignmentone.model.Game;
 import edu.kit.assignmentone.model.board.Board;
 import edu.kit.assignmentone.model.board.PlacedUnit;
@@ -10,6 +11,7 @@ import edu.kit.assignmentone.model.units.UnitCombiner;
 import edu.kit.assignmentone.ui.BoardFormatter;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +19,7 @@ import java.util.Optional;
  * Command to place one or more units from the hand onto the board.
  *
  * @author Programmieren-Team
+ * @version 1.0
  */
 public class PlaceCommand extends Command {
 
@@ -28,20 +31,24 @@ public class PlaceCommand extends Command {
     private static final String ERROR_DUPLICATE_INDEX = "An index cannot be provided multiple times.";
     private static final String ERROR_OCCUPIED_BY_ENEMY = "Cannot place on a field occupied by the enemy.";
 
+    /**
+     * Creates a new place command.
+     * @param game The game instance
+     */
     public PlaceCommand(Game game) {
-        super(COMMAND_NAME, COMMAND_REGEX, game);
+        super(COMMAND_REGEX, game);
     }
 
     @Override
     public void execute(String[] arguments) {
-        Board board = this.game.getBoard();
-        Position targetPos = this.game.getSelectedPosition();
+        Board board = this.getGame().getBoard();
+        Position targetPos = this.getGame().getSelectedPosition();
 
         if (targetPos == null) {
             throw new IllegalStateException(ERROR_NO_SELECTION);
         }
 
-        Player active = this.game.getActivePlayerObject();
+        Player active = this.getGame().getActivePlayerObject();
         if (active.hasPlacedThisTurn()) {
             throw new IllegalStateException(ERROR_ALREADY_PLACED);
         }
@@ -53,50 +60,61 @@ public class PlaceCommand extends Command {
             throw new IllegalStateException(ERROR_OCCUPIED_BY_ENEMY);
         }
 
+        List<Unit> unitsToPlace = extractUnits(active, parsedIndices);
+        active.setPlacedThisTurn(true);
+
+        boolean firstCardIsPlaced = placeFirstCardIfEmpty(board, active, targetPos, existingUnitOpt, unitsToPlace);
+        performUnions(board, active, targetPos, unitsToPlace, firstCardIsPlaced);
+
+        System.out.print(BoardFormatter.formatBoard(board, targetPos));
+    }
+
+    private List<Unit> extractUnits(Player active, List<Integer> parsedIndices) {
         List<Unit> unitsToPlace = new ArrayList<>();
         for (int idx : parsedIndices) {
             unitsToPlace.add(active.getHand().get(idx));
         }
 
         List<Integer> sortedIndicesDesc = new ArrayList<>(parsedIndices);
-        sortedIndicesDesc.sort((a, b) -> b.compareTo(a));
+        sortedIndicesDesc.sort(Comparator.reverseOrder());
         for (int idx : sortedIndicesDesc) {
             active.removeCardFromHand(idx);
         }
+        return unitsToPlace;
+    }
 
-        active.setPlacedThisTurn(true);
-
-        boolean firstCardIsPlaced = false;
+    private boolean placeFirstCardIfEmpty(Board board, Player active, Position targetPos, Optional<PlacedUnit> existingUnitOpt, List<Unit> unitsToPlace) {
         if (existingUnitOpt.isEmpty()) {
-            Unit firstToPlace = unitsToPlace.remove(0);
+            Unit firstToPlace = unitsToPlace.removeFirst();
             active.incrementBoardCount();
             board.placeUnit(targetPos, new PlacedUnit(firstToPlace, active.getType()));
-            System.out.printf("%s places %s on %s.%n", active.getType().getDisplayName(), firstToPlace.name(), targetPos);
-            firstCardIsPlaced = true;
+            System.out.printf(StringConstants.FMT_PLACES, active.getType().getDisplayName(), firstToPlace.name(), targetPos);
+            return true;
         }
+        return false;
+    }
 
-        PlacedUnit targetUnit = board.getUnitAt(targetPos).get();
-        for (Unit u : unitsToPlace) {
+    private void performUnions(Board board, Player active, Position targetPos, List<Unit> unitsToPlace, boolean firstCardIsPlaced) {
+        PlacedUnit targetUnit = board.getUnitAt(targetPos).orElseThrow();
+        for (Unit unit : unitsToPlace) {
             if (!firstCardIsPlaced) {
-                System.out.printf("%s places %s on %s.%n", active.getType().getDisplayName(), u.name(), targetPos);
+                System.out.printf(StringConstants.FMT_PLACES, active.getType().getDisplayName(), unit.name(), targetPos);
             }
             firstCardIsPlaced = false;
 
-            System.out.printf("%s and %s on %s join forces!%n", u.name(), targetUnit.getUnit().name(), targetPos);
-            Optional<Unit> combinedOpt = UnitCombiner.tryCombine(u, targetUnit.getUnit());
+            System.out.printf(StringConstants.FMT_JOIN_FORCES, unit.name(), targetUnit.getName(), targetPos);
+            Optional<Unit> combinedOpt = UnitCombiner.tryCombine(unit, targetUnit.getUnit());
 
             if (combinedOpt.isPresent()) {
-                System.out.println("Success!");
+                System.out.println(StringConstants.SUCCESS_MSG);
                 targetUnit.setUnit(combinedOpt.get());
             } else {
-                System.out.printf("Union failed. %s was eliminated.%n", targetUnit.getUnit().name());
+                System.out.printf(StringConstants.FMT_UNION_FAILED, targetUnit.getName());
                 board.removeUnit(targetPos);
                 active.decrementBoardCount();
                 break;
             }
         }
-
-        System.out.print(BoardFormatter.formatBoard(board, targetPos));
     }
 
     private List<Integer> parseAndValidateIndices(String[] arguments, int handSize) {

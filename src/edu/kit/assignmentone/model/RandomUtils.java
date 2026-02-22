@@ -1,50 +1,74 @@
 package edu.kit.assignmentone.model;
 
+import edu.kit.assignmentone.StringConstants;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.random.RandomGenerator;
+import java.util.Random;
 
 /**
  * Utility class for weighted random selections as specified in the assignment.
  *
  * @author Programmieren-Team
+ * @version 1.0
  */
 public final class RandomUtils {
 
     private RandomUtils() {
-        throw new UnsupportedOperationException("Utility classes cannot be instantiated");
+        throw new UnsupportedOperationException(StringConstants.UTILITY_CLASS_ERROR);
     }
 
-    public static int weightedRandom(List<Integer> weights, RandomGenerator rnd) {
+    /**
+     * Performs a weighted random selection based on the given weights.
+     *
+     * @param weights The list of weights
+     * @param rnd The global random instance
+     * @return The index of the selected option
+     */
+    public static int weightedRandom(List<Integer> weights, Random rnd) {
         int totalSum = 0;
         int[] sums = new int[weights.size()];
 
-        for (int i = 0; i < weights.size(); i++) {
-            int w = Math.max(0, weights.get(i));
-            totalSum += w;
-            sums[i] = totalSum;
+        for (int index = 0; index < weights.size(); index++) {
+            int weight = Math.max(0, weights.get(index));
+            totalSum += weight;
+            sums[index] = totalSum;
         }
 
-        if (totalSum == 0) return 0;
-        int r = rnd.nextInt(totalSum) + 1;
+        if (totalSum == 0) {
+            return 0;
+        }
 
-        for (int i = 0; i < sums.length; i++) {
-            if (r <= sums[i]) {
-                return i;
+        int randomValue = rnd.nextInt(totalSum) + 1;
+
+        for (int index = 0; index < sums.length; index++) {
+            if (randomValue <= sums[index]) {
+                return index;
             }
         }
         return weights.size() - 1;
     }
 
-    public static int reverseWeightedRandom(List<Integer> weights, RandomGenerator rnd) {
-        int max = 0;
-        for (int w : weights) {
-            if (w > max) max = w;
+    /**
+     * Performs a reverse weighted random selection.
+     *
+     * @param weights The original weights
+     * @param rnd The global random instance
+     * @return The index of the selected option
+     */
+    public static int reverseWeightedRandom(List<Integer> weights, Random rnd) {
+        int maxWeight = 0;
+        for (int weight : weights) {
+            if (weight > maxWeight) {
+                maxWeight = weight;
+            }
         }
+
         List<Integer> reverseWeights = new ArrayList<>();
-        for (int w : weights) {
-            reverseWeights.add(Math.max(0, max - w));
+        for (int weight : weights) {
+            reverseWeights.add(Math.max(0, maxWeight - weight));
         }
+
         return weightedRandom(reverseWeights, rnd);
     }
 }

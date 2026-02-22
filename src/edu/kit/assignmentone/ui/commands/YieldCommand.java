@@ -1,9 +1,16 @@
 package edu.kit.assignmentone.ui.commands;
 
+import edu.kit.assignmentone.StringConstants;
 import edu.kit.assignmentone.model.Game;
 import edu.kit.assignmentone.model.player.Player;
 import edu.kit.assignmentone.model.units.Unit;
 
+/**
+ * Command to end the current turn and optionally discard a card.
+ *
+ * @author Programmieren-Team
+ * @version 1.0
+ */
 public class YieldCommand extends Command {
 
     private static final String COMMAND_REGEX = "yield(\\s+\\d+)?";
@@ -12,6 +19,11 @@ public class YieldCommand extends Command {
     private static final String ERROR_INVALID_INDEX = "The provided index is invalid.";
     private static final int FULL_HAND_SIZE = 5;
 
+    /**
+     * Creates a new yield command.
+     *
+     * @param game The game to execute the command on
+     */
     public YieldCommand(Game game) {
         super(COMMAND_REGEX, game);
     }
@@ -34,7 +46,7 @@ public class YieldCommand extends Command {
                 throw new IllegalArgumentException(ERROR_INVALID_INDEX);
             }
             Unit discarded = active.removeCardFromHand(idx);
-            System.out.printf("%s discarded %s (%d/%d).%n", active.getType().getDisplayName(), discarded.name(), discarded.attack(), discarded.defense());
+            System.out.printf(StringConstants.FMT_DISCARDED, active.getType().getDisplayName(), discarded.name(), discarded.attack(), discarded.defense());
         }
 
         this.getGame().switchTurn();

@@ -1,5 +1,6 @@
 package edu.kit.assignmentone.model;
 
+import edu.kit.assignmentone.StringConstants;
 import edu.kit.assignmentone.model.board.Board;
 import edu.kit.assignmentone.model.board.Position;
 import edu.kit.assignmentone.model.io.ResourceLoader;
@@ -16,6 +17,7 @@ import java.util.Random;
  * The main game logic class (Facade).
  *
  * @author Programmieren-Team
+ * @version 1.0
  */
 public class Game {
 
@@ -75,44 +77,87 @@ public class Game {
         return deck;
     }
 
+    /**
+     * Checks if the game is still running.
+     * @return true if running, false otherwise
+     */
     public boolean isRunning() {
         return this.isRunning;
     }
 
+    /**
+     * Stops the game.
+     */
     public void quit() {
         this.isRunning = false;
     }
 
+    /**
+     * Gets the game's random instance.
+     * @return the random instance
+     */
     public Random getRandom() {
         return this.random;
     }
 
+    /**
+     * Gets the human player.
+     * @return the human player
+     */
     public Player getHumanPlayer() {
         return this.humanPlayer;
     }
 
+    /**
+     * Gets the enemy player.
+     * @return the enemy player
+     */
     public Player getEnemyPlayer() {
         return this.enemyPlayer;
     }
 
+    /**
+     * Gets the game board.
+     * @return the board
+     */
     public Board getBoard() {
         return this.board;
     }
 
+    /**
+     * Gets the currently selected position.
+     * @return the selected position, or null if none
+     */
     public Position getSelectedPosition() {
         return this.selectedPosition;
     }
 
+    /**
+     * Sets the currently selected position.
+     * @param position the position to select
+     */
     public void setSelectedPosition(Position position) {
         this.selectedPosition = position;
     }
 
+    /**
+     * Gets the player type currently taking their turn.
+     * @return the active player type
+     */
+    public PlayerType getActivePlayer() {
+        return this.activePlayer;
+    }
+
+    /**
+     * Gets the player object currently taking their turn.
+     * @return the active player object
+     */
     public Player getActivePlayerObject() {
         return this.activePlayer == PlayerType.PLAYER ? this.humanPlayer : this.enemyPlayer;
     }
 
     /**
-     * Switches the turn to the other player, handles drawing, and triggers the AI if needed.
+     * Switches the turn to the other player and handles drawing.
      */
     public void switchTurn() {
         this.selectedPosition = null;
@@ -129,16 +174,12 @@ public class Game {
 
         boolean canDraw = next.drawCard();
         if (!canDraw) {
-            System.out.printf("%s has no cards left in the deck!%n", next.getType().getDisplayName());
+            System.out.printf(StringConstants.EMPTY + StringConstants.FMT_NO_CARDS, next.getType().getDisplayName());
             PlayerType winner = next.getType() == PlayerType.PLAYER ? PlayerType.ENEMY : PlayerType.PLAYER;
-            System.out.printf("%s wins!%n", winner.getDisplayName());
+            System.out.printf(StringConstants.EMPTY + "%s wins!%n", winner.getDisplayName());
             quit();
             return;
         }
-        System.out.printf("It is %s's turn!%n", next.getType().getDisplayName());
-
-        if (this.activePlayer == PlayerType.ENEMY) {
-            AIEngine.playTurn(this);
-        }
+        System.out.printf(StringConstants.EMPTY + "It is %s's turn!%n", next.getType().getDisplayName());
     }
 }

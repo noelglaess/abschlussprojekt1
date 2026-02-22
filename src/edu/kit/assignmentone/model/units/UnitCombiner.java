@@ -1,19 +1,22 @@
 package edu.kit.assignmentone.model.units;
 
+import edu.kit.assignmentone.StringConstants;
 import edu.kit.assignmentone.model.MathUtils;
+
 import java.util.Optional;
 
 /**
- * Utility class to handle the combination ("Zusammenschluss") of two units.
+ * Utility class to handle the combination of two units.
  *
  * @author Programmieren-Team
+ * @version 1.0
  */
 public final class UnitCombiner {
 
     private static final int HUNDRED = 100;
 
     private UnitCombiner() {
-        throw new UnsupportedOperationException("Utility classes cannot be instantiated");
+        throw new UnsupportedOperationException(StringConstants.UTILITY_CLASS_ERROR);
     }
 
     /**
@@ -28,47 +31,50 @@ public final class UnitCombiner {
             return Optional.empty();
         }
 
-        // Neuer Name: Qualifikator B + Qualifikator A + Rolle B
-        String[] partsA = unitA.name().split(" ", 2);
-        String[] partsB = unitB.name().split(" ", 2);
-
-        // Fallback falls der Name nicht aus genau 2 Teilen besteht
-        String qualA = partsA.length > 0 ? partsA[0] : unitA.name();
-        String qualB = partsB.length > 0 ? partsB[0] : unitB.name();
-        String roleB = partsB.length > 1 ? partsB[1] : "";
-
-        String newName = (qualB + " " + qualA + " " + roleB).trim();
+        String newName = generateCombinedName(unitA.name(), unitB.name());
         UnitType newType = unitB.type();
 
-        // 1. Symbiose
-        if (unitA.attack() > unitB.attack()
-                && unitA.attack() == unitB.defense()
-                && unitB.attack() == unitA.defense()) {
+        if (isSymbiosis(unitA, unitB)) {
             return Optional.of(new Unit(newName, newType, unitA.attack(), unitB.defense()));
         }
 
-        int g3t = Math.max(MathUtils.gcd(unitA.attack(), unitB.attack()),
-                MathUtils.gcd(unitA.defense(), unitB.defense()));
+        int gcdAtk = MathUtils.gcd(unitA.attack(), unitB.attack());
+        int gcdDef = MathUtils.gcd(unitA.defense(), unitB.defense());
+        int maxGcd = Math.max(gcdAtk, gcdDef);
 
-        // 2. Gleichgesinntheit
-        if (g3t > HUNDRED) {
-            int newAtk = unitA.attack() + unitB.attack() - g3t;
-            int newDef = unitA.defense() + unitB.defense() - g3t;
+        if (maxGcd > HUNDRED) {
+            int newAtk = unitA.attack() + unitB.attack() - maxGcd;
+            int newDef = unitA.defense() + unitB.defense() - maxGcd;
             return Optional.of(new Unit(newName, newType, newAtk, newDef));
         }
 
-        // 3. Primkompatibilität
-        if (g3t == HUNDRED) {
-            boolean atkPrime = MathUtils.isPrime(unitA.attack() / HUNDRED) && MathUtils.isPrime(unitB.attack() / HUNDRED);
-            boolean defPrime = MathUtils.isPrime(unitA.defense() / HUNDRED) && MathUtils.isPrime(unitB.defense() / HUNDRED);
-
-            if (atkPrime || defPrime) {
-                int newAtk = unitA.attack() + unitB.attack();
-                int newDef = unitA.defense() + unitB.defense();
-                return Optional.of(new Unit(newName, newType, newAtk, newDef));
-            }
+        if (maxGcd == HUNDRED && isPrimeCompatible(unitA, unitB)) {
+            int newAtk = unitA.attack() + unitB.attack();
+            int newDef = unitA.defense() + unitB.defense();
+            return Optional.of(new Unit(newName, newType, newAtk, newDef));
         }
 
-        return Optional.empty(); // Inkompatibel
+        return Optional.empty();
+    }
+
+    private static String generateCombinedName(String nameA, String nameB) {
+        String[] partsA = nameA.split(" ", 2);
+        String[] partsB = nameB.split(" ", 2);
+        String qualA = partsA.length > 0 ? partsA[0] : nameA;
+        String qualB = partsB.length > 0 ? partsB[0] : nameB;
+        String roleB = partsB.length > 1 ? partsB[1] : StringConstants.EMPTY;
+        return (qualB + " " + qualA + " " + roleB).trim();
+    }
+
+    private static boolean isSymbiosis(Unit unitA, Unit unitB) {
+        return unitA.attack() > unitB.attack()
+                && unitA.attack() == unitB.defense()
+                && unitB.attack() == unitA.defense();
+    }
+
+    private static boolean isPrimeCompatible(Unit unitA, Unit unitB) {
+        boolean atkPrime = MathUtils.isPrime(unitA.attack() / HUNDRED) && MathUtils.isPrime(unitB.attack() / HUNDRED);
+        boolean defPrime = MathUtils.isPrime(unitA.defense() / HUNDRED) && MathUtils.isPrime(unitB.defense() / HUNDRED);
+        return atkPrime || defPrime;
     }
 }

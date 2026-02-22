@@ -8,9 +8,9 @@ package edu.kit.assignmentone.model.units;
  * @param attack The attack value
  * @param defense The defense value
  * @author Programmieren-Team
+ * @version 1.0
  */
 public record Unit(String name, UnitType type, int attack, int defense) {
-
     /**
      * Creates a deep copy of this unit.
      * @return A new Unit instance with the same properties.

@@ -7,11 +7,22 @@ import edu.kit.assignmentone.ui.BoardFormatter;
 
 import java.util.Optional;
 
+/**
+ * Command to select a position on the board and show its details.
+ *
+ * @author Programmieren-Team
+ * @version 1.0
+ */
 public class SelectCommand extends Command {
 
     private static final String COMMAND_REGEX = "select [a-zA-Z]\\d";
     private static final String UNIT_INFO_FORMAT = "%s %s (Team %s)%nATK: %d%nDEF: %d";
 
+    /**
+     * Creates a new select command.
+     *
+     * @param game The game to execute the command on
+     */
     public SelectCommand(Game game) {
         super(COMMAND_REGEX, game);
     }
@@ -21,17 +32,17 @@ public class SelectCommand extends Command {
         Position pos = Position.fromString(arguments[0]);
         this.getGame().setSelectedPosition(pos);
 
-        System.out.println(BoardFormatter.formatBoard(this.getGame().getBoard(), pos));
+        System.out.print(BoardFormatter.formatBoard(this.getGame().getBoard(), pos));
 
         Optional<PlacedUnit> unitOpt = this.getGame().getBoard().getUnitAt(pos);
         if (unitOpt.isPresent()) {
-            PlacedUnit pu = unitOpt.get();
+            PlacedUnit unit = unitOpt.get();
             String info = String.format(UNIT_INFO_FORMAT,
-                    pu.getUnit().name(),
-                    pu.getUnit().type().toString(),
-                    pu.getOwner().getDisplayName(),
-                    pu.getUnit().attack(),
-                    pu.getUnit().defense());
+                    unit.getName(),
+                    unit.getUnit().type().toString(),
+                    unit.getOwner().getDisplayName(),
+                    unit.getAttack(),
+                    unit.getDefense());
             System.out.println(info);
         }
     }

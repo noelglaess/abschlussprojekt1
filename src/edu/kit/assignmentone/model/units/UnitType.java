@@ -2,7 +2,9 @@ package edu.kit.assignmentone.model.units;
 
 /**
  * Represents the different types a unit can have.
- * * @author Programmieren-Team
+ *
+ * @author Programmieren-Team
+ * @version 1.0
  */
 public enum UnitType {
     /** Farmer type unit. */ FARMER("Farmer"),
@@ -22,6 +24,7 @@ public enum UnitType {
 
     /**
      * Parses a string to the corresponding UnitType.
+     *
      * @param typeString The string representation of the unit type
      * @return The UnitType
      * @throws IllegalArgumentException if the type is unknown

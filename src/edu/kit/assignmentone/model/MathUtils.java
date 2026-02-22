@@ -1,38 +1,56 @@
 package edu.kit.assignmentone.model;
 
+import edu.kit.assignmentone.StringConstants;
+
 /**
- * Utility class for mathematical operations needed in the game.
+ * Utility class for mathematical operations needed in the game (like GCD and Prime checks).
+ *
+ * @author Programmieren-Team
+ * @version 1.0
  */
 public final class MathUtils {
 
     private MathUtils() {
-        throw new UnsupportedOperationException("Utility classes cannot be instantiated");
+        throw new UnsupportedOperationException(StringConstants.UTILITY_CLASS_ERROR);
     }
 
+    /**
+     * Calculates the greatest common divisor (ggT) of two integers.
+     *
+     * @param value1 The first integer
+     * @param value2 The second integer
+     * @return The GCD
+     */
+    public static int gcd(int value1, int value2) {
+        int tempValue1 = Math.abs(value1);
+        int tempValue2 = Math.abs(value2);
 
-    public static int gcd(int a, int b) {
-        while (true) {
-            if (b == 0) {
-                return Math.abs(a);
-            }
-            int a1 = a;
-            a = b;
-            b = a1 % b;
+        while (tempValue2 != 0) {
+            int remainder = tempValue1 % tempValue2;
+            tempValue1 = tempValue2;
+            tempValue2 = remainder;
         }
+        return tempValue1;
     }
 
-    public static boolean isPrime(int n) {
-        if (n <= 1) {
+    /**
+     * Checks if a given number is prime.
+     *
+     * @param numberToCheck The number to check
+     * @return true if prime, false otherwise
+     */
+    public static boolean isPrime(int numberToCheck) {
+        if (numberToCheck <= 1) {
             return false;
         }
-        if (n <= 3) {
+        if (numberToCheck <= 3) {
             return true;
         }
-        if (n % 2 == 0 || n % 3 == 0) {
+        if (numberToCheck % 2 == 0 || numberToCheck % 3 == 0) {
             return false;
         }
-        for (int i = 5; i * i <= n; i += 6) {
-            if (n % i == 0 || n % (i + 2) == 0) {
+        for (int index = 5; index * index <= numberToCheck; index += 6) {
+            if (numberToCheck % index == 0 || numberToCheck % (index + 2) == 0) {
                 return false;
             }
         }

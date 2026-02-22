@@ -1,15 +1,27 @@
 package edu.kit.assignmentone.ui.commands;
 
+import edu.kit.assignmentone.StringConstants;
 import edu.kit.assignmentone.model.Game;
 import edu.kit.assignmentone.model.player.Player;
 import edu.kit.assignmentone.model.units.Unit;
 
 import java.util.List;
 
+/**
+ * Command to show the current hand of the active player.
+ *
+ * @author Programmieren-Team
+ * @version 1.0
+ */
 public class HandCommand extends Command {
 
     private static final String COMMAND_NAME = "hand";
 
+    /**
+     * Creates a new hand command.
+     *
+     * @param game The game to execute the command on
+     */
     public HandCommand(Game game) {
         super(COMMAND_NAME, game);
     }
@@ -24,8 +36,8 @@ public class HandCommand extends Command {
         List<Unit> hand = active.getHand();
 
         for (int i = 0; i < hand.size(); i++) {
-            Unit u = hand.get(i);
-            System.out.printf("[%d] %s%n(%d/%d)%n", i + 1, u.name(), u.attack(), u.defense());
+            Unit unit = hand.get(i);
+            System.out.printf(StringConstants.FMT_HAND_CARD, i + 1, unit.name(), unit.attack(), unit.defense());
         }
     }
 }
