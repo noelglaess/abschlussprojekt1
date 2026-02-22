@@ -20,7 +20,6 @@ import java.util.Optional;
 public class PlaceCommand extends Command {
 
     private static final String COMMAND_NAME = "place";
-    // Erlaubt beliebig viele Zahlen, z.B. "place 1" oder "place 2 1 3"
     private static final String COMMAND_REGEX = "place( \\d+)+";
     private static final String ERROR_NO_SELECTION = "No field selected.";
     private static final String ERROR_ALREADY_PLACED = "You have already placed units this turn.";
@@ -51,13 +50,11 @@ public class PlaceCommand extends Command {
             throw new IllegalStateException(ERROR_OCCUPIED_BY_ENEMY);
         }
 
-        // 1. Hole alle betroffenen Units aus der Hand, ABER OHNE SIE SCHON ZU LÖSCHEN (damit die Index-Reihenfolge nicht kaputt geht)
         List<Unit> unitsToPlace = new ArrayList<>();
         for (int idx : parsedIndices) {
             unitsToPlace.add(active.getHand().get(idx));
         }
 
-        // 2. Entferne sie nun sicher aus der Hand (von hinten nach vorne, damit sich Indizes nicht verschieben)
         List<Integer> sortedIndicesDesc = new ArrayList<>(parsedIndices);
         sortedIndicesDesc.sort((a, b) -> b.compareTo(a));
         for (int idx : sortedIndicesDesc) {
@@ -66,36 +63,33 @@ public class PlaceCommand extends Command {
 
         active.setPlacedThisTurn(true);
 
-        // 3. Wenn das Feld komplett leer ist, muss die allererste platzierte Karte einfach hingelegt werden
         boolean firstCardIsPlaced = false;
         if (existingUnitOpt.isEmpty()) {
             Unit firstToPlace = unitsToPlace.remove(0);
             active.incrementBoardCount();
             this.game.getBoard().placeUnit(targetPos, new PlacedUnit(firstToPlace, active.getType()));
-            System.out.printf("%s places %s on %s.%n", active.getType().getDisplayName(), firstToPlace.name(), targetPos.toString());
+            System.out.printf("%s places %s on %s.%n", active.getType().getDisplayName(), firstToPlace.name(), targetPos);
             firstCardIsPlaced = true;
         }
 
-        // 4. Alle verbleibenden Karten aus der Liste werden auf das Feld gelegt und zusammengeschlossen
         PlacedUnit targetUnit = this.game.getBoard().getUnitAt(targetPos).get();
         for (Unit u : unitsToPlace) {
             if (!firstCardIsPlaced) {
-                System.out.printf("%s places %s on %s.%n", active.getType().getDisplayName(), u.name(), targetPos.toString());
+                System.out.printf("%s places %s on %s.%n", active.getType().getDisplayName(), u.name(), targetPos);
             }
-            firstCardIsPlaced = false; // Zurücksetzen für weitere Loops
+            firstCardIsPlaced = false;
 
-            System.out.printf("%s and %s on %s join forces!%n", u.name(), targetUnit.getUnit().name(), targetPos.toString());
+            System.out.printf("%s and %s on %s join forces!%n", u.name(), targetUnit.getUnit().name(), targetPos);
             Optional<Unit> combinedOpt = UnitCombiner.tryCombine(u, targetUnit.getUnit());
 
             if (combinedOpt.isPresent()) {
                 System.out.println("Success!");
                 targetUnit.setUnit(combinedOpt.get());
-                // Wenn die Basis auf dem Feld verdeckt war, bleibt die neue auch verdeckt
             } else {
                 System.out.printf("Union failed. %s was eliminated.%n", targetUnit.getUnit().name());
                 this.game.getBoard().removeUnit(targetPos);
                 active.decrementBoardCount();
-                break; // Laut Aufgabe endet das Platzieren, wenn ein Union fehlschlägt
+                break;
             }
         }
 
@@ -105,7 +99,7 @@ public class PlaceCommand extends Command {
     private List<Integer> parseAndValidateIndices(String[] arguments, int handSize) {
         List<Integer> parsedIndices = new ArrayList<>();
         for (String arg : arguments) {
-            int idx = Integer.parseInt(arg) - 1; // 1-basiert zu 0-basiert
+            int idx = Integer.parseInt(arg) - 1;
             if (idx < 0 || idx >= handSize) {
                 throw new IllegalArgumentException(ERROR_INVALID_INDEX);
             }

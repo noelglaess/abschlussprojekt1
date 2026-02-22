@@ -15,9 +15,7 @@ import java.util.Optional;
 public class SelectCommand extends Command {
 
     private static final String COMMAND_NAME = "select";
-    // Regex erlaubt "select" gefolgt von genau einem Buchstaben (A-Z) und einer Zahl (z.B. "select D5")
     private static final String COMMAND_REGEX = "select [a-zA-Z]\\d";
-
     private static final String UNIT_INFO_FORMAT = "%s %s (Team %s)%nATK: %d%nDEF: %d";
 
     /**
@@ -34,10 +32,8 @@ public class SelectCommand extends Command {
         Position pos = Position.fromString(arguments[0]);
         this.game.setSelectedPosition(pos);
 
-        // 1. Zeichne das Spielfeld mit dem Highlight
         System.out.println(BoardFormatter.formatBoard(this.game.getBoard(), pos));
 
-        // 2. Wenn eine Einheit dort steht, gib ihre Werte aus
         Optional<PlacedUnit> unitOpt = this.game.getBoard().getUnitAt(pos);
         if (unitOpt.isPresent()) {
             PlacedUnit pu = unitOpt.get();

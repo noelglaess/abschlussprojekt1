@@ -19,9 +19,7 @@ import java.util.Random;
  */
 public class Game {
 
-    private final long seed;
     private final Random random;
-    private final String verbosity;
     private final List<Unit> allUnits;
     private final List<Integer> deckBlueprint;
 
@@ -38,14 +36,12 @@ public class Game {
      *
      * @param seed The random seed
      * @param deckPath Path to the deck file
-     * @param verbosity Output mode
+     * @param verbosity Output mode (currently parsed but ignored)
      * @param unitsPath Path to the units file
      * @throws IOException If files cannot be read
      */
     public Game(long seed, String deckPath, String verbosity, String unitsPath) throws IOException {
-        this.seed = seed;
         this.random = new Random(seed);
-        this.verbosity = verbosity;
         this.isRunning = true;
 
         this.allUnits = ResourceLoader.loadUnits(unitsPath);
@@ -56,8 +52,8 @@ public class Game {
         Deck humanDeck = createDeckFromBlueprint();
         Deck enemyDeck = createDeckFromBlueprint();
 
-        humanDeck.shuffle(this.seed);
-        enemyDeck.shuffle(this.seed);
+        humanDeck.shuffle(seed);
+        enemyDeck.shuffle(seed);
 
         this.humanPlayer = new Player(PlayerType.PLAYER, humanDeck);
         this.enemyPlayer = new Player(PlayerType.ENEMY, enemyDeck);
@@ -65,7 +61,6 @@ public class Game {
         this.humanPlayer.drawInitialHand();
         this.enemyPlayer.drawInitialHand();
 
-        // Der Spieler startet
         this.activePlayer = PlayerType.PLAYER;
         this.humanPlayer.drawCard();
     }
@@ -147,7 +142,6 @@ public class Game {
         }
         System.out.printf("It is %s's turn!%n", next.getType().getDisplayName());
 
-        // Wenn der Gegner dran ist, übernimmt sofort die KI
         if (this.activePlayer == PlayerType.ENEMY) {
             AIEngine.playTurn(this);
         }

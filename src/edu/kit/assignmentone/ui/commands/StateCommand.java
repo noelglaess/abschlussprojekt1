@@ -11,7 +11,7 @@ import edu.kit.assignmentone.model.player.Player;
 public class StateCommand extends Command {
 
     private static final String COMMAND_NAME = "state";
-    private static final String STATE_FORMAT = "%s\n%d/%d LP\nDC: %d/%d\nBC: %d/%d";
+    private static final String STATE_FORMAT = "%s%n%d/%d LP%nDC: %d/%d%nBC: %d/%d";
 
     /**
      * Creates a new state command.
@@ -23,7 +23,7 @@ public class StateCommand extends Command {
     }
 
     @Override
-    public void execute(String[] arguments) throws Exception {
+    public void execute(String[] arguments) {
         if (arguments.length > 0) {
             throw new IllegalArgumentException("The state command does not take any arguments.");
         }

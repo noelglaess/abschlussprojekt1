@@ -22,7 +22,7 @@ public class ShowCommand extends Command {
     }
 
     @Override
-    public void execute(String[] arguments) throws Exception {
+    public void execute(String[] arguments) {
         if (arguments.length > 0) {
             throw new IllegalArgumentException(ERROR_NO_ARGS_EXPECTED);
         }

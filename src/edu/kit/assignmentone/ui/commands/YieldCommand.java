@@ -35,7 +35,7 @@ public class YieldCommand extends Command {
         }
 
         if (arguments.length > 0) {
-            int idx = Integer.parseInt(arguments[0]) - 1; // Konvertiere 1-basiert in 0-basiert
+            int idx = Integer.parseInt(arguments[0]) - 1;
             if (idx < 0 || idx >= active.getHand().size()) {
                 throw new IllegalArgumentException(ERROR_INVALID_INDEX);
             }

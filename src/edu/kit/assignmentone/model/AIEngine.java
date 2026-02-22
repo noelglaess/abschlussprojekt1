@@ -24,9 +24,17 @@ import java.util.Optional;
 public final class AIEngine {
 
     private static final String KING_NAME = "Farmer King";
-    private static final int[][] DIR_4 = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}}; // Up, Right, Down, Left
-    private static final int[][] DIR_8 = {{0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}}; // Clockwise from Top
+    private static final int[][] DIR_4 = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    private static final int[][] DIR_8 = {{0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}};
     private static final int HUNDRED = 100;
+
+    // Checkstyle Magic Number Fixes
+    private static final int FLIPPED_PENALTY = 500;
+    private static final int BASE_SCORE = 10;
+    private static final int ENEMY_MULTIPLIER = 2;
+    private static final int FELLOW_MULTIPLIER = 3;
+    private static final int BOARD_SIZE = 7;
+    private static final int MAX_HAND_SIZE = 5;
 
     private AIEngine() {
     }
@@ -81,7 +89,7 @@ public final class AIEngine {
             int distance = kingPos.distanceTo(pos);
             int fellowPresent = (unitOpt.isPresent() && unitOpt.get().getOwner() == PlayerType.ENEMY && !pos.equals(kingPos)) ? 1 : 0;
 
-            int score = fellows - 2 * enemies - distance - 3 * fellowPresent;
+            int score = fellows - ENEMY_MULTIPLIER * enemies - distance - FELLOW_MULTIPLIER * fellowPresent;
 
             if (score > maxScore) {
                 maxScore = score;
@@ -125,8 +133,8 @@ public final class AIEngine {
                 if (unitOpt.isEmpty() || unitOpt.get().getOwner() == PlayerType.ENEMY) {
                     int steps = pos.distanceTo(playerKingPos);
                     int enemies = countUnits(game.getBoard(), pos, DIR_4, PlayerType.PLAYER, null);
-                    int fellows = countUnits(game.getBoard(), pos, DIR_4, PlayerType.ENEMY, null); // Inklusive König
-                    int score = -steps + 2 * enemies - fellows;
+                    int fellows = countUnits(game.getBoard(), pos, DIR_4, PlayerType.ENEMY, null);
+                    int score = -steps + ENEMY_MULTIPLIER * enemies - fellows;
 
                     validFields.add(pos);
                     scores.add(score);
@@ -174,8 +182,8 @@ public final class AIEngine {
 
         while (true) {
             List<Position> unmovedUnits = new ArrayList<>();
-            for (int row = 0; row < 7; row++) {
-                for (int col = 0; col < 7; col++) {
+            for (int row = 0; row < BOARD_SIZE; row++) {
+                for (int col = 0; col < BOARD_SIZE; col++) {
                     Position p = new Position(col, row);
                     Optional<PlacedUnit> opt = game.getBoard().getUnitAt(p);
                     if (opt.isPresent() && opt.get().getOwner() == PlayerType.ENEMY
@@ -197,7 +205,7 @@ public final class AIEngine {
             for (Position p : unmovedUnits) {
                 PlacedUnit unit = game.getBoard().getUnitAt(p).get();
                 List<Integer> optionScores = new ArrayList<>();
-                List<Integer> validIndices = new ArrayList<>(); // 0:Up, 1:Right, 2:Down, 3:Left, 4:Block, 5:InPlace
+                List<Integer> validIndices = new ArrayList<>();
                 int totalScore = 0;
 
                 for (int i = 0; i < 4; i++) {
@@ -207,14 +215,14 @@ public final class AIEngine {
                     }
                     Optional<PlacedUnit> targetOpt = game.getBoard().getUnitAt(target);
                     if (targetOpt.isPresent() && targetOpt.get().getUnit().name().equals(KING_NAME) && targetOpt.get().getOwner() == PlayerType.ENEMY) {
-                        continue; // Darf nicht auf eigenen König
+                        continue;
                     }
 
                     int score = 0;
                     if (targetOpt.isEmpty()) {
                         int steps = target.distanceTo(playerKingPos);
                         int enemies = countUnits(game.getBoard(), target, DIR_4, PlayerType.PLAYER, null);
-                        score = 10 - steps - enemies;
+                        score = BASE_SCORE - steps - enemies;
                     } else {
                         PlacedUnit tUnit = targetOpt.get();
                         if (tUnit.getOwner() == PlayerType.ENEMY) {
@@ -228,11 +236,11 @@ public final class AIEngine {
                             if (tUnit.getUnit().name().equals(KING_NAME)) {
                                 score = unit.getUnit().attack();
                             } else if (!tUnit.isFlipped()) {
-                                score = unit.getUnit().attack() - 500;
+                                score = unit.getUnit().attack() - FLIPPED_PENALTY;
                             } else if (tUnit.isBlocking()) {
                                 score = unit.getUnit().attack() - tUnit.getUnit().defense();
                             } else {
-                                score = 2 * (unit.getUnit().attack() - tUnit.getUnit().attack());
+                                score = ENEMY_MULTIPLIER * (unit.getUnit().attack() - tUnit.getUnit().attack());
                             }
                         }
                     }
@@ -272,7 +280,7 @@ public final class AIEngine {
             if (!hasPositive) {
                 activeUnit.setBlocking(true);
                 activeUnit.setMoved(true);
-                System.out.printf("%s (%s) blocks!%n", activeUnit.getUnit().name(), bestUnitPos.toString());
+                System.out.printf("%s (%s) blocks!%n", activeUnit.getUnit().name(), bestUnitPos);
                 System.out.print(BoardFormatter.formatBoard(game.getBoard(), bestUnitPos));
             } else {
                 int chosenActionIdx = RandomUtils.weightedRandom(bestUnitOptionScores, game.getRandom());
@@ -284,7 +292,7 @@ public final class AIEngine {
                 } else if (actualAction == 4) {
                     activeUnit.setBlocking(true);
                     activeUnit.setMoved(true);
-                    System.out.printf("%s (%s) blocks!%n", activeUnit.getUnit().name(), bestUnitPos.toString());
+                    System.out.printf("%s (%s) blocks!%n", activeUnit.getUnit().name(), bestUnitPos);
                     System.out.print(BoardFormatter.formatBoard(game.getBoard(), bestUnitPos));
                 } else if (actualAction == 5) {
                     executeCommandSilently(new MoveCommand(game), new String[]{bestUnitPos.toString()});
@@ -295,7 +303,7 @@ public final class AIEngine {
 
     private static void endTurn(Game game) {
         Player enemy = game.getEnemyPlayer();
-        if (enemy.getHand().size() == 5) {
+        if (enemy.getHand().size() == MAX_HAND_SIZE) {
             List<Integer> weights = new ArrayList<>();
             for (Unit u : enemy.getHand()) {
                 weights.add(u.attack() + u.defense());
@@ -308,8 +316,8 @@ public final class AIEngine {
     }
 
     private static Position findUnit(Board board, String name, PlayerType owner) {
-        for (int row = 0; row < 7; row++) {
-            for (int col = 0; col < 7; col++) {
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            for (int col = 0; col < BOARD_SIZE; col++) {
                 Optional<PlacedUnit> opt = board.getUnitAt(new Position(col, row));
                 if (opt.isPresent() && opt.get().getOwner() == owner && opt.get().getUnit().name().equals(name)) {
                     return new Position(col, row);

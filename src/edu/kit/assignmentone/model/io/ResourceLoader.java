@@ -11,7 +11,8 @@ import java.util.List;
 
 /**
  * Utility class to load game resources from files.
- * * @author Programmieren-Team
+ *
+ * @author Programmieren-Team
  */
 public final class ResourceLoader {
 
@@ -34,8 +35,11 @@ public final class ResourceLoader {
     public static List<Unit> loadUnits(String filePath) throws IOException {
         List<Unit> units = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
+            while (true) {
+                String line = reader.readLine();
+                if (line == null) {
+                    break;
+                }
                 if (line.trim().isEmpty()) {
                     continue;
                 }
@@ -64,8 +68,11 @@ public final class ResourceLoader {
     public static List<Integer> loadDeck(String filePath) throws IOException {
         List<Integer> deck = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
+            while (true) {
+                String line = reader.readLine();
+                if (line == null) {
+                    break;
+                }
                 if (line.trim().isEmpty()) {
                     continue;
                 }

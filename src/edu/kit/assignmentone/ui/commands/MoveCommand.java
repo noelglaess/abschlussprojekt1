@@ -43,7 +43,6 @@ public class MoveCommand extends Command {
 
         validateMovementRules(movingUnit, sourcePos, targetPos);
 
-        // 1. Blockade aufheben
         if (movingUnit.isBlocking()) {
             movingUnit.setBlocking(false);
             System.out.println(movingUnit.getUnit().name() + " no longer blocks.");
@@ -53,19 +52,17 @@ public class MoveCommand extends Command {
         int distance = sourcePos.distanceTo(targetPos);
 
         if (distance == 0) {
-            // Bewegung en place
             movingUnit.setMoved(true);
-            System.out.println(movingUnit.getUnit().name() + " moves to " + targetPos.toString() + ".");
+            System.out.println(movingUnit.getUnit().name() + " moves to " + targetPos + ".");
             printBoard(targetPos);
             return;
         }
 
         if (targetUnitOpt.isEmpty()) {
-            // Normale Bewegung auf leeres Feld
             this.game.getBoard().moveUnit(sourcePos, targetPos);
             movingUnit.setMoved(true);
             this.game.setSelectedPosition(targetPos);
-            System.out.println(movingUnit.getUnit().name() + " moves to " + targetPos.toString() + ".");
+            System.out.println(movingUnit.getUnit().name() + " moves to " + targetPos + ".");
         } else {
             PlacedUnit targetUnit = targetUnitOpt.get();
             if (movingUnit.getOwner() == targetUnit.getOwner()) {
@@ -94,30 +91,27 @@ public class MoveCommand extends Command {
             boolean isTargetKing = targetUnit.getUnit().name().equals(KING_NAME);
 
             if (isTargetKing && movingUnit.getOwner() == targetUnit.getOwner()) {
-                throw new IllegalStateException(ERROR_KING_MOVE); // Eigener König darf nicht betreten werden
+                throw new IllegalStateException(ERROR_KING_MOVE);
             }
             if (isMovingKing && movingUnit.getOwner() != targetUnit.getOwner()) {
-                throw new IllegalStateException(ERROR_KING_MOVE); // König darf keine Gegner angreifen
+                throw new IllegalStateException(ERROR_KING_MOVE);
             }
         }
     }
 
     private void handleUnion(PlacedUnit movingUnit, PlacedUnit targetUnit, Position sourcePos, Position targetPos) {
-        System.out.println(movingUnit.getUnit().name() + " moves to " + targetPos.toString() + ".");
-        System.out.println(movingUnit.getUnit().name() + " and " + targetUnit.getUnit().name() + " on " + targetPos.toString() + " join forces!");
+        System.out.println(movingUnit.getUnit().name() + " moves to " + targetPos + ".");
+        System.out.println(movingUnit.getUnit().name() + " and " + targetUnit.getUnit().name() + " on " + targetPos + " join forces!");
 
         Optional<Unit> combinedOpt = UnitCombiner.tryCombine(movingUnit.getUnit(), targetUnit.getUnit());
 
         if (combinedOpt.isPresent()) {
-            // Erfolg
             System.out.println("Success!");
             this.game.getBoard().removeUnit(sourcePos);
-            targetUnit.setUnit(combinedOpt.get()); // Aktualisiere die Zieleinheit mit den neuen Stats
-            // Wenn eine der Einheiten verdeckt war, ist die neue auch verdeckt
+            targetUnit.setUnit(combinedOpt.get());
             targetUnit.setFlipped(movingUnit.isFlipped() && targetUnit.isFlipped());
             this.game.setSelectedPosition(targetPos);
         } else {
-            // Fehlschlag
             System.out.println("Union failed. " + targetUnit.getUnit().name() + " was eliminated.");
             this.game.getBoard().removeUnit(targetPos);
             this.game.getBoard().moveUnit(sourcePos, targetPos);
@@ -132,7 +126,7 @@ public class MoveCommand extends Command {
         String atkStats = String.format("(%d/%d)", attacker.getUnit().attack(), attacker.getUnit().defense());
         String defStats = isDefenderKing ? "" : String.format(" (%d/%d)", defender.getUnit().attack(), defender.getUnit().defense());
 
-        System.out.println(attacker.getUnit().name() + " " + atkStats + " attacks " + defender.getUnit().name() + defStats + " on " + targetPos.toString() + "!");
+        System.out.println(attacker.getUnit().name() + " " + atkStats + " attacks " + defender.getUnit().name() + defStats + " on " + targetPos + "!");
 
         flipUnitIfCovered(attacker, sourcePos);
         flipUnitIfCovered(defender, targetPos);
@@ -175,7 +169,7 @@ public class MoveCommand extends Command {
     private void flipUnitIfCovered(PlacedUnit unit, Position pos) {
         if (!unit.isFlipped() && !unit.getUnit().name().equals(KING_NAME)) {
             unit.setFlipped(true);
-            System.out.printf("%s (%d/%d) was flipped on %s!%n", unit.getUnit().name(), unit.getUnit().attack(), unit.getUnit().defense(), pos.toString());
+            System.out.printf("%s (%d/%d) was flipped on %s!%n", unit.getUnit().name(), unit.getUnit().attack(), unit.getUnit().defense(), pos);
         }
     }
 
@@ -206,7 +200,7 @@ public class MoveCommand extends Command {
             this.game.setSelectedPosition(null);
         }
         if (moves && !atkElim) {
-            System.out.println(attacker.getUnit().name() + " moves to " + targetPos.toString() + ".");
+            System.out.println(attacker.getUnit().name() + " moves to " + targetPos + ".");
             this.game.getBoard().moveUnit(sourcePos, targetPos);
             this.game.setSelectedPosition(targetPos);
         } else if (!atkElim) {
