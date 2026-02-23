@@ -11,7 +11,7 @@ import java.util.Optional;
 /**
  * Utility class to format the game board for console output.
  *
- * @author Programmieren-Team
+ * @author uXXXXX
  * @version 1.0
  */
 public final class BoardFormatter {
@@ -22,9 +22,7 @@ public final class BoardFormatter {
     private static final String SYMBOL_HIGHLIGHT = "*";
     private static final String SYMBOL_EMPTY = " ";
 
-    private BoardFormatter() {
-        throw new UnsupportedOperationException(StringConstants.UTILITY_CLASS_ERROR);
-    }
+    private BoardFormatter() { }
 
     /**
      * Formats the board into a string representation.

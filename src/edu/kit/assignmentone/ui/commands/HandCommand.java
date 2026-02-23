@@ -10,19 +10,17 @@ import java.util.List;
 /**
  * Command to show the current hand of the active player.
  *
- * @author Programmieren-Team
+ * @author uXXXXX
  * @version 1.0
  */
 public class HandCommand extends Command {
-
-    private static final String HAND = "hand";
 
     /**
      * Creates a new hand command.
      * @param game The game to execute the command on
      */
     public HandCommand(Game game) {
-        super(HAND, game);
+        super(StringConstants.CMD_HAND, game);
     }
 
     @Override
@@ -33,10 +31,10 @@ public class HandCommand extends Command {
 
         Player active = this.getGame().getActivePlayerObject();
         List<Unit> hand = active.getHand();
+        int size = hand.size();
 
-        for (int i = 0; i < hand.size(); i++) {
-            Unit unit = hand.get(i);
-            System.out.printf(StringConstants.FMT_HAND_CARD, i + 1, unit.name(), unit.attack(), unit.defense());
+        for (int i = 0; i < size; i++) {
+            System.out.print(hand.get(i).formatHandInfo(i + 1));
         }
     }
 }

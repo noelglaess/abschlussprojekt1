@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Utility class to load game resources from files.
  *
- * @author Programmieren-Team
+ * @author uXXXXX
  * @version 1.0
  */
 public final class ResourceLoader {
@@ -36,10 +36,16 @@ public final class ResourceLoader {
         try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath))) {
             while (true) {
                 String line = reader.readLine();
-                if (line == null) break;
-                if (line.trim().isEmpty()) continue;
+                if (line == null) {
+                    break;
+                }
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
                 String[] parts = line.split(UNIT_DELIMITER);
-                if (parts.length != UNIT_PARTS_COUNT) throw new IOException(INVALID_UNIT_FORMAT_ERROR);
+                if (parts.length != UNIT_PARTS_COUNT) {
+                    throw new IOException(INVALID_UNIT_FORMAT_ERROR);
+                }
 
                 String name = parts[0].trim();
                 UnitType type = UnitType.fromString(parts[1].trim());
@@ -50,7 +56,6 @@ public final class ResourceLoader {
         } catch (NumberFormatException e) {
             throw new RuntimeException(e);
         } catch (IllegalArgumentException e) {
-            // IllegalArgumentException catches NumberFormatException automatically
             throw new IOException(INVALID_UNIT_FORMAT_ERROR, e);
         }
         return units;
@@ -67,11 +72,17 @@ public final class ResourceLoader {
         try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath))) {
             while (true) {
                 String line = reader.readLine();
-                if (line == null) break;
-                if (line.trim().isEmpty()) continue;
+                if (line == null) {
+                    break;
+                }
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
                 deck.add(Integer.parseInt(line.trim()));
             }
         } catch (NumberFormatException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalArgumentException e) {
             throw new IOException(INVALID_DECK_FORMAT_ERROR, e);
         }
         return deck;

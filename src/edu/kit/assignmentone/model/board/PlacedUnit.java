@@ -8,7 +8,7 @@ import edu.kit.assignmentone.model.units.Unit;
 /**
  * Represents a unit that is currently placed on the board, including its owner and state.
  *
- * @author Programmieren-Team
+ * @author uXXXXX
  * @version 1.0
  */
 public class PlacedUnit {
@@ -51,8 +51,6 @@ public class PlacedUnit {
 
     /** @return true if blocking */
     public boolean isBlocking() { return this.blocking; }
-    /** @param blocking true if blocking */
-    public void setBlocking(boolean blocking) { this.blocking = blocking; }
 
     /** @return true if unit is king */
     public boolean isKing() { return this.unit.name().equals(StringConstants.KING_NAME); }
@@ -68,11 +66,12 @@ public class PlacedUnit {
      * @return true if it was unblocked
      */
     public boolean unblockIfBlocking() {
+        boolean unblocked = false;
         if (this.blocking) {
             this.blocking = false;
-            return true;
+            unblocked = true;
         }
-        return false;
+        return unblocked;
     }
 
     /**
@@ -80,19 +79,48 @@ public class PlacedUnit {
      * @return true if it was flipped
      */
     public boolean flipIfCovered() {
+        boolean flippedNow = false;
         if (!this.flipped && !this.isKing()) {
             this.flipped = true;
-            return true;
+            flippedNow = true;
         }
-        return false;
+        return flippedNow;
     }
 
-    /**
-     * Sets the unit to blocking state.
-     */
+    /** Sets the unit to blocking state. */
     public void block() {
         this.blocking = true;
         this.moved = true;
+    }
+
+    /**
+     * Checks if this unit is an unmoved enemy.
+     * @return true if unmoved enemy
+     */
+    public boolean isUnmovedEnemy() {
+        return this.owner == PlayerType.ENEMY && !this.moved && !this.isKing();
+    }
+
+    /**
+     * Validates movement rules.
+     * @param distance Distance
+     * @param targetUnit Target unit if present
+     */
+    public void requireValidMove(int distance, PlacedUnit targetUnit) {
+        if (this.moved) {
+            throw new IllegalStateException(StringConstants.ERR_ALREADY_MOVED);
+        }
+        if (distance > 1) {
+            throw new IllegalStateException(StringConstants.ERR_MOVE_DIST);
+        }
+        if (targetUnit != null) {
+            if (targetUnit.isKing() && this.owner == targetUnit.owner) {
+                throw new IllegalStateException(StringConstants.ERR_KING_MOVE);
+            }
+            if (this.isKing() && this.owner != targetUnit.owner) {
+                throw new IllegalStateException(StringConstants.ERR_KING_MOVE);
+            }
+        }
     }
 
     /**
@@ -100,7 +128,8 @@ public class PlacedUnit {
      * @return The formatted string
      */
     public String formatInfo() {
-        return String.format(StringConstants.UNIT_INFO_FORMAT, this.getName(), this.owner.getDisplayName(), this.getAttack(), this.getDefense());
+        return String.format(StringConstants.UNIT_INFO_FORMAT, this.getName(),
+                this.owner.getDisplayName(), this.getAttack(), this.getDefense());
     }
 
     /**
@@ -108,36 +137,39 @@ public class PlacedUnit {
      * @return The formatted string
      */
     public String formatSelectInfo() {
-        return String.format(StringConstants.UNIT_SELECT_FORMAT, this.getName(), this.unit.type().toString(), this.owner.getDisplayName(), this.getAttack(), this.getDefense());
+        return String.format(StringConstants.UNIT_SELECT_FORMAT, this.getName(),
+                this.unit.type().toString(), this.owner.getDisplayName(),
+                this.getAttack(), this.getDefense());
     }
 
     /**
-     * Executes the battle calculation against a defending unit.
-     *
-     * @param defender The defending unit
-     * @return The resulting DuelResult holding all damage and elimination states
+     * Executes the battle calculation.
+     * @param defender Defending unit
+     * @return DuelResult
      */
     public DuelResult fightAgainst(PlacedUnit defender) {
         DuelResult result;
         int atk = this.getAttack();
         int def = defender.getDefense();
         int defAtk = defender.getAttack();
+        PlayerType defOwner = defender.getOwner();
+        PlayerType myOwner = this.getOwner();
 
         if (defender.isKing()) {
-            result = new DuelResult(defender.getOwner(), atk, false, false, false);
+            result = new DuelResult(defOwner, atk, false, false, false);
         } else if (defender.isBlocking()) {
             if (atk > def) {
                 result = new DuelResult(null, 0, false, true, true);
             } else if (atk < def) {
-                result = new DuelResult(this.getOwner(), def - atk, false, false, false);
+                result = new DuelResult(myOwner, def - atk, false, false, false);
             } else {
                 result = new DuelResult(null, 0, false, false, false);
             }
         } else {
             if (atk > defAtk) {
-                result = new DuelResult(defender.getOwner(), atk - defAtk, false, true, true);
+                result = new DuelResult(defOwner, atk - defAtk, false, true, true);
             } else if (atk < defAtk) {
-                result = new DuelResult(this.getOwner(), defAtk - atk, true, false, false);
+                result = new DuelResult(myOwner, defAtk - atk, true, false, false);
             } else {
                 result = new DuelResult(null, 0, true, true, false);
             }

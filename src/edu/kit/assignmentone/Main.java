@@ -9,7 +9,7 @@ import java.io.IOException;
 /**
  * The main entry point for the application.
  *
- * @author Programmieren-Team
+ * @author uXXXXX
  * @version 1.0
  */
 public final class Main {
@@ -62,9 +62,7 @@ public final class Main {
             Game game = new Game(seed, deckPath, unitsPath);
             CommandHandler handler = new CommandHandler(game);
             handler.handleUserInput();
-        } catch (NumberFormatException | IOException e) {
-            // Wir fangen hier exakt nur die beiden Exceptions,
-            // die in der Setup-Phase explizit fliegen können.
+        } catch (IllegalArgumentException | IllegalStateException | IOException e) {
             System.err.println(StringConstants.ERROR_PREFIX + e.getMessage());
         }
     }

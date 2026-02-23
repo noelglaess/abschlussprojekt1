@@ -8,12 +8,10 @@ import edu.kit.assignmentone.model.units.Unit;
 /**
  * Command to end the current turn and optionally discard a card.
  *
- * @author Programmieren-Team
+ * @author uXXXXX
  * @version 1.0
  */
 public class YieldCommand extends Command {
-
-    private static final int FULL_HAND_SIZE = 5;
 
     /**
      * Creates a new yield command.
@@ -25,25 +23,12 @@ public class YieldCommand extends Command {
 
     @Override
     public void execute(String[] arguments) {
-        Player active = this.getGame().getActivePlayerObject();
-        boolean handIsFull = active.getHand().size() == FULL_HAND_SIZE;
-
-        if (handIsFull && arguments.length == 0) {
-            throw new IllegalStateException(StringConstants.ERR_MUST_DISC);
+        Game game = this.getGame();
+        Player active = game.getActivePlayerObject();
+        Unit discarded = active.processYield(arguments);
+        if (discarded != null) {
+            System.out.print(discarded.formatDiscardInfo(active.getType()));
         }
-        if (!handIsFull && arguments.length > 0) {
-            throw new IllegalStateException(StringConstants.ERR_CANT_DISC);
-        }
-
-        if (arguments.length > 0) {
-            int idx = Integer.parseInt(arguments[0]) - 1;
-            if (idx < 0 || idx >= active.getHand().size()) {
-                throw new IllegalArgumentException(StringConstants.ERR_INV_IDX);
-            }
-            Unit discarded = active.removeCardFromHand(idx);
-            System.out.printf(StringConstants.FMT_DISCARDED, active.getType().getDisplayName(), discarded.name(), discarded.attack(), discarded.defense());
-        }
-
-        this.getGame().switchTurn();
+        game.switchTurn();
     }
 }

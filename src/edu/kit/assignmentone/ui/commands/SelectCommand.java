@@ -2,16 +2,14 @@ package edu.kit.assignmentone.ui.commands;
 
 import edu.kit.assignmentone.model.Game;
 import edu.kit.assignmentone.model.StringConstants;
-import edu.kit.assignmentone.model.board.PlacedUnit;
+import edu.kit.assignmentone.model.board.Board;
 import edu.kit.assignmentone.model.board.Position;
 import edu.kit.assignmentone.ui.BoardFormatter;
-
-import java.util.Optional;
 
 /**
  * Command to select a position on the board and show its details.
  *
- * @author Programmieren-Team
+ * @author uXXXXX
  * @version 1.0
  */
 public class SelectCommand extends Command {
@@ -27,11 +25,12 @@ public class SelectCommand extends Command {
     @Override
     public void execute(String[] arguments) {
         Position pos = Position.fromString(arguments[0]);
-        this.getGame().setSelectedPosition(pos);
+        Game game = this.getGame();
+        Board board = game.getBoard();
 
-        System.out.print(BoardFormatter.formatBoard(this.getGame().getBoard(), pos));
+        game.setSelectedPosition(pos);
+        System.out.print(BoardFormatter.formatBoard(board, pos));
 
-        Optional<PlacedUnit> unitOpt = this.getGame().getBoard().getUnitAt(pos);
-        unitOpt.ifPresent(placedUnit -> System.out.println(placedUnit.formatSelectInfo()));
+        board.getUnitAt(pos).ifPresent(u -> System.out.println(u.formatSelectInfo()));
     }
 }

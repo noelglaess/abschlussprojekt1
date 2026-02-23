@@ -9,7 +9,7 @@ import java.util.List;
  *
  * @param col The column index (0 to 6, where 0 = 'A')
  * @param row The row index (0 to 6, where 0 = '1')
- * @author Programmieren-Team
+ * @author uXXXXX
  * @version 1.0
  */
 public record Position(int col, int row) {
@@ -22,7 +22,6 @@ public record Position(int col, int row) {
 
     /**
      * Parses a string representation (e.g., "D5") into a Position.
-     *
      * @param posString The string representation of the position
      * @return The parsed Position
      * @throws IllegalArgumentException If the string format or bounds are invalid
@@ -46,19 +45,17 @@ public record Position(int col, int row) {
     }
 
     /**
-     * Checks if the given column and row are within the board's bounds.
-     *
+     * Checks if the given column and row are within bounds.
      * @param col The column index
      * @param row The row index
-     * @return true if valid, false otherwise
+     * @return true if valid
      */
     public static boolean isValid(int col, int row) {
         return col >= MIN_INDEX && col <= MAX_INDEX && row >= MIN_INDEX && row <= MAX_INDEX;
     }
 
     /**
-     * Calculates the Manhattan distance between this position and another one.
-     *
+     * Calculates the Manhattan distance.
      * @param other The other position
      * @return The distance in steps
      */
@@ -67,16 +64,39 @@ public record Position(int col, int row) {
     }
 
     /**
-     * Returns a list of adjacent positions (up, right, down, left) including the current position itself.
-     *
+     * Translates the position by given offsets.
+     * @param dCol Column offset
+     * @param dRow Row offset
+     * @return New Position or null if invalid
+     */
+    public Position translate(int dCol, int dRow) {
+        int newCol = this.col + dCol;
+        int newRow = this.row + dRow;
+        return isValid(newCol, newRow) ? new Position(newCol, newRow) : null;
+    }
+
+    /**
+     * Returns adjacent positions and center.
      * @return List of positions
      */
     public List<Position> getAdjacentAndCenter() {
         List<Position> list = new ArrayList<>();
-        list.add(new Position(this.col, this.row + 1));
-        list.add(new Position(this.col + 1, this.row));
-        list.add(new Position(this.col, this.row - 1));
-        list.add(new Position(this.col - 1, this.row));
+        Position up = translate(0, 1);
+        if (up != null) {
+            list.add(up);
+        }
+        Position right = translate(1, 0);
+        if (right != null) {
+            list.add(right);
+        }
+        Position down = translate(0, -1);
+        if (down != null) {
+            list.add(down);
+        }
+        Position left = translate(-1, 0);
+        if (left != null) {
+            list.add(left);
+        }
         list.add(this);
         return list;
     }

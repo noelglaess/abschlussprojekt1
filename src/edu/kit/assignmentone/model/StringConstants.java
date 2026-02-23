@@ -3,7 +3,7 @@ package edu.kit.assignmentone.model;
 /**
  * Utility class containing all strings to avoid duplicate or hardcoded string literals.
  *
- * @author Programmieren-Team
+ * @author uXXXXX
  * @version 1.0
  */
 public final class StringConstants {
@@ -13,8 +13,6 @@ public final class StringConstants {
     /** Char representation of backslash to bypass HardcodedFileSeparator check. */
     private static final char BACKSLASH = 92;
 
-    /** Error message. */
-    public static final String UTILITY_CLASS_ERROR = "Utility classes cannot be instantiated";
     /** King unit name. */
     public static final String KING_NAME = "Farmer King";
     /** Success message. */
@@ -84,42 +82,35 @@ public final class StringConstants {
     /** No cards format. */
     public static final String FMT_NO_CARDS = "%s has no cards left in the deck!%n";
 
-    /** Seed argument. */
+    /** Command names. */
+    public static final String CMD_QUIT = "quit";
+    public static final String CMD_SHOW = "show";
+    public static final String CMD_STATE = "state";
+    public static final String CMD_HAND = "hand";
+
+    /** Console messages. */
+    public static final String MSG_HELP = "Use one of the following commands: select, board, move, flip, block, hand, place, show, yield, state, quit.";
+
+    /** Arguments strings. */
     public static final String ARG_SEED = "seed";
-    /** Deck argument. */
     public static final String ARG_DECK = "deck";
-    /** Verbosity argument. */
     public static final String ARG_VERBOSITY = "verbosity";
-    /** Units argument. */
     public static final String ARG_UNITS = "units";
-    /** Argument separator. */
     public static final String ARG_SEPARATOR = "=";
-    /** Argument error format. */
     public static final String ERR_ARG_FORMAT = "Invalid command line arguments.";
 
     /** Error strings. */
     public static final String ERR_MOVE_DIST = "Invalid move distance. Only 1 step horizontally" + SLASH + "vertically or en place allowed.";
-    /** Error strings. */
     public static final String ERR_NO_SELECTION = "No field selected or selected field is empty.";
-    /** Error strings. */
     public static final String ERR_ALREADY_MOVED = "This unit has already moved this turn.";
-    /** Error strings. */
     public static final String ERR_KING_MOVE = "Invalid king move. Kings cannot attack or be attacked by own king.";
-    /** Error strings. */
     public static final String ERR_NO_SEL_PLACE = "No field selected.";
-    /** Error strings. */
     public static final String ERR_ALREADY_PLACED = "You have already placed units this turn.";
-    /** Error strings. */
     public static final String ERR_INV_IDX = "One or more provided hand indices are invalid.";
-    /** Error strings. */
     public static final String ERR_DUP_IDX = "An index cannot be provided multiple times.";
-    /** Error strings. */
     public static final String ERR_OCC_ENEMY = "Cannot place on a field occupied by the enemy.";
-    /** Error strings. */
     public static final String ERR_MUST_DISC = "You hold 5 units and must discard one using 'yield <idx>'.";
-    /** Error strings. */
     public static final String ERR_CANT_DISC = "You hold less than 5 units and cannot discard.";
-    /** Error strings. */
     public static final String ERR_NO_ARGS = "This command does not take any arguments.";
 
     private StringConstants() {

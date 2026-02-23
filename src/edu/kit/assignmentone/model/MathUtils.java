@@ -31,7 +31,7 @@ public final class MathUtils {
      * @param numberToCheck The number to check
      * @return true if prime
      */
-    public static boolean isPrime(int numberToCheck) {
+    private static boolean isPrime(int numberToCheck) {
         if (numberToCheck <= 1) return false;
         if (numberToCheck <= 3) return true;
         if (numberToCheck % 2 == 0 || numberToCheck % 3 == 0) return false;
@@ -39,5 +39,15 @@ public final class MathUtils {
             if (numberToCheck % index == 0 || numberToCheck % (index + 2) == 0) return false;
         }
         return true;
+    }
+
+    /**
+     * Checks if either of two values is prime.
+     * @param value1 First value
+     * @param value2 Second value
+     * @return true if one or both are prime
+     */
+    public static boolean hasPrime(int value1, int value2) {
+        return isPrime(value1) || isPrime(value2);
     }
 }

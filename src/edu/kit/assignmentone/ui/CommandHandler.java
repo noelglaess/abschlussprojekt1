@@ -3,7 +3,6 @@ package edu.kit.assignmentone.ui;
 import edu.kit.assignmentone.model.Game;
 import edu.kit.assignmentone.model.AIEngine;
 import edu.kit.assignmentone.model.StringConstants;
-import edu.kit.assignmentone.model.player.PlayerType;
 import edu.kit.assignmentone.ui.commands.Command;
 import edu.kit.assignmentone.ui.commands.HandCommand;
 import edu.kit.assignmentone.ui.commands.MoveCommand;
@@ -21,12 +20,12 @@ import java.util.Scanner;
 /**
  * Handles the user input and executes the corresponding commands.
  *
- * @author Programmieren-Team
+ * @author uXXXXX
  * @version 1.0
  */
 public class CommandHandler {
-    private static final String COMMAND_NOT_FOUND_ERROR = "Command not recognised.";
-    private static final String USE_ONE_OF_THE_FOLLOWING_COMMANDS_SELECT_BOARD_MOVE_FLIP_BLOCK_HAND_PLACE_SHOW_YIELD_STATE_QUIT = "Use one of the following commands: select, board, move, flip, block, hand, place, show, yield, state, quit.";
+
+    private static final String CMD_NOT_FOUND_ERROR = "Command not recognised.";
 
     private final Game game;
     private final List<Command> commands;
@@ -57,30 +56,28 @@ public class CommandHandler {
      * Starts the input loop.
      */
     public void handleUserInput() {
-        System.out.println(USE_ONE_OF_THE_FOLLOWING_COMMANDS_SELECT_BOARD_MOVE_FLIP_BLOCK_HAND_PLACE_SHOW_YIELD_STATE_QUIT);
+        System.out.println(StringConstants.MSG_HELP);
         try (Scanner scanner = new Scanner(System.in)) {
             while (this.game.isRunning()) {
-                if (this.game.getActivePlayer() == PlayerType.ENEMY) {
+                if (this.game.isEnemyTurn()) {
                     AIEngine.playTurn(this.game);
-                    continue;
-                }
-
-                if (scanner.hasNextLine()) {
+                } else if (scanner.hasNextLine()) {
                     String input = scanner.nextLine().trim();
-                    if (input.isEmpty()) {
-                        continue;
+                    if (!input.isEmpty()) {
+                        executeCommand(input);
                     }
-                    executeCommand(input);
                 } else {
-                    break;
+                    this.game.quit();
                 }
             }
         }
     }
 
     private void executeCommand(String input) {
+        boolean found = false;
         for (Command command : this.commands) {
             if (input.matches(command.getCommandRegex())) {
+                found = true;
                 String[] arguments = input.split(StringConstants.REGEX_WHITESPACE);
                 String[] argsOnly = new String[arguments.length - 1];
                 System.arraycopy(arguments, 1, argsOnly, 0, arguments.length - 1);
@@ -90,9 +87,11 @@ public class CommandHandler {
                 } catch (IllegalStateException | IllegalArgumentException e) {
                     System.err.println(StringConstants.ERROR_PREFIX + e.getMessage());
                 }
-                return;
+                break;
             }
         }
-        System.err.println(StringConstants.ERROR_PREFIX + COMMAND_NOT_FOUND_ERROR);
+        if (!found) {
+            System.err.println(StringConstants.ERROR_PREFIX + CMD_NOT_FOUND_ERROR);
+        }
     }
 }

@@ -10,19 +10,17 @@ import java.util.Optional;
 /**
  * Command to show the current state of the game board.
  *
- * @author Programmieren-Team
+ * @author uXXXXX
  * @version 1.0
  */
 public class ShowCommand extends Command {
-
-    private static final String SHOW = "show";
 
     /**
      * Creates a new show command.
      * @param game The game to execute the command on
      */
     public ShowCommand(Game game) {
-        super(SHOW, game);
+        super(StringConstants.CMD_SHOW, game);
     }
 
     @Override
@@ -31,13 +29,15 @@ public class ShowCommand extends Command {
             throw new IllegalArgumentException(StringConstants.ERR_NO_ARGS);
         }
 
-        Position selected = this.getGame().getSelectedPosition();
+        Game game = this.getGame();
+        Position selected = game.getSelectedPosition();
+
         if (selected == null) {
             System.out.println(StringConstants.NO_UNIT);
             return;
         }
 
-        Optional<PlacedUnit> unitOpt = this.getGame().getBoard().getUnitAt(selected);
+        Optional<PlacedUnit> unitOpt = game.getBoard().getUnitAt(selected);
         if (unitOpt.isPresent()) {
             System.out.println(unitOpt.get().formatInfo());
         } else {

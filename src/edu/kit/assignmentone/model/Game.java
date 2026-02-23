@@ -15,7 +15,7 @@ import java.util.Random;
 /**
  * The main game logic class (Facade).
  *
- * @author Programmieren-Team
+ * @author uXXXXX
  * @version 1.0
  */
 public class Game {
@@ -58,11 +58,17 @@ public class Game {
         this.humanPlayer = new Player(PlayerType.PLAYER, humanDeck);
         this.enemyPlayer = new Player(PlayerType.ENEMY, enemyDeck);
 
-        this.humanPlayer.drawInitialHand();
-        this.enemyPlayer.drawInitialHand();
+        initPlayer(this.humanPlayer, true);
+        initPlayer(this.enemyPlayer, false);
 
         this.activePlayer = PlayerType.PLAYER;
-        this.humanPlayer.drawCard();
+    }
+
+    private void initPlayer(Player player, boolean drawExtra) {
+        player.drawInitialHand();
+        if (drawExtra) {
+            player.drawCard();
+        }
     }
 
     private Deck createDeckFromBlueprint() {
@@ -82,10 +88,16 @@ public class Game {
      */
     public boolean isRunning() { return this.running; }
 
-    /**
-     * Stops the game.
-     */
+    /** Stops the game. */
     public void quit() { this.running = false; }
+
+    /**
+     * Checks if it is the enemy's turn.
+     * @return true if enemy turn
+     */
+    public boolean isEnemyTurn() {
+        return this.activePlayer == PlayerType.ENEMY;
+    }
 
     /**
      * Gets the game's random instance.
@@ -124,12 +136,6 @@ public class Game {
     public void setSelectedPosition(Position position) { this.selectedPosition = position; }
 
     /**
-     * Gets the player type currently taking their turn.
-     * @return the active player type
-     */
-    public PlayerType getActivePlayer() { return this.activePlayer; }
-
-    /**
      * Gets the player object currently taking their turn.
      * @return the active player object
      */
@@ -145,24 +151,22 @@ public class Game {
 
         for (int row = 0; row < 7; row++) {
             for (int col = 0; col < 7; col++) {
-                this.board.getUnitAt(new Position(col, row)).ifPresent(placedUnit -> placedUnit.setMoved(false));
+                this.board.getUnitAt(new Position(col, row)).ifPresent(unit -> unit.setMoved(false));
             }
         }
 
-        PlayerType nextActive = (this.activePlayer == PlayerType.PLAYER) ? PlayerType.ENEMY : PlayerType.PLAYER;
-        this.activePlayer = nextActive;
+        this.activePlayer = this.activePlayer.next();
+        String pName = this.activePlayer.getDisplayName();
 
         Player nextPlayer = getActivePlayerObject();
         nextPlayer.setPlacedThisTurn(false);
 
-        boolean canDraw = nextPlayer.drawCard();
-        if (!canDraw) {
-            System.out.printf(StringConstants.FMT_NO_CARDS, nextActive.getDisplayName());
-            PlayerType winner = nextActive == PlayerType.PLAYER ? PlayerType.ENEMY : PlayerType.PLAYER;
-            System.out.printf(StringConstants.FMT_WINS, winner.getDisplayName());
+        if (!nextPlayer.drawCard()) {
+            System.out.printf(StringConstants.FMT_NO_CARDS, pName);
+            System.out.printf(StringConstants.FMT_WINS, this.activePlayer.next().getDisplayName());
             quit();
-            return;
+        } else {
+            System.out.printf(StringConstants.FMT_TURN, pName);
         }
-        System.out.printf(StringConstants.FMT_TURN, nextActive.getDisplayName());
     }
 }

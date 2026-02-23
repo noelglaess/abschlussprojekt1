@@ -5,7 +5,6 @@ import edu.kit.assignmentone.model.board.PlacedUnit;
 import edu.kit.assignmentone.model.board.Position;
 import edu.kit.assignmentone.model.player.Player;
 import edu.kit.assignmentone.model.player.PlayerType;
-import edu.kit.assignmentone.model.units.Unit;
 import edu.kit.assignmentone.ui.BoardFormatter;
 import edu.kit.assignmentone.ui.commands.Command;
 import edu.kit.assignmentone.ui.commands.MoveCommand;
@@ -14,32 +13,19 @@ import edu.kit.assignmentone.ui.commands.YieldCommand;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Handles the fully automated turn for the AI Enemy.
  *
- * @author Programmieren-Team
+ * @author uXXXXX
  * @version 1.0
  */
 public final class AIEngine {
 
-    private static final int[][] DIR_4 = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
-    private static final int[][] DIR_8 = {{0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}};
-
     private static final int HUNDRED = 100;
-    private static final int FLIPPED_PENALTY = 500;
-    private static final int BASE_SCORE = 10;
-    private static final int ENEMY_MULTIPLIER = 2;
-    private static final int FELLOW_MULTIPLIER = 3;
-    private static final int BOARD_SIZE = 7;
-    private static final int MAX_HAND_SIZE = 5;
-    private static final int WEIGHT_DEFAULT = 1;
-    private static final int ACTION_BLOCK = 4;
-    private static final int ACTION_IN_PLACE = 5;
+    private static final int DIR_COUNT = 4;
 
-    private AIEngine() {
-    }
+    private AIEngine() { }
 
     /**
      * Executes all phases of the AI turn.
@@ -47,258 +33,164 @@ public final class AIEngine {
      * @param game The game instance
      */
     public static void playTurn(Game game) {
-        if (!game.isRunning()) return;
-        moveKing(game);
-        if (!game.isRunning()) return;
-        placeUnit(game);
-        moveUnits(game);
-        if (game.isRunning()) endTurn(game);
+        if (game.isRunning()) {
+            moveKing(game);
+        }
+        if (game.isRunning()) {
+            placeUnit(game);
+        }
+        if (game.isRunning()) {
+            moveUnits(game);
+        }
+        if (game.isRunning()) {
+            endTurn(game);
+        }
     }
 
     private static void moveKing(Game game) {
         Board board = game.getBoard();
         Position kingPos = board.findUnit(StringConstants.KING_NAME, PlayerType.ENEMY);
-        if (kingPos == null) return;
-
-        int maxScore = Integer.MIN_VALUE;
-        List<Position> bestOptions = new ArrayList<>();
-
-        for (Position pos : kingPos.getAdjacentAndCenter()) {
-            if (!Position.isValid(pos.col(), pos.row())) continue;
-
-            Optional<PlacedUnit> unitOpt = board.getUnitAt(pos);
-            if (unitOpt.isPresent() && unitOpt.orElseThrow().getOwner() == PlayerType.PLAYER) continue;
-
-            int fellows = board.countUnits(pos, DIR_8, PlayerType.ENEMY, kingPos);
-            int enemies = board.countUnits(pos, DIR_8, PlayerType.PLAYER, null);
-            int distance = kingPos.distanceTo(pos);
-            int fellowPresent = (unitOpt.isPresent() && unitOpt.orElseThrow().getOwner() == PlayerType.ENEMY && !pos.equals(kingPos)) ? 1 : 0;
-
-            int score = fellows - ENEMY_MULTIPLIER * enemies - distance - FELLOW_MULTIPLIER * fellowPresent;
-
-            if (score > maxScore) {
-                maxScore = score;
-                bestOptions.clear();
-                bestOptions.add(pos);
-            } else if (score == maxScore) {
-                bestOptions.add(pos);
-            }
+        if (kingPos != null) {
+            Position chosen = board.findBestKingMove(kingPos, game.getRandom());
+            game.setSelectedPosition(kingPos);
+            executeSilently(new MoveCommand(game), new String[]{chosen.toString()});
         }
-
-        Position chosen = bestOptions.getFirst();
-        if (bestOptions.size() > 1) {
-            List<Integer> weights = new ArrayList<>();
-            for (int i = 0; i < bestOptions.size(); i++) weights.add(WEIGHT_DEFAULT);
-            chosen = bestOptions.get(RandomUtils.weightedRandom(weights, game.getRandom()));
-        }
-
-        game.setSelectedPosition(kingPos);
-        executeCommandSilently(new MoveCommand(game), new String[]{chosen.toString()});
     }
 
     private static void placeUnit(Game game) {
         Board board = game.getBoard();
         Player enemy = game.getEnemyPlayer();
-        if (enemy.getHand().isEmpty() || enemy.getBoardCount() >= enemy.getMaxBoardCapacity()) return;
 
-        Position kingPos = board.findUnit(StringConstants.KING_NAME, PlayerType.ENEMY);
-        Position playerKingPos = board.findUnit(StringConstants.KING_NAME, PlayerType.PLAYER);
-        if (kingPos == null || playerKingPos == null) return;
+        if (!enemy.getHand().isEmpty() && enemy.getBoardCount() < enemy.getMaxBoardCapacity()) {
+            Position kingPos = board.findUnit(StringConstants.KING_NAME, PlayerType.ENEMY);
+            Position pKing = board.findUnit(StringConstants.KING_NAME, PlayerType.PLAYER);
 
-        int maxScore = Integer.MIN_VALUE;
-        List<Position> bestFields = new ArrayList<>();
-
-        for (int[] dir : DIR_8) {
-            Position pos = new Position(kingPos.col() + dir[0], kingPos.row() + dir[1]);
-            if (Position.isValid(pos.col(), pos.row())) {
-                Optional<PlacedUnit> unitOpt = board.getUnitAt(pos);
-                if (unitOpt.isEmpty() || unitOpt.orElseThrow().getOwner() == PlayerType.ENEMY) {
-                    int steps = pos.distanceTo(playerKingPos);
-                    int enemies = board.countUnits(pos, DIR_4, PlayerType.PLAYER, null);
-                    int fellows = board.countUnits(pos, DIR_4, PlayerType.ENEMY, null);
-                    int score = -steps + ENEMY_MULTIPLIER * enemies - fellows;
-
-                    if (score > maxScore) {
-                        maxScore = score;
-                        bestFields.clear();
-                        bestFields.add(pos);
-                    } else if (score == maxScore) {
-                        bestFields.add(pos);
-                    }
+            if (kingPos != null && pKing != null) {
+                Position chosenField = board.findBestPlacement(kingPos, pKing, game.getRandom());
+                if (chosenField != null) {
+                    int chosenIdx = enemy.pickUnitToPlace(game.getRandom());
+                    game.setSelectedPosition(chosenField);
+                    executeSilently(new PlaceCommand(game), new String[]{String.valueOf(chosenIdx + 1)});
                 }
             }
         }
-
-        if (bestFields.isEmpty()) return;
-
-        Position chosenField = bestFields.getFirst();
-        if (bestFields.size() > 1) {
-            List<Integer> weights = new ArrayList<>();
-            for (int i = 0; i < bestFields.size(); i++) weights.add(WEIGHT_DEFAULT);
-            chosenField = bestFields.get(RandomUtils.weightedRandom(weights, game.getRandom()));
-        }
-
-        List<Integer> handWeights = new ArrayList<>();
-        for (Unit u : enemy.getHand()) handWeights.add(u.attack());
-        int chosenUnitIdx = RandomUtils.weightedRandom(handWeights, game.getRandom());
-
-        game.setSelectedPosition(chosenField);
-        executeCommandSilently(new PlaceCommand(game), new String[]{String.valueOf(chosenUnitIdx + 1)});
     }
 
     private static void moveUnits(Game game) {
         Board board = game.getBoard();
-        Position playerKingPos = board.findUnit(StringConstants.KING_NAME, PlayerType.PLAYER);
-        if (playerKingPos == null) return;
+        Position pKing = board.findUnit(StringConstants.KING_NAME, PlayerType.PLAYER);
+        if (pKing != null) {
+            while (true) {
+                List<Position> unmoved = board.getUnmovedEnemyUnits();
+                if (unmoved.isEmpty()) {
+                    break;
+                }
 
-        while (true) {
-            List<Position> unmovedUnits = new ArrayList<>();
-            for (int row = 0; row < BOARD_SIZE; row++) {
-                for (int col = 0; col < BOARD_SIZE; col++) {
-                    Position pos = new Position(col, row);
-                    Optional<PlacedUnit> opt = board.getUnitAt(pos);
-                    if (opt.isPresent() && opt.orElseThrow().getOwner() == PlayerType.ENEMY
-                            && !opt.orElseThrow().isMoved() && !opt.orElseThrow().isKing()) {
-                        unmovedUnits.add(pos);
+                Position bestPos = null;
+                int bestTotal = Integer.MIN_VALUE;
+                List<Integer> bestScores = new ArrayList<>();
+                List<Integer> bestIndices = new ArrayList<>();
+
+                for (Position pos : unmoved) {
+                    UnitScoreResult res = evaluateUnit(board, pos, pKing);
+                    if (res.totalScore() > bestTotal) {
+                        bestTotal = res.totalScore();
+                        bestPos = pos;
+                        bestScores = res.optionScores();
+                        bestIndices = res.validIndices();
                     }
                 }
-            }
-
-            if (unmovedUnits.isEmpty()) break;
-
-            Position bestUnitPos = null;
-            int bestUnitTotalScore = Integer.MIN_VALUE;
-            List<Integer> bestUnitOptionScores = new ArrayList<>();
-            List<Integer> bestUnitValidIndices = new ArrayList<>();
-
-            for (Position pos : unmovedUnits) {
-                PlacedUnit unit = board.getUnitAt(pos).orElseThrow();
-                UnitScoreResult result = evaluateUnitOptions(board, unit, pos, playerKingPos);
-
-                if (result.totalScore() > bestUnitTotalScore) {
-                    bestUnitTotalScore = result.totalScore();
-                    bestUnitPos = pos;
-                    bestUnitOptionScores = result.optionScores();
-                    bestUnitValidIndices = result.validIndices();
+                if (bestPos != null) {
+                    game.setSelectedPosition(bestPos);
+                    performAction(game, board, bestPos, bestScores, bestIndices);
                 }
             }
-
-            if (bestUnitPos != null) {
-                game.setSelectedPosition(bestUnitPos);
-                performChosenAction(game, board, bestUnitPos, bestUnitOptionScores, bestUnitValidIndices);
-            }
         }
     }
 
-    private static UnitScoreResult evaluateUnitOptions(Board board, PlacedUnit unit, Position pos, Position playerKingPos) {
-        List<Integer> optionScores = new ArrayList<>();
-        List<Integer> validIndices = new ArrayList<>();
-        int totalScore = 0;
+    private static UnitScoreResult evaluateUnit(Board board, Position pos, Position pKing) {
+        PlacedUnit unit = board.getUnitAt(pos).orElseThrow();
+        List<Integer> scores = new ArrayList<>();
+        List<Integer> indices = new ArrayList<>();
+        int total = 0;
 
-        for (int dirIdx = 0; dirIdx < 4; dirIdx++) {
-            Position target = new Position(pos.col() + DIR_4[dirIdx][0], pos.row() + DIR_4[dirIdx][1]);
-            if (!Position.isValid(target.col(), target.row())) continue;
-
-            PlacedUnit targetUnit = board.getUnitAt(target).orElse(null);
-            if (targetUnit != null && targetUnit.isKing() && targetUnit.getOwner() == PlayerType.ENEMY) continue;
-
-            int score = calculateTargetScore(unit, targetUnit, target, playerKingPos, board);
-            optionScores.add(score);
-            validIndices.add(dirIdx);
-            totalScore += score;
-        }
-
-        int maxEnemyAtk = board.getMaxSurroundingEnemyAtk(pos);
-        int blockScore = Math.max(1, (unit.getDefense() - maxEnemyAtk) / HUNDRED);
-        optionScores.add(blockScore);
-        validIndices.add(ACTION_BLOCK);
-        totalScore += blockScore;
-
-        int inPlaceScore = Math.max(0, (unit.getAttack() - maxEnemyAtk) / HUNDRED);
-        optionScores.add(inPlaceScore);
-        validIndices.add(ACTION_IN_PLACE);
-        totalScore += inPlaceScore;
-
-        return new UnitScoreResult(totalScore, optionScores, validIndices);
-    }
-
-    private static int calculateTargetScore(PlacedUnit unit, PlacedUnit targetUnit, Position target, Position playerKingPos, Board board) {
-        int score;
-        if (targetUnit == null) {
-            int steps = target.distanceTo(playerKingPos);
-            int enemies = board.countUnits(target, DIR_4, PlayerType.PLAYER, null);
-            score = BASE_SCORE - steps - enemies;
-        } else if (targetUnit.getOwner() == PlayerType.ENEMY) {
-            Optional<Unit> combined = unit.getUnit().combineWith(targetUnit.getUnit());
-            if (combined.isPresent()) {
-                score = combined.orElseThrow().attack() + combined.orElseThrow().defense() - unit.getAttack() - unit.getDefense();
-            } else {
-                score = -targetUnit.getAttack() - targetUnit.getDefense();
-            }
-        } else {
-            if (targetUnit.isKing()) {
-                score = unit.getAttack();
-            } else if (!targetUnit.isFlipped()) {
-                score = unit.getAttack() - FLIPPED_PENALTY;
-            } else if (targetUnit.isBlocking()) {
-                score = unit.getAttack() - targetUnit.getDefense();
-            } else {
-                score = ENEMY_MULTIPLIER * (unit.getAttack() - targetUnit.getAttack());
+        int[][] dirs = Board.getDir4();
+        for (int i = 0; i < DIR_COUNT; i++) {
+            Position target = pos.translate(dirs[i][0], dirs[i][1]);
+            if (target != null) {
+                PlacedUnit tUnit = board.getUnitAt(target).orElse(null);
+                if (tUnit == null || !tUnit.isKing() || tUnit.getOwner() != PlayerType.ENEMY) {
+                    int scoreVal = board.evaluateTargetScore(pos, target, pKing);
+                    scores.add(scoreVal);
+                    indices.add(i);
+                    total += scoreVal;
+                }
             }
         }
-        return score;
+
+        int maxAtk = board.getMaxSurroundingEnemyAtk(pos);
+        int blockScore = Math.max(1, (unit.getDefense() - maxAtk) / HUNDRED);
+        scores.add(blockScore);
+        indices.add(4);
+        total += blockScore;
+
+        int inPlaceScore = Math.max(0, (unit.getAttack() - maxAtk) / HUNDRED);
+        scores.add(inPlaceScore);
+        indices.add(5);
+        total += inPlaceScore;
+
+        return new UnitScoreResult(total, scores, indices);
     }
 
-    private static void performChosenAction(Game game, Board board, Position bestUnitPos, List<Integer> scores, List<Integer> validIndices) {
-        PlacedUnit activeUnit = board.getUnitAt(bestUnitPos).orElseThrow();
-        boolean hasPositive = false;
-        for (int score : scores) {
-            if (score > 0) {
-                hasPositive = true;
+    private static void performAction(Game game, Board board, Position pos, List<Integer> scores, List<Integer> idxs) {
+        PlacedUnit unit = board.getUnitAt(pos).orElseThrow();
+        boolean hasPos = false;
+        for (int scoreVal : scores) {
+            if (scoreVal > 0) {
+                hasPos = true;
                 break;
             }
         }
 
-        if (!hasPositive) {
-            activeUnit.block();
-            System.out.printf(StringConstants.FMT_BLOCKS, activeUnit.getName(), bestUnitPos);
-            System.out.print(BoardFormatter.formatBoard(board, bestUnitPos));
+        if (!hasPos) {
+            blockUnit(board, unit, pos);
         } else {
-            int chosenActionIdx = RandomUtils.weightedRandom(scores, game.getRandom());
-            int actualAction = validIndices.get(chosenActionIdx);
-
-            if (actualAction < ACTION_BLOCK) {
-                String targetStr = new Position(bestUnitPos.col() + DIR_4[actualAction][0], bestUnitPos.row() + DIR_4[actualAction][1]).toString();
-                executeCommandSilently(new MoveCommand(game), new String[]{targetStr});
-            } else if (actualAction == ACTION_BLOCK) {
-                activeUnit.block();
-                System.out.printf(StringConstants.FMT_BLOCKS, activeUnit.getName(), bestUnitPos);
-                System.out.print(BoardFormatter.formatBoard(board, bestUnitPos));
-            } else if (actualAction == ACTION_IN_PLACE) {
-                executeCommandSilently(new MoveCommand(game), new String[]{bestUnitPos.toString()});
+            int chosenIdx = RandomUtils.weightedRandom(scores, game.getRandom());
+            int act = idxs.get(chosenIdx);
+            if (act < DIR_COUNT) {
+                Position target = pos.translate(Board.getDir4()[act][0], Board.getDir4()[act][1]);
+                if (target != null) {
+                    executeSilently(new MoveCommand(game), new String[]{target.toString()});
+                }
+            } else if (act == DIR_COUNT) {
+                blockUnit(board, unit, pos);
+            } else {
+                executeSilently(new MoveCommand(game), new String[]{pos.toString()});
             }
         }
+    }
+
+    private static void blockUnit(Board board, PlacedUnit unit, Position pos) {
+        unit.block();
+        System.out.printf(StringConstants.FMT_BLOCKS, unit.getName(), pos);
+        System.out.print(BoardFormatter.formatBoard(board, pos));
     }
 
     private static void endTurn(Game game) {
         Player enemy = game.getEnemyPlayer();
-        if (enemy.getHand().size() == MAX_HAND_SIZE) {
-            List<Integer> weights = new ArrayList<>();
-            for (Unit u : enemy.getHand()) {
-                weights.add(u.attack() + u.defense());
-            }
-            int discardIdx = RandomUtils.reverseWeightedRandom(weights, game.getRandom());
-            executeCommandSilently(new YieldCommand(game), new String[]{String.valueOf(discardIdx + 1)});
+        if (enemy.hasFullHand()) {
+            int dropIdx = enemy.pickUnitToDiscard(game.getRandom());
+            executeSilently(new YieldCommand(game), new String[]{String.valueOf(dropIdx + 1)});
         } else {
-            executeCommandSilently(new YieldCommand(game), new String[0]);
+            executeSilently(new YieldCommand(game), new String[0]);
         }
     }
 
-    private static void executeCommandSilently(Command command, String[] args) {
+    private static void executeSilently(Command cmd, String[] args) {
         try {
-            command.execute(args);
+            cmd.execute(args);
         } catch (IllegalStateException | IllegalArgumentException ignored) {
-            // Internal execution ignores format exceptions
+            // Ignored silently for AI
         }
     }
 

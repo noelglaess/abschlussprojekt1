@@ -2,6 +2,7 @@ package edu.kit.assignmentone.model.units;
 
 import edu.kit.assignmentone.model.MathUtils;
 import edu.kit.assignmentone.model.StringConstants;
+import edu.kit.assignmentone.model.player.PlayerType;
 import java.util.Optional;
 
 /**
@@ -11,7 +12,7 @@ import java.util.Optional;
  * @param type The type of the unit
  * @param attack The attack value
  * @param defense The defense value
- * @author Programmieren-Team
+ * @author uXXXXX
  * @version 1.0
  */
 public record Unit(String name, UnitType type, int attack, int defense) {
@@ -31,31 +32,31 @@ public record Unit(String name, UnitType type, int attack, int defense) {
      * @return An Optional containing the combined unit, or empty if incompatible
      */
     public Optional<Unit> combineWith(Unit other) {
-        if (this.name.equals(other.name())) {
-            return Optional.empty();
+        Optional<Unit> result = Optional.empty();
+
+        if (!this.name.equals(other.name())) {
+            String newName = generateCombinedName(this.name, other.name());
+            UnitType newType = other.type();
+
+            int tAtk = this.attack;
+            int tDef = this.defense;
+            int oAtk = other.attack();
+            int oDef = other.defense();
+
+            if (tAtk > oAtk && tAtk == oDef && oAtk == tDef) {
+                result = Optional.of(new Unit(newName, newType, tAtk, oDef));
+            } else {
+                int maxGcd = Math.max(MathUtils.gcd(tAtk, oAtk), MathUtils.gcd(tDef, oDef));
+                if (maxGcd > 100) {
+                    result = Optional.of(new Unit(newName, newType,
+                            tAtk + oAtk - maxGcd, tDef + oDef - maxGcd));
+                } else if (maxGcd == 100 && (MathUtils.hasPrime(tAtk / 100, oAtk / 100)
+                        || MathUtils.hasPrime(tDef / 100, oDef / 100))) {
+                    result = Optional.of(new Unit(newName, newType, tAtk + oAtk, tDef + oDef));
+                }
+            }
         }
-
-        String newName = generateCombinedName(this.name, other.name());
-        UnitType newType = other.type();
-
-        if (this.attack > other.attack() && this.attack == other.defense() && other.attack() == this.defense) {
-            return Optional.of(new Unit(newName, newType, this.attack, other.defense()));
-        }
-
-        int gcdAtk = MathUtils.gcd(this.attack, other.attack());
-        int gcdDef = MathUtils.gcd(this.defense, other.defense());
-        int maxGcd = Math.max(gcdAtk, gcdDef);
-
-        if (maxGcd > 100) {
-            return Optional.of(new Unit(newName, newType, this.attack + other.attack() - maxGcd, this.defense + other.defense() - maxGcd));
-        }
-
-        if (maxGcd == 100 && (MathUtils.isPrime(this.attack / 100) && MathUtils.isPrime(other.attack() / 100)
-                || MathUtils.isPrime(this.defense / 100) && MathUtils.isPrime(other.defense() / 100))) {
-            return Optional.of(new Unit(newName, newType, this.attack + other.attack(), this.defense + other.defense()));
-        }
-
-        return Optional.empty();
+        return result;
     }
 
     private String generateCombinedName(String nameA, String nameB) {
@@ -65,5 +66,24 @@ public record Unit(String name, UnitType type, int attack, int defense) {
         String qualB = partsB.length > 0 ? partsB[0] : nameB;
         String roleB = partsB.length > 1 ? partsB[1] : StringConstants.EMPTY;
         return (qualB + " " + qualA + " " + roleB).trim();
+    }
+
+    /**
+     * Formats the unit for the hand display.
+     * @param index The index
+     * @return Formatted string
+     */
+    public String formatHandInfo(int index) {
+        return String.format(StringConstants.FMT_HAND_CARD, index, this.name, this.attack, this.defense);
+    }
+
+    /**
+     * Formats the unit for the discard display.
+     * @param type Player type
+     * @return Formatted string
+     */
+    public String formatDiscardInfo(PlayerType type) {
+        return String.format(StringConstants.FMT_DISCARDED, type.getDisplayName(),
+                this.name, this.attack, this.defense);
     }
 }
