@@ -139,25 +139,25 @@ public class MoveCommand extends Command {
         resolveOutcome(board, atkName, defName, defender.getOwner(), attacker.getOwner(), source, target, result);
     }
 
-    private void resolveOutcome(Board board, String aName, String dName, PlayerType dOwner, PlayerType aOwner, Position src, Position tgt, DuelResult result) {
+    private void resolveOutcome(Board b, String aName, String dName, PlayerType dO, PlayerType aO, Position src, Position tgt, DuelResult result) {
         Game game = this.getGame();
         boolean dElim = result.defEliminated();
         boolean aElim = result.atkEliminated();
 
         if (dElim) {
             System.out.printf(StringConstants.FMT_ELIMINATED, dName);
-            board.removeUnit(tgt);
-            getPlayer(dOwner).decrementBoardCount();
+            b.removeUnit(tgt);
+            getPlayer(dO).decrementBoardCount();
         }
         if (aElim) {
             System.out.printf(StringConstants.FMT_ELIMINATED, aName);
-            board.removeUnit(src);
-            getPlayer(aOwner).decrementBoardCount();
+            b.removeUnit(src);
+            getPlayer(aO).decrementBoardCount();
             game.setSelectedPosition(null);
         }
         if (result.moves() && !aElim) {
             System.out.printf(StringConstants.FMT_MOVES_TO, aName, tgt);
-            board.moveUnit(src, tgt);
+            b.moveUnit(src, tgt);
             game.setSelectedPosition(tgt);
         } else if (!aElim) {
             game.setSelectedPosition(src);

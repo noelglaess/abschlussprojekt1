@@ -136,6 +136,12 @@ public class Game {
     public void setSelectedPosition(Position position) { this.selectedPosition = position; }
 
     /**
+     * Gets the player type currently taking their turn.
+     * @return the active player type
+     */
+    public PlayerType getActivePlayer() { return this.activePlayer; }
+
+    /**
      * Gets the player object currently taking their turn.
      * @return the active player object
      */
@@ -151,7 +157,7 @@ public class Game {
 
         for (int row = 0; row < 7; row++) {
             for (int col = 0; col < 7; col++) {
-                this.board.getUnitAt(new Position(col, row)).ifPresent(unit -> unit.setMoved(false));
+                this.board.getUnitAt(new Position(col, row)).ifPresent(unitObj -> unitObj.setMoved(false));
             }
         }
 

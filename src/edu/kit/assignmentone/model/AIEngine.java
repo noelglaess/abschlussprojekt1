@@ -24,6 +24,7 @@ public final class AIEngine {
 
     private static final int HUNDRED = 100;
     private static final int DIR_COUNT = 4;
+    private static final int[][] DIR_4 = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
 
     private AIEngine() { }
 
@@ -114,9 +115,8 @@ public final class AIEngine {
         List<Integer> indices = new ArrayList<>();
         int total = 0;
 
-        int[][] dirs = Board.getDir4();
         for (int i = 0; i < DIR_COUNT; i++) {
-            Position target = pos.translate(dirs[i][0], dirs[i][1]);
+            Position target = pos.translate(DIR_4[i][0], DIR_4[i][1]);
             if (target != null) {
                 PlacedUnit tUnit = board.getUnitAt(target).orElse(null);
                 if (tUnit == null || !tUnit.isKing() || tUnit.getOwner() != PlayerType.ENEMY) {
@@ -158,7 +158,7 @@ public final class AIEngine {
             int chosenIdx = RandomUtils.weightedRandom(scores, game.getRandom());
             int act = idxs.get(chosenIdx);
             if (act < DIR_COUNT) {
-                Position target = pos.translate(Board.getDir4()[act][0], Board.getDir4()[act][1]);
+                Position target = pos.translate(DIR_4[act][0], DIR_4[act][1]);
                 if (target != null) {
                     executeSilently(new MoveCommand(game), new String[]{target.toString()});
                 }

@@ -45,6 +45,7 @@ public class Board {
      * @param type The player type
      * @return true if occupied by the player
      */
+
     private boolean isOccupiedBy(Position position, PlayerType type) {
         return !isEmpty(position) && this.grid[position.col()][position.row()].getOwner() == type;
     }
@@ -67,8 +68,10 @@ public class Board {
      * @return The removed unit
      */
     public PlacedUnit removeUnit(Position position) {
-        PlacedUnit unit = this.grid[position.col()][position.row()];
-        this.grid[position.col()][position.row()] = null;
+        int col = position.col();
+        int row = position.row();
+        PlacedUnit unit = this.grid[col][row];
+        this.grid[col][row] = null;
         return unit;
     }
 
@@ -205,8 +208,7 @@ public class Board {
     }
 
     /**
-     * Evaluates AI target score without causing cyclic dependency.
-     * Ensures targetPos is not null to prevent DataFlowIssue (NPE).
+     * Evaluates AI target score safely.
      * @param sourcePos Source pos
      * @param targetPos Target pos (must not be null)
      * @param pKing Player king
@@ -221,18 +223,25 @@ public class Board {
             int steps = targetPos.distanceTo(pKing);
             int enemies = countUnits(targetPos, false, PlayerType.PLAYER, null);
             resultScore = 10 - steps - enemies;
-        } else if (targetUnit.getOwner() == PlayerType.ENEMY) {
-            Optional<Unit> combined = unit.getUnit().combineWith(targetUnit.getUnit());
-            resultScore = combined.map(u -> u.attack() + u.defense() - unit.getAttack() - unit.getDefense())
-                    .orElse(-targetUnit.getAttack() - targetUnit.getDefense());
-        } else if (targetUnit.isKing()) {
-            resultScore = unit.getAttack();
-        } else if (!targetUnit.isFlipped()) {
-            resultScore = unit.getAttack() - FLIPPED_PENALTY;
-        } else if (targetUnit.isBlocking()) {
-            resultScore = unit.getAttack() - targetUnit.getDefense();
         } else {
-            resultScore = 2 * (unit.getAttack() - targetUnit.getAttack());
+            PlayerType tOwner = targetUnit.getOwner();
+            int tAtk = targetUnit.getAttack();
+            int tDef = targetUnit.getDefense();
+            int uAtk = unit.getAttack();
+
+            if (tOwner == PlayerType.ENEMY) {
+                Optional<Unit> combined = unit.getUnit().combineWith(targetUnit.getUnit());
+                resultScore = combined.map(u -> u.attack() + u.defense() - uAtk - unit.getDefense())
+                        .orElse(-tAtk - tDef);
+            } else if (targetUnit.isKing()) {
+                resultScore = uAtk;
+            } else if (!targetUnit.isFlipped()) {
+                resultScore = uAtk - FLIPPED_PENALTY;
+            } else if (targetUnit.isBlocking()) {
+                resultScore = uAtk - tDef;
+            } else {
+                resultScore = 2 * (uAtk - tAtk);
+            }
         }
         return resultScore;
     }

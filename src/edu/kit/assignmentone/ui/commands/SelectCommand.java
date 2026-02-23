@@ -25,12 +25,12 @@ public class SelectCommand extends Command {
     @Override
     public void execute(String[] arguments) {
         Position pos = Position.fromString(arguments[0]);
-        Game game = this.getGame();
-        Board board = game.getBoard();
+        Game curGame = this.getGame();
+        Board board = curGame.getBoard();
 
-        game.setSelectedPosition(pos);
+        curGame.setSelectedPosition(pos);
         System.out.print(BoardFormatter.formatBoard(board, pos));
 
-        board.getUnitAt(pos).ifPresent(u -> System.out.println(u.formatSelectInfo()));
+        board.getUnitAt(pos).ifPresent(unitItem -> System.out.println(unitItem.formatSelectInfo()));
     }
 }

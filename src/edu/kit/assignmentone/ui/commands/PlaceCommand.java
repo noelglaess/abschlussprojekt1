@@ -78,14 +78,14 @@ public class PlaceCommand extends Command {
         String aName = aType.getDisplayName();
         boolean suppress = suppressFirst;
 
-        for (Unit unit : units) {
+        for (Unit unitObj : units) {
             if (!suppress) {
-                System.out.printf(StringConstants.FMT_PLACES, aName, unit.name(), targetPos);
+                System.out.printf(StringConstants.FMT_PLACES, aName, unitObj.name(), targetPos);
             }
             suppress = false;
 
-            System.out.printf(StringConstants.FMT_JOIN_FORCES, unit.name(), tName, targetPos);
-            Optional<Unit> combinedOpt = unit.combineWith(targetUnit.getUnit());
+            System.out.printf(StringConstants.FMT_JOIN_FORCES, unitObj.name(), tName, targetPos);
+            Optional<Unit> combinedOpt = unitObj.combineWith(targetUnit.getUnit());
 
             if (combinedOpt.isPresent()) {
                 System.out.println(StringConstants.SUCCESS_MSG);

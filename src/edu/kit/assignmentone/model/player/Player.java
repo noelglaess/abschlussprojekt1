@@ -139,8 +139,8 @@ public class Player {
      */
     public int pickUnitToPlace(Random rnd) {
         List<Integer> weights = new ArrayList<>();
-        for (Unit u : this.hand) {
-            weights.add(u.attack());
+        for (Unit unitObj : this.hand) {
+            weights.add(unitObj.attack());
         }
         return RandomUtils.weightedRandom(weights, rnd);
     }
@@ -152,15 +152,17 @@ public class Player {
      */
     public int pickUnitToDiscard(Random rnd) {
         List<Integer> weights = new ArrayList<>();
-        for (Unit u : this.hand) {
-            weights.add(u.attack() + u.defense());
+        for (Unit unitObj : this.hand) {
+            weights.add(unitObj.attack() + unitObj.defense());
         }
         return RandomUtils.reverseWeightedRandom(weights, rnd);
     }
 
     /** Draws the initial hand. */
     public void drawInitialHand() {
-        for (int i = 0; i < INITIAL_HAND_SIZE; i++) drawCard();
+        for (int i = 0; i < INITIAL_HAND_SIZE; i++) {
+            drawCard();
+        }
     }
 
     /**

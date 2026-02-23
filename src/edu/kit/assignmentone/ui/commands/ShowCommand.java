@@ -34,14 +34,13 @@ public class ShowCommand extends Command {
 
         if (selected == null) {
             System.out.println(StringConstants.NO_UNIT);
-            return;
-        }
-
-        Optional<PlacedUnit> unitOpt = game.getBoard().getUnitAt(selected);
-        if (unitOpt.isPresent()) {
-            System.out.println(unitOpt.get().formatInfo());
         } else {
-            System.out.println(StringConstants.NO_UNIT);
+            Optional<PlacedUnit> unitOpt = game.getBoard().getUnitAt(selected);
+            if (unitOpt.isPresent()) {
+                System.out.println(unitOpt.get().formatInfo());
+            } else {
+                System.out.println(StringConstants.NO_UNIT);
+            }
         }
     }
 }

@@ -44,8 +44,6 @@ public class PlacedUnit {
     /** @param flipped true if flipped */
     public void setFlipped(boolean flipped) { this.flipped = flipped; }
 
-    /** @return true if moved */
-    public boolean isMoved() { return this.moved; }
     /** @param moved true if moved */
     public void setMoved(boolean moved) { this.moved = moved; }
 
