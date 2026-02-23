@@ -147,29 +147,29 @@ public class PlacedUnit {
      */
     public DuelResult fightAgainst(PlacedUnit defender) {
         DuelResult result;
-        int atk = this.getAttack();
-        int def = defender.getDefense();
-        int defAtk = defender.getAttack();
-        PlayerType defOwner = defender.getOwner();
-        PlayerType myOwner = this.getOwner();
+        int attackerAttack = this.getAttack();
+        int defenderDefense = defender.getDefense();
+        int defenderAttack = defender.getAttack();
+        PlayerType defenderOwner = defender.getOwner();
+        PlayerType attackerOwner = this.getOwner();
 
         if (defender.isKing()) {
-            result = new DuelResult(defOwner, atk, false, false, false);
+            result = new DuelResult(attackerAttack, defenderOwner, false, false, false);
         } else if (defender.isBlocking()) {
-            if (atk > def) {
-                result = new DuelResult(null, 0, false, true, true);
-            } else if (atk < def) {
-                result = new DuelResult(myOwner, def - atk, false, false, false);
+            if (attackerAttack > defenderDefense) {
+                result = new DuelResult(0, null, false, true, true);
+            } else if (attackerAttack < defenderDefense) {
+                result = new DuelResult(defenderDefense - attackerAttack, attackerOwner, false, false, false);
             } else {
-                result = new DuelResult(null, 0, false, false, false);
+                result = new DuelResult(0, null, false, false, false);
             }
         } else {
-            if (atk > defAtk) {
-                result = new DuelResult(defOwner, atk - defAtk, false, true, true);
-            } else if (atk < defAtk) {
-                result = new DuelResult(myOwner, defAtk - atk, true, false, false);
+            if (attackerAttack > defenderAttack) {
+                result = new DuelResult(attackerAttack - defenderAttack, defenderOwner, false, true, true);
+            } else if (attackerAttack < defenderAttack) {
+                result = new DuelResult(defenderAttack - attackerAttack, attackerOwner, true, false, false);
             } else {
-                result = new DuelResult(null, 0, true, true, false);
+                result = new DuelResult(0, null, true, true, false);
             }
         }
         return result;

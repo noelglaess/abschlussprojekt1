@@ -21,10 +21,6 @@ import java.util.Optional;
  */
 public class MoveCommand extends Command {
 
-    /**
-     * Creates a new move command.
-     * @param game The game
-     */
     public MoveCommand(Game game) {
         super(StringConstants.REGEX_MOVE, game);
     }
@@ -33,27 +29,27 @@ public class MoveCommand extends Command {
     public void execute(String[] arguments) {
         Game game = this.getGame();
         Board board = game.getBoard();
-        Position sourcePos = game.getSelectedPosition();
+        Position sourcePosition = game.getSelectedPosition();
 
-        if (sourcePos == null || board.isEmpty(sourcePos)) {
+        if (sourcePosition == null || board.isEmpty(sourcePosition)) {
             throw new IllegalStateException(StringConstants.ERR_NO_SELECTION);
         }
 
-        Position targetPos = Position.fromString(arguments[0]);
-        PlacedUnit movingUnit = board.getUnitAt(sourcePos).orElseThrow();
-        PlacedUnit targetUnit = board.getUnitAt(targetPos).orElse(null);
+        Position targetPosition = Position.fromString(arguments[0]);
+        PlacedUnit movingUnit = board.getUnitAt(sourcePosition).orElseThrow();
+        PlacedUnit targetUnit = board.getUnitAt(targetPosition).orElse(null);
 
-        movingUnit.requireValidMove(sourcePos.distanceTo(targetPos), targetUnit);
+        movingUnit.requireValidMove(sourcePosition.distanceTo(targetPosition), targetUnit);
 
         if (movingUnit.unblockIfBlocking()) {
             System.out.printf(StringConstants.FMT_NO_LONGER_BLOCKS, movingUnit.getName());
         }
 
-        if (sourcePos.distanceTo(targetPos) == 0) {
+        if (sourcePosition.distanceTo(targetPosition) == 0) {
             movingUnit.setMoved(true);
-            System.out.printf(StringConstants.FMT_MOVES_TO, movingUnit.getName(), targetPos);
+            System.out.printf(StringConstants.FMT_MOVES_TO, movingUnit.getName(), targetPosition);
         } else {
-            executeMovement(board, movingUnit, targetUnit, sourcePos, targetPos);
+            executeMovement(board, movingUnit, targetUnit, sourcePosition, targetPosition);
         }
 
         if (game.isRunning()) {
@@ -61,106 +57,106 @@ public class MoveCommand extends Command {
         }
     }
 
-    private void executeMovement(Board board, PlacedUnit movingUnit, PlacedUnit targetUnit, Position source, Position target) {
+    private void executeMovement(Board board, PlacedUnit movingUnit, PlacedUnit targetUnit, Position sourcePosition, Position targetPosition) {
         Game game = this.getGame();
         if (targetUnit == null) {
-            board.moveUnit(source, target);
-            game.setSelectedPosition(target);
-            System.out.printf(StringConstants.FMT_MOVES_TO, movingUnit.getName(), target);
+            board.moveUnit(sourcePosition, targetPosition);
+            game.setSelectedPosition(targetPosition);
+            System.out.printf(StringConstants.FMT_MOVES_TO, movingUnit.getName(), targetPosition);
         } else if (movingUnit.getOwner() == targetUnit.getOwner()) {
-            handleUnion(board, movingUnit, targetUnit, source, target);
+            handleUnion(board, movingUnit, targetUnit, sourcePosition, targetPosition);
         } else {
-            handleDuel(board, movingUnit, targetUnit, source, target);
+            handleDuel(board, movingUnit, targetUnit, sourcePosition, targetPosition);
         }
         movingUnit.setMoved(true);
     }
 
-    private void handleUnion(Board board, PlacedUnit movingUnit, PlacedUnit targetUnit, Position sourcePos, Position targetPos) {
+    private void handleUnion(Board board, PlacedUnit movingUnit, PlacedUnit targetUnit, Position sourcePosition, Position targetPosition) {
         Game game = this.getGame();
-        String mName = movingUnit.getName();
-        String tName = targetUnit.getName();
-        System.out.printf(StringConstants.FMT_MOVES_TO, mName, targetPos);
-        System.out.printf(StringConstants.FMT_JOIN_FORCES, mName, tName, targetPos);
+        String movingUnitName = movingUnit.getName();
+        String targetUnitName = targetUnit.getName();
+        System.out.printf(StringConstants.FMT_MOVES_TO, movingUnitName, targetPosition);
+        System.out.printf(StringConstants.FMT_JOIN_FORCES, movingUnitName, targetUnitName, targetPosition);
 
-        Optional<Unit> combinedOpt = movingUnit.getUnit().combineWith(targetUnit.getUnit());
+        Optional<Unit> combinedOptional = movingUnit.getUnit().combineWith(targetUnit.getUnit());
 
-        if (combinedOpt.isPresent()) {
+        if (combinedOptional.isPresent()) {
             System.out.println(StringConstants.SUCCESS_MSG);
-            board.removeUnit(sourcePos);
-            targetUnit.setUnit(combinedOpt.get());
+            board.removeUnit(sourcePosition);
+            targetUnit.setUnit(combinedOptional.get());
             targetUnit.setFlipped(movingUnit.isFlipped() && targetUnit.isFlipped());
-            game.setSelectedPosition(targetPos);
+            game.setSelectedPosition(targetPosition);
         } else {
-            System.out.printf(StringConstants.FMT_UNION_FAILED, tName);
-            board.removeUnit(targetPos);
-            board.moveUnit(sourcePos, targetPos);
+            System.out.printf(StringConstants.FMT_UNION_FAILED, targetUnitName);
+            board.removeUnit(targetPosition);
+            board.moveUnit(sourcePosition, targetPosition);
             getPlayer(targetUnit.getOwner()).decrementBoardCount();
-            game.setSelectedPosition(targetPos);
+            game.setSelectedPosition(targetPosition);
         }
     }
 
-    private void handleDuel(Board board, PlacedUnit attacker, PlacedUnit defender, Position source, Position target) {
-        String atkName = attacker.getName();
-        int atkAtk = attacker.getAttack();
-        int atkDef = attacker.getDefense();
-        String defName = defender.getName();
-        int defAtk = defender.getAttack();
-        int defDef = defender.getDefense();
+    private void handleDuel(Board board, PlacedUnit attacker, PlacedUnit defender, Position sourcePosition, Position targetPosition) {
+        String attackerName = attacker.getName();
+        int attackerAttack = attacker.getAttack();
+        int attackerDefense = attacker.getDefense();
+        String defenderName = defender.getName();
+        int defenderAttack = defender.getAttack();
+        int defenderDefense = defender.getDefense();
 
-        String atkStats = String.format(StringConstants.FMT_STATS, atkAtk, atkDef);
-        String defStats = defender.isKing() ? StringConstants.EMPTY :
-                String.format(StringConstants.FMT_STATS, defAtk, defDef);
+        String attackerStats = String.format(StringConstants.FMT_STATS, attackerAttack, attackerDefense);
+        String defenderStats = defender.isKing() ? StringConstants.EMPTY :
+                String.format(StringConstants.FMT_STATS, defenderAttack, defenderDefense);
 
-        System.out.printf(StringConstants.FMT_ATTACKS, atkName, atkStats, defName, defStats, target);
+        System.out.printf(StringConstants.FMT_ATTACKS, attackerName, attackerStats, defenderName, defenderStats, targetPosition);
 
         if (attacker.flipIfCovered()) {
-            System.out.printf(StringConstants.FMT_FLIPPED, atkName, atkAtk, atkDef, source);
+            System.out.printf(StringConstants.FMT_FLIPPED, attackerName, attackerAttack, attackerDefense, sourcePosition);
         }
         if (defender.flipIfCovered()) {
-            System.out.printf(StringConstants.FMT_FLIPPED, defName, defAtk, defDef, target);
+            System.out.printf(StringConstants.FMT_FLIPPED, defenderName, defenderAttack, defenderDefense, targetPosition);
         }
 
         DuelResult result = attacker.fightAgainst(defender);
-        int dmg = result.damage();
+        int damage = result.damage();
         PlayerType victimType = result.victim();
 
-        if (dmg > 0) {
+        if (damage > 0) {
             Player victim = getPlayer(victimType);
-            String vName = victimType.getDisplayName();
-            System.out.printf(StringConstants.FMT_DAMAGE, vName, dmg);
-            if (victim.takeDamageAndCheckDefeat(dmg)) {
-                System.out.printf(StringConstants.FMT_DROPPED_ZERO, vName);
+            String victimName = victimType.getDisplayName();
+            System.out.printf(StringConstants.FMT_DAMAGE, victimName, damage);
+            if (victim.takeDamageAndCheckDefeat(damage)) {
+                System.out.printf(StringConstants.FMT_DROPPED_ZERO, victimName);
                 PlayerType winner = victimType == PlayerType.PLAYER ? PlayerType.ENEMY : PlayerType.PLAYER;
                 System.out.printf(StringConstants.FMT_WINS, winner.getDisplayName());
                 this.getGame().quit();
             }
         }
 
-        resolveOutcome(board, atkName, defName, defender.getOwner(), attacker.getOwner(), source, target, result);
+        resolveOutcome(board, attackerName, defenderName, defender.getOwner(), attacker.getOwner(), sourcePosition, targetPosition, result);
     }
 
-    private void resolveOutcome(Board b, String aName, String dName, PlayerType dO, PlayerType aO, Position src, Position tgt, DuelResult result) {
+    private void resolveOutcome(Board board, String attackerName, String defenderName, PlayerType defenderOwner, PlayerType attackerOwner, Position sourcePosition, Position targetPosition, DuelResult result) {
         Game game = this.getGame();
-        boolean dElim = result.defEliminated();
-        boolean aElim = result.atkEliminated();
+        boolean defenderEliminated = result.defenderEliminated();
+        boolean attackerEliminated = result.attackerEliminated();
 
-        if (dElim) {
-            System.out.printf(StringConstants.FMT_ELIMINATED, dName);
-            b.removeUnit(tgt);
-            getPlayer(dO).decrementBoardCount();
+        if (defenderEliminated) {
+            System.out.printf(StringConstants.FMT_ELIMINATED, defenderName);
+            board.removeUnit(targetPosition);
+            getPlayer(defenderOwner).decrementBoardCount();
         }
-        if (aElim) {
-            System.out.printf(StringConstants.FMT_ELIMINATED, aName);
-            b.removeUnit(src);
-            getPlayer(aO).decrementBoardCount();
+        if (attackerEliminated) {
+            System.out.printf(StringConstants.FMT_ELIMINATED, attackerName);
+            board.removeUnit(sourcePosition);
+            getPlayer(attackerOwner).decrementBoardCount();
             game.setSelectedPosition(null);
         }
-        if (result.moves() && !aElim) {
-            System.out.printf(StringConstants.FMT_MOVES_TO, aName, tgt);
-            b.moveUnit(src, tgt);
-            game.setSelectedPosition(tgt);
-        } else if (!aElim) {
-            game.setSelectedPosition(src);
+        if (result.moves() && !attackerEliminated) {
+            System.out.printf(StringConstants.FMT_MOVES_TO, attackerName, targetPosition);
+            board.moveUnit(sourcePosition, targetPosition);
+            game.setSelectedPosition(targetPosition);
+        } else if (!attackerEliminated) {
+            game.setSelectedPosition(sourcePosition);
         }
     }
 

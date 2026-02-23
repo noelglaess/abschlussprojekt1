@@ -22,10 +22,6 @@ import java.util.Optional;
  */
 public class PlaceCommand extends Command {
 
-    /**
-     * Creates a new place command.
-     * @param game The game instance
-     */
     public PlaceCommand(Game game) {
         super(StringConstants.REGEX_PLACE, game);
     }
@@ -34,67 +30,67 @@ public class PlaceCommand extends Command {
     public void execute(String[] arguments) {
         Game game = this.getGame();
         Board board = game.getBoard();
-        Position targetPos = game.getSelectedPosition();
+        Position targetPosition = game.getSelectedPosition();
 
-        if (targetPos == null) {
+        if (targetPosition == null) {
             throw new IllegalStateException(StringConstants.ERR_NO_SEL_PLACE);
         }
 
-        Player active = game.getActivePlayerObject();
-        PlayerType activeType = active.getType();
+        Player activePlayer = game.getActivePlayerObject();
+        PlayerType activePlayerType = activePlayer.getType();
 
-        List<Integer> parsedIndices = parseIndices(arguments, active.getHandSize());
-        boolean empty = board.isEmpty(targetPos);
+        List<Integer> parsedIndices = parseIndices(arguments, activePlayer.getHandSize());
+        boolean isEmpty = board.isEmpty(targetPosition);
 
-        if (!empty && board.getUnitAt(targetPos).orElseThrow().getOwner() != activeType) {
+        if (!isEmpty && board.getUnitAt(targetPosition).orElseThrow().getOwner() != activePlayerType) {
             throw new IllegalStateException(StringConstants.ERR_OCC_ENEMY);
         }
 
-        List<Unit> unitsToPlace = active.preparePlacement(parsedIndices, empty ? null : activeType);
-        boolean firstPlaced = placeFirstIfEmpty(board, active, activeType, targetPos, empty, unitsToPlace);
-        performUnions(board, active, activeType, targetPos, unitsToPlace, firstPlaced);
+        List<Unit> unitsToPlace = activePlayer.preparePlacement(parsedIndices, isEmpty ? null : activePlayerType);
+        boolean isFirstPlaced = placeFirstIfEmpty(board, activePlayer, activePlayerType, targetPosition, isEmpty, unitsToPlace);
+        performUnions(board, activePlayer, activePlayerType, targetPosition, unitsToPlace, isFirstPlaced);
 
-        System.out.print(BoardFormatter.formatBoard(board, targetPos));
+        System.out.print(BoardFormatter.formatBoard(board, targetPosition));
     }
 
-    private boolean placeFirstIfEmpty(Board board, Player act, PlayerType type, Position target, boolean empty, List<Unit> units) {
-        boolean placed = false;
-        if (empty && !units.isEmpty()) {
-            Unit first = units.removeFirst();
-            act.incrementBoardCount();
-            board.placeUnit(target, new PlacedUnit(first, type));
-            System.out.printf(StringConstants.FMT_PLACES, type.getDisplayName(), first.name(), target);
-            placed = true;
+    private boolean placeFirstIfEmpty(Board board, Player activePlayer, PlayerType playerType, Position targetPosition, boolean isEmpty, List<Unit> unitsToPlace) {
+        boolean isPlaced = false;
+        if (isEmpty && !unitsToPlace.isEmpty()) {
+            Unit firstUnit = unitsToPlace.removeFirst();
+            activePlayer.incrementBoardCount();
+            board.placeUnit(targetPosition, new PlacedUnit(firstUnit, playerType));
+            System.out.printf(StringConstants.FMT_PLACES, playerType.getDisplayName(), firstUnit.name(), targetPosition);
+            isPlaced = true;
         }
-        return placed;
+        return isPlaced;
     }
 
-    private void performUnions(Board board, Player active, PlayerType aType, Position targetPos, List<Unit> units, boolean suppressFirst) {
-        if (units.isEmpty()) {
+    private void performUnions(Board board, Player activePlayer, PlayerType activePlayerType, Position targetPosition, List<Unit> unitsToPlace, boolean suppressFirstMessage) {
+        if (unitsToPlace.isEmpty()) {
             return;
         }
-        PlacedUnit targetUnit = board.getUnitAt(targetPos).orElseThrow();
-        String tName = targetUnit.getName();
-        String aName = aType.getDisplayName();
-        boolean suppress = suppressFirst;
+        PlacedUnit targetUnit = board.getUnitAt(targetPosition).orElseThrow();
+        String targetUnitName = targetUnit.getName();
+        String activePlayerName = activePlayerType.getDisplayName();
+        boolean suppressMessage = suppressFirstMessage;
 
-        for (Unit unitObj : units) {
-            if (!suppress) {
-                System.out.printf(StringConstants.FMT_PLACES, aName, unitObj.name(), targetPos);
+        for (Unit unitObject : unitsToPlace) {
+            if (!suppressMessage) {
+                System.out.printf(StringConstants.FMT_PLACES, activePlayerName, unitObject.name(), targetPosition);
             }
-            suppress = false;
+            suppressMessage = false;
 
-            System.out.printf(StringConstants.FMT_JOIN_FORCES, unitObj.name(), tName, targetPos);
-            Optional<Unit> combinedOpt = unitObj.combineWith(targetUnit.getUnit());
+            System.out.printf(StringConstants.FMT_JOIN_FORCES, unitObject.name(), targetUnitName, targetPosition);
+            Optional<Unit> combinedOptional = unitObject.combineWith(targetUnit.getUnit());
 
-            if (combinedOpt.isPresent()) {
+            if (combinedOptional.isPresent()) {
                 System.out.println(StringConstants.SUCCESS_MSG);
-                targetUnit.setUnit(combinedOpt.get());
-                tName = targetUnit.getName();
+                targetUnit.setUnit(combinedOptional.get());
+                targetUnitName = targetUnit.getName();
             } else {
-                System.out.printf(StringConstants.FMT_UNION_FAILED, tName);
-                board.removeUnit(targetPos);
-                active.decrementBoardCount();
+                System.out.printf(StringConstants.FMT_UNION_FAILED, targetUnitName);
+                board.removeUnit(targetPosition);
+                activePlayer.decrementBoardCount();
                 break;
             }
         }
@@ -102,15 +98,15 @@ public class PlaceCommand extends Command {
 
     private List<Integer> parseIndices(String[] arguments, int handSize) {
         List<Integer> parsedIndices = new ArrayList<>();
-        for (String arg : arguments) {
-            int idx = Integer.parseInt(arg) - 1;
-            if (idx < 0 || idx >= handSize) {
+        for (String argument : arguments) {
+            int index = Integer.parseInt(argument) - 1;
+            if (index < 0 || index >= handSize) {
                 throw new IllegalArgumentException(StringConstants.ERR_INV_IDX);
             }
-            if (parsedIndices.contains(idx)) {
+            if (parsedIndices.contains(index)) {
                 throw new IllegalArgumentException(StringConstants.ERR_DUP_IDX);
             }
-            parsedIndices.add(idx);
+            parsedIndices.add(index);
         }
         return parsedIndices;
     }

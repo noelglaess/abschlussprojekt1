@@ -3,15 +3,16 @@ package edu.kit.assignmentone.model;
 import edu.kit.assignmentone.model.player.PlayerType;
 
 /**
- * Record holding the outcome of a duel.
+ * Represents the outcome of a duel between two units.
  *
- * @param victim The player taking damage, or null if none
- * @param damage The amount of damage dealt
- * @param atkEliminated True if the attacker is destroyed
- * @param defEliminated True if the defender is destroyed
- * @param moves True if the attacker successfully takes the defender's spot
- * @author Programmieren-Team
+ * @param damage             The amount of damage dealt
+ * @param victim             The player who took the damage
+ * @param defenderEliminated True if the defending unit was eliminated
+ * @param attackerEliminated True if the attacking unit was eliminated
+ * @param moves              True if the attacker moves to the defender's position
+ *
+ * @author uXXXXX
  * @version 1.0
  */
-public record DuelResult(PlayerType victim, int damage, boolean atkEliminated, boolean defEliminated, boolean moves) {
+public record DuelResult(int damage, PlayerType victim, boolean defenderEliminated, boolean attackerEliminated, boolean moves) {
 }

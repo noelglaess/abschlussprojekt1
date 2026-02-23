@@ -18,9 +18,9 @@ import java.util.Random;
  */
 public class Player {
 
-    private static final int MAX_LIFE_POINTS = 8000;
-    private static final int MAX_BOARD_CAPACITY = 5;
-    private static final int MAX_DECK_CAPACITY = 40;
+    private static final int MAXIMUM_LIFE_POINTS = 8000;
+    private static final int MAXIMUM_BOARD_CAPACITY = 5;
+    private static final int MAXIMUM_DECK_CAPACITY = 40;
     private static final int INITIAL_HAND_SIZE = 4;
     private static final int FULL_HAND_SIZE = 5;
 
@@ -31,28 +31,17 @@ public class Player {
     private int boardCount;
     private boolean placedThisTurn;
 
-    /**
-     * Creates a new player.
-     * @param type player type
-     * @param deck player deck
-     */
     public Player(PlayerType type, Deck deck) {
         this.type = type;
         this.deck = deck;
         this.hand = new ArrayList<>();
-        this.lifePoints = MAX_LIFE_POINTS;
+        this.lifePoints = MAXIMUM_LIFE_POINTS;
         this.boardCount = 0;
         this.placedThisTurn = false;
     }
 
-    /** @return player type */
     public PlayerType getType() { return this.type; }
 
-    /**
-     * Takes damage and checks for defeat.
-     * @param amount damage amount
-     * @return true if player is defeated
-     */
     public boolean takeDamageAndCheckDefeat(int amount) {
         if (amount < 0) {
             throw new IllegalArgumentException("Damage cannot be negative.");
@@ -61,49 +50,35 @@ public class Player {
         return this.lifePoints == 0;
     }
 
-    /** @return unmodifiable hand */
     public List<Unit> getHand() {
         return Collections.unmodifiableList(this.hand);
     }
 
-    /** @return current size of hand */
     public int getHandSize() {
         return this.hand.size();
     }
 
-    /** @return true if hand is full */
     public boolean hasFullHand() {
         return this.hand.size() == FULL_HAND_SIZE;
     }
 
-    /**
-     * Discards a card from hand.
-     * @param arguments user args
-     * @return The discarded unit
-     */
     public Unit processYield(String[] arguments) {
-        Unit discarded = null;
-        boolean full = this.hand.size() == FULL_HAND_SIZE;
-        if (full && arguments.length == 0) {
+        Unit discardedUnit = null;
+        boolean isFull = this.hand.size() == FULL_HAND_SIZE;
+        if (isFull && arguments.length == 0) {
             throw new IllegalStateException(StringConstants.ERR_MUST_DISC);
-        } else if (!full && arguments.length > 0) {
+        } else if (!isFull && arguments.length > 0) {
             throw new IllegalStateException(StringConstants.ERR_CANT_DISC);
         } else if (arguments.length > 0) {
-            int idx = Integer.parseInt(arguments[0]) - 1;
-            if (idx < 0 || idx >= this.hand.size()) {
+            int index = Integer.parseInt(arguments[0]) - 1;
+            if (index < 0 || index >= this.hand.size()) {
                 throw new IllegalArgumentException(StringConstants.ERR_INV_IDX);
             }
-            discarded = this.hand.remove(idx);
+            discardedUnit = this.hand.remove(index);
         }
-        return discarded;
+        return discardedUnit;
     }
 
-    /**
-     * Prepares units for placement.
-     * @param indices List of indices
-     * @param targetOwner Owner of target
-     * @return List of units
-     */
     public List<Unit> preparePlacement(List<Integer> indices, PlayerType targetOwner) {
         if (this.placedThisTurn) {
             throw new IllegalStateException(StringConstants.ERR_ALREADY_PLACED);
@@ -111,86 +86,68 @@ public class Player {
         if (targetOwner != null && targetOwner != this.type) {
             throw new IllegalStateException(StringConstants.ERR_OCC_ENEMY);
         }
-        for (int idx : indices) {
-            if (idx < 0 || idx >= this.hand.size()) {
+        for (int index : indices) {
+            if (index < 0 || index >= this.hand.size()) {
                 throw new IllegalArgumentException(StringConstants.ERR_INV_IDX);
             }
         }
 
-        List<Unit> pulled = new ArrayList<>();
-        for (int idx : indices) {
-            pulled.add(this.hand.get(idx));
+        List<Unit> pulledUnits = new ArrayList<>();
+        for (int index : indices) {
+            pulledUnits.add(this.hand.get(index));
         }
 
-        List<Integer> sorted = new ArrayList<>(indices);
-        sorted.sort(Collections.reverseOrder());
-        for (int idx : sorted) {
-            this.hand.remove(idx);
+        List<Integer> sortedIndices = new ArrayList<>(indices);
+        sortedIndices.sort(Collections.reverseOrder());
+        for (int index : sortedIndices) {
+            this.hand.remove(index);
         }
 
         this.placedThisTurn = true;
-        return pulled;
+        return pulledUnits;
     }
 
-    /**
-     * AI method to pick unit to place.
-     * @param rnd random generator
-     * @return unit index
-     */
-    public int pickUnitToPlace(Random rnd) {
+    public int pickUnitToPlace(Random randomGenerator) {
         List<Integer> weights = new ArrayList<>();
-        for (Unit unitObj : this.hand) {
-            weights.add(unitObj.attack());
+        for (Unit unitObject : this.hand) {
+            weights.add(unitObject.attack());
         }
-        return RandomUtils.weightedRandom(weights, rnd);
+        return RandomUtils.weightedRandom(weights, randomGenerator);
     }
 
-    /**
-     * AI method to pick unit to discard.
-     * @param rnd random generator
-     * @return unit index
-     */
-    public int pickUnitToDiscard(Random rnd) {
+    public int pickUnitToDiscard(Random randomGenerator) {
         List<Integer> weights = new ArrayList<>();
-        for (Unit unitObj : this.hand) {
-            weights.add(unitObj.attack() + unitObj.defense());
+        for (Unit unitObject : this.hand) {
+            weights.add(unitObject.attack() + unitObject.defense());
         }
-        return RandomUtils.reverseWeightedRandom(weights, rnd);
+        return RandomUtils.reverseWeightedRandom(weights, randomGenerator);
     }
 
-    /** Draws the initial hand. */
     public void drawInitialHand() {
-        for (int i = 0; i < INITIAL_HAND_SIZE; i++) {
+        for (int index = 0; index < INITIAL_HAND_SIZE; index++) {
             drawCard();
         }
     }
 
-    /**
-     * Draws a card.
-     * @return true if successful
-     */
     public boolean drawCard() {
-        boolean success = false;
-        Optional<Unit> drawn = this.deck.drawTopUnit();
-        if (drawn.isPresent()) {
-            this.hand.add(drawn.get());
-            success = true;
+        boolean isSuccessful = false;
+        Optional<Unit> drawnUnit = this.deck.drawTopUnit();
+        if (drawnUnit.isPresent()) {
+            this.hand.add(drawnUnit.get());
+            isSuccessful = true;
         }
-        return success;
+        return isSuccessful;
     }
 
-    /** @return board count */
     public int getBoardCount() { return this.boardCount; }
 
-    /** Increments board count. */
     public void incrementBoardCount() {
-        if (this.boardCount >= MAX_BOARD_CAPACITY) {
+        if (this.boardCount >= MAXIMUM_BOARD_CAPACITY) {
             throw new IllegalStateException("Maximum board capacity reached.");
         }
         this.boardCount++;
     }
 
-    /** Decrements board count. */
     public void decrementBoardCount() {
         if (this.boardCount <= 0) {
             throw new IllegalStateException("Board count is already zero.");
@@ -198,19 +155,13 @@ public class Player {
         this.boardCount--;
     }
 
-    /** @return max capacity */
-    public int getMaxBoardCapacity() { return MAX_BOARD_CAPACITY; }
+    public int getMaxBoardCapacity() { return MAXIMUM_BOARD_CAPACITY; }
 
-    /** @param placed bool value */
-    public void setPlacedThisTurn(boolean placed) { this.placedThisTurn = placed; }
+    public void setPlacedThisTurn(boolean hasPlaced) { this.placedThisTurn = hasPlaced; }
 
-    /**
-     * Formats the player state as a string.
-     * @return the formatted state
-     */
     public String formatState() {
         return String.format(StringConstants.FMT_STATE, this.type.getDisplayName(),
-                this.lifePoints, MAX_LIFE_POINTS, this.deck.size(),
-                MAX_DECK_CAPACITY, this.boardCount, MAX_BOARD_CAPACITY);
+                this.lifePoints, MAXIMUM_LIFE_POINTS, this.deck.size(),
+                MAXIMUM_DECK_CAPACITY, this.boardCount, MAXIMUM_BOARD_CAPACITY);
     }
 }
