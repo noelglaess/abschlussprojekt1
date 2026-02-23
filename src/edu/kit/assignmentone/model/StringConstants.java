@@ -10,8 +10,6 @@ public final class StringConstants {
 
     /** Char representation of slash to bypass HardcodedFileSeparator check. */
     private static final char SLASH = 47;
-    /** Char representation of backslash to bypass HardcodedFileSeparator check. */
-    private static final char BACKSLASH = 92;
 
     /** King unit name. */
     public static final String KING_NAME = "Farmer King";
@@ -43,15 +41,15 @@ public final class StringConstants {
     public static final String ERROR_PREFIX = "Error, ";
 
     /** Whitespace regex. */
-    public static final String REGEX_WHITESPACE = "" + BACKSLASH + BACKSLASH + "s+";
+    public static final String REGEX_WHITESPACE = " +";
     /** Select regex. */
-    public static final String REGEX_SELECT = "select [a-zA-Z]" + BACKSLASH + BACKSLASH + "d";
+    public static final String REGEX_SELECT = "select [a-zA-Z][0-9]";
     /** Move regex. */
-    public static final String REGEX_MOVE = "move [a-zA-Z]" + BACKSLASH + BACKSLASH + "d";
+    public static final String REGEX_MOVE = "move [a-zA-Z][0-9]";
     /** Place regex. */
-    public static final String REGEX_PLACE = "place( " + BACKSLASH + BACKSLASH + "d+)+";
+    public static final String REGEX_PLACE = "place( [0-9]+)+";
     /** Yield regex. */
-    public static final String REGEX_YIELD = "yield(" + BACKSLASH + BACKSLASH + "s+" + BACKSLASH + BACKSLASH + "d+)?";
+    public static final String REGEX_YIELD = "yield( +[0-9]+)?";
 
     /** Unit info format. */
     public static final String UNIT_INFO_FORMAT = "%s (Team %s)%nATK: %d%nDEF: %d";
