@@ -3,7 +3,7 @@ package edu.kit.assignmentone.model;
 /**
  * Utility class containing all strings to avoid duplicate or hardcoded string literals.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public final class StringConstants {

@@ -3,7 +3,7 @@ package edu.kit.assignmentone.model.units;
 /**
  * Represents the different types a unit can have.
  *
- * @author Programmieren-Team
+ * @author uqhkm
  * @version 1.0
  */
 public enum UnitType {

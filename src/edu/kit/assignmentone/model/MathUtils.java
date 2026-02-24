@@ -3,7 +3,7 @@ package edu.kit.assignmentone.model;
 /**
  * Utility class for mathematical operations needed in the game.
  *
- * @author Programmieren-Team
+ * @author uqhkm
  * @version 1.0
  */
 public final class MathUtils {

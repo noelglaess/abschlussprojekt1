@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Command to show the current hand of the active player.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public class HandCommand extends Command {

@@ -12,7 +12,7 @@ import java.util.Optional;
  * @param type The type of the unit
  * @param attack The attack value
  * @param defense The defense value
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public record Unit(String name, UnitType type, int attack, int defense) {

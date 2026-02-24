@@ -9,7 +9,7 @@ import java.util.List;
  *
  * @param col The column index (0 to 6, where 0 = 'A')
  * @param row The row index (0 to 6, where 0 = '1')
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public record Position(int col, int row) {

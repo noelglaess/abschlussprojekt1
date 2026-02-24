@@ -7,7 +7,7 @@ import java.util.Random;
 /**
  * Utility class for weighted random selections.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public final class RandomUtils {

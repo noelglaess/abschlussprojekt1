@@ -6,7 +6,7 @@ import edu.kit.assignmentone.model.StringConstants;
 /**
  * Command to show the current state (LP, DC, BC) of both players.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public class StateCommand extends Command {

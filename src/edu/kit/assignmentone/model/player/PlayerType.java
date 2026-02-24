@@ -3,7 +3,7 @@ package edu.kit.assignmentone.model.player;
 /**
  * Represents the two types of players in the game.
  *
- * @author Programmieren-Team
+ * @author uqhkm
  * @version 1.0
  */
 public enum PlayerType {

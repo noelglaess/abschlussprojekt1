@@ -8,7 +8,7 @@ import edu.kit.assignmentone.model.units.Unit;
 /**
  * Command to end the current turn and optionally discard a card.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public class YieldCommand extends Command {

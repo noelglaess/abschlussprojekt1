@@ -6,7 +6,7 @@ import edu.kit.assignmentone.model.StringConstants;
 /**
  * Command to quit the game.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public class QuitCommand extends Command {

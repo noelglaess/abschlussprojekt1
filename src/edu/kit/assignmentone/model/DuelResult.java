@@ -11,7 +11,7 @@ import edu.kit.assignmentone.model.player.PlayerType;
  * @param attackerEliminated True if the attacking unit was eliminated
  * @param moves              True if the attacker moves to the defender's position
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public record DuelResult(int damage, PlayerType victim, boolean defenderEliminated, boolean attackerEliminated, boolean moves) {

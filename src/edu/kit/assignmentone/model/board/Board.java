@@ -12,7 +12,7 @@ import java.util.Random;
 /**
  * Represents the 7x7 game board.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public class Board {

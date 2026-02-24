@@ -9,7 +9,7 @@ import java.io.IOException;
 /**
  * The main entry point for the application.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public final class Main {

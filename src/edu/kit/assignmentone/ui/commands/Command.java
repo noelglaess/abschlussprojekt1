@@ -5,7 +5,7 @@ import edu.kit.assignmentone.model.Game;
 /**
  * Abstract base class for all commands.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public abstract class Command {
