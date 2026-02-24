@@ -10,15 +10,11 @@ import java.util.Optional;
 /**
  * Command to show the current state of the game board.
  *
- * @author uqhkm
+ * @author uXXXXX
  * @version 1.0
  */
 public class ShowCommand extends Command {
 
-    /**
-     * Creates a new show command.
-     * @param game The game to execute the command on
-     */
     public ShowCommand(Game game) {
         super(StringConstants.CMD_SHOW, game);
     }
@@ -37,7 +33,7 @@ public class ShowCommand extends Command {
         } else {
             Optional<PlacedUnit> unitOpt = game.getBoard().getUnitAt(selected);
             if (unitOpt.isPresent()) {
-                System.out.println(unitOpt.get().formatInfo());
+                System.out.println(unitOpt.get().formatInfo(game));
             } else {
                 System.out.println(StringConstants.NO_UNIT);
             }

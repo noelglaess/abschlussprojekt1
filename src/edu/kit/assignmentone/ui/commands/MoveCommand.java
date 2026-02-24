@@ -16,7 +16,7 @@ import java.util.Optional;
 /**
  * Command to move the selected unit on the board.
  *
- * @author uqhkm
+ * @author uXXXXX
  * @version 1.0
  */
 public class MoveCommand extends Command {
@@ -53,7 +53,19 @@ public class MoveCommand extends Command {
         }
 
         if (game.isRunning()) {
-            System.out.print(BoardFormatter.formatBoard(board, game.getSelectedPosition()));
+            Position sel = game.getSelectedPosition();
+            System.out.print(BoardFormatter.formatBoard(board, sel));
+            // FIX: Druckt jetzt auch hier nach jedem Move die Einheiten-Info aus!
+            if (sel != null) {
+                Optional<PlacedUnit> unitOpt = board.getUnitAt(sel);
+                if (unitOpt.isPresent()) {
+                    System.out.println(unitOpt.get().formatInfo(game));
+                } else {
+                    System.out.println(StringConstants.NO_UNIT);
+                }
+            } else {
+                System.out.println(StringConstants.NO_UNIT);
+            }
         }
     }
 

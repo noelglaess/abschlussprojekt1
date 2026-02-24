@@ -3,21 +3,20 @@ package edu.kit.assignmentone.ui.commands;
 import edu.kit.assignmentone.model.Game;
 import edu.kit.assignmentone.model.StringConstants;
 import edu.kit.assignmentone.model.board.Board;
+import edu.kit.assignmentone.model.board.PlacedUnit;
 import edu.kit.assignmentone.model.board.Position;
 import edu.kit.assignmentone.ui.BoardFormatter;
+
+import java.util.Optional;
 
 /**
  * Command to select a position on the board and show its details.
  *
- * @author uqhkm
+ * @author uXXXXX
  * @version 1.0
  */
 public class SelectCommand extends Command {
 
-    /**
-     * Creates a new select command.
-     * @param game The game to execute the command on
-     */
     public SelectCommand(Game game) {
         super(StringConstants.REGEX_SELECT, game);
     }
@@ -31,6 +30,11 @@ public class SelectCommand extends Command {
         curGame.setSelectedPosition(pos);
         System.out.print(BoardFormatter.formatBoard(board, pos));
 
-        board.getUnitAt(pos).ifPresent(unitItem -> System.out.println(unitItem.formatSelectInfo()));
+        Optional<PlacedUnit> unitOpt = board.getUnitAt(pos);
+        if (unitOpt.isPresent()) {
+            System.out.println(unitOpt.get().formatInfo(curGame));
+        } else {
+            System.out.println(StringConstants.NO_UNIT);
+        }
     }
 }

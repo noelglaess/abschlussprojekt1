@@ -1,6 +1,7 @@
 package edu.kit.assignmentone.model.board;
 
 import edu.kit.assignmentone.model.DuelResult;
+import edu.kit.assignmentone.model.Game;
 import edu.kit.assignmentone.model.StringConstants;
 import edu.kit.assignmentone.model.player.PlayerType;
 import edu.kit.assignmentone.model.units.Unit;
@@ -37,6 +38,7 @@ public class PlacedUnit {
     public void setMoved(boolean moved) { this.moved = moved; }
     public boolean isBlocking() { return this.blocking; }
 
+    // FIX: Nutzt jetzt korrekt fullName() aus Unit.java!
     public boolean isKing() { return this.unit.fullName().equals(StringConstants.KING_NAME); }
     public int getAttack() { return this.unit.attack(); }
     public int getDefense() { return this.unit.defense(); }
@@ -86,12 +88,14 @@ public class PlacedUnit {
         }
     }
 
-    public String formatInfo() {
-        return String.format(StringConstants.UNIT_INFO_FORMAT, this.getName(),
-                this.owner.getDisplayName(), this.getAttack(), this.getDefense());
-    }
-
-    public String formatSelectInfo() {
+    public String formatInfo(Game game) {
+        if (this.isKing()) {
+            return String.format(StringConstants.FMT_KING_NAME, this.owner.getDisplayName(), StringConstants.KING_NAME);
+        }
+        boolean isActivePlayer = game.getActivePlayerObject().getType() == this.owner;
+        if (!this.flipped && !isActivePlayer) {
+            return String.format(StringConstants.FMT_HIDDEN_UNIT, this.owner.getDisplayName());
+        }
         return String.format(StringConstants.UNIT_INFO_FORMAT, this.getName(),
                 this.owner.getDisplayName(), this.getAttack(), this.getDefense());
     }

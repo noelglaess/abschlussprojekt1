@@ -51,6 +51,14 @@ public class PlaceCommand extends Command {
         performUnions(board, activePlayer, activePlayerType, targetPosition, unitsToPlace, isFirstPlaced);
 
         System.out.print(BoardFormatter.formatBoard(board, targetPosition));
+
+        // FIX: Druckt jetzt auch die Karten-Info mit aus!
+        Optional<PlacedUnit> unitOpt = board.getUnitAt(targetPosition);
+        if (unitOpt.isPresent()) {
+            System.out.println(unitOpt.get().formatInfo(game));
+        } else {
+            System.out.println(StringConstants.NO_UNIT);
+        }
     }
 
     private boolean placeFirstIfEmpty(Board board, Player activePlayer, PlayerType playerType, Position targetPosition, boolean isEmpty, List<Unit> unitsToPlace) {
@@ -59,7 +67,6 @@ public class PlaceCommand extends Command {
             Unit firstUnit = unitsToPlace.removeFirst();
             activePlayer.incrementBoardCount();
             board.placeUnit(targetPosition, new PlacedUnit(firstUnit, playerType));
-            // FIX: Nutzt jetzt fullName() statt name()
             System.out.printf(StringConstants.FMT_PLACES, playerType.getDisplayName(), firstUnit.fullName(), targetPosition);
             isPlaced = true;
         }
@@ -77,12 +84,10 @@ public class PlaceCommand extends Command {
 
         for (Unit unitObject : unitsToPlace) {
             if (!suppressMessage) {
-                // FIX: Nutzt jetzt fullName() statt name()
                 System.out.printf(StringConstants.FMT_PLACES, activePlayerName, unitObject.fullName(), targetPosition);
             }
             suppressMessage = false;
 
-            // FIX: Nutzt jetzt fullName() statt name()
             System.out.printf(StringConstants.FMT_JOIN_FORCES, unitObject.fullName(), targetUnitName, targetPosition);
             Optional<Unit> combinedOptional = unitObject.combineWith(targetUnit.getUnit());
 
