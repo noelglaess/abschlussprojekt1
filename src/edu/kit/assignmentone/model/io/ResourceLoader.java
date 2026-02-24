@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Utility class to load game resources from files.
  *
- * @author uqhkm
+ * @author uXXXXX
  * @version 1.0
  */
 public final class ResourceLoader {
@@ -25,12 +25,6 @@ public final class ResourceLoader {
 
     private ResourceLoader() { }
 
-    /**
-     * Loads the units.
-     * @param filePath The path to the units file
-     * @return A list of loaded units
-     * @throws IOException If the file cannot be read
-     */
     public static List<Unit> loadUnits(String filePath) throws IOException {
         List<Unit> units = new ArrayList<>();
         try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath))) {
@@ -39,6 +33,8 @@ public final class ResourceLoader {
                 if (line == null) {
                     break;
                 }
+                System.out.println(line);
+
                 if (line.trim().isEmpty()) {
                     continue;
                 }
@@ -47,11 +43,12 @@ public final class ResourceLoader {
                     throw new IOException(INVALID_UNIT_FORMAT_ERROR);
                 }
 
-                String name = parts[0].trim();
-                UnitType type = UnitType.fromString(parts[1].trim());
+                String qualifier = parts[0].trim();
+                String roleString = parts[1].trim();
+                UnitType type = UnitType.fromString(roleString);
                 int attack = Integer.parseInt(parts[2].trim());
                 int defense = Integer.parseInt(parts[3].trim());
-                units.add(new Unit(name, type, attack, defense));
+                units.add(new Unit(qualifier, roleString, type, attack, defense));
             }
         } catch (NumberFormatException e) {
             throw new RuntimeException(e);
@@ -61,12 +58,6 @@ public final class ResourceLoader {
         return units;
     }
 
-    /**
-     * Loads the deck.
-     * @param filePath The path to the deck file
-     * @return A list of integers representing the deck values
-     * @throws IOException If the file cannot be read
-     */
     public static List<Integer> loadDeck(String filePath) throws IOException {
         List<Integer> deck = new ArrayList<>();
         try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath))) {
@@ -75,6 +66,8 @@ public final class ResourceLoader {
                 if (line == null) {
                     break;
                 }
+                System.out.println(line);
+
                 if (line.trim().isEmpty()) {
                     continue;
                 }

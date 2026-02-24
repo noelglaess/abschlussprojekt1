@@ -15,10 +15,13 @@ import java.util.Random;
 /**
  * The main game logic class (Facade).
  *
- * @author uqhkm
+ * @author uXXXXX
  * @version 1.0
  */
 public class Game {
+
+    private static final int REQUIRED_DECK_SIZE = 40;
+    private static final int BOARD_SIZE = 7;
 
     private final Random random;
     private final List<Unit> allUnits;
@@ -32,14 +35,6 @@ public class Game {
     private Position selectedPosition;
     private PlayerType activePlayer;
 
-    /**
-     * Initializes a new Game.
-     *
-     * @param seed The random seed
-     * @param deckPath Path to the deck file
-     * @param unitsPath Path to the units file
-     * @throws IOException If files cannot be read
-     */
     public Game(long seed, String deckPath, String unitsPath) throws IOException {
         this.random = new Random(seed);
         this.running = true;
@@ -47,13 +42,24 @@ public class Game {
         this.allUnits = ResourceLoader.loadUnits(unitsPath);
         this.deckBlueprint = ResourceLoader.loadDeck(deckPath);
 
+        if (this.allUnits.size() != this.deckBlueprint.size()) {
+            throw new IllegalStateException("Deck rows do not match unit rows.");
+        }
+        int totalCards = 0;
+        for (int count : this.deckBlueprint) {
+            totalCards += count;
+        }
+        if (totalCards != REQUIRED_DECK_SIZE) {
+            throw new IllegalStateException("Deck must contain exactly 40 cards.");
+        }
+
         this.board = new Board();
 
         Deck humanDeck = createDeckFromBlueprint();
         Deck enemyDeck = createDeckFromBlueprint();
 
-        humanDeck.shuffle(seed);
-        enemyDeck.shuffle(seed);
+        humanDeck.shuffle(this.random);
+        enemyDeck.shuffle(this.random);
 
         this.humanPlayer = new Player(PlayerType.PLAYER, humanDeck);
         this.enemyPlayer = new Player(PlayerType.ENEMY, enemyDeck);
@@ -73,106 +79,53 @@ public class Game {
 
     private Deck createDeckFromBlueprint() {
         Deck deck = new Deck();
-        for (Integer unitIndex : this.deckBlueprint) {
-            int listIndex = unitIndex - 1;
-            if (listIndex >= 0 && listIndex < this.allUnits.size()) {
-                deck.addUnit(this.allUnits.get(listIndex).copy());
+        for (int i = 0; i < this.allUnits.size(); i++) {
+            int count = this.deckBlueprint.get(i);
+            for (int j = 0; j < count; j++) {
+                deck.addUnit(this.allUnits.get(i).copy());
             }
         }
         return deck;
     }
 
-    /**
-     * Checks if the game is still running.
-     * @return true if running, false otherwise
-     */
     public boolean isRunning() { return this.running; }
-
-    /** Stops the game. */
     public void quit() { this.running = false; }
-
-    /**
-     * Checks if it is the enemy's turn.
-     * @return true if enemy turn
-     */
-    public boolean isEnemyTurn() {
-        return this.activePlayer == PlayerType.ENEMY;
-    }
-
-    /**
-     * Gets the game's random instance.
-     * @return the random instance
-     */
+    public boolean isEnemyTurn() { return this.activePlayer == PlayerType.ENEMY; }
     public Random getRandom() { return this.random; }
-
-    /**
-     * Gets the human player.
-     * @return the human player
-     */
     public Player getHumanPlayer() { return this.humanPlayer; }
-
-    /**
-     * Gets the enemy player.
-     * @return the enemy player
-     */
     public Player getEnemyPlayer() { return this.enemyPlayer; }
-
-    /**
-     * Gets the game board.
-     * @return the board
-     */
     public Board getBoard() { return this.board; }
-
-    /**
-     * Gets the currently selected position.
-     * @return the selected position, or null if none
-     */
     public Position getSelectedPosition() { return this.selectedPosition; }
-
-    /**
-     * Sets the currently selected position.
-     * @param position the position to select
-     */
     public void setSelectedPosition(Position position) { this.selectedPosition = position; }
 
-    /**
-     * Gets the player type currently taking their turn.
-     * @return the active player type
-     */
-    public PlayerType getActivePlayer() { return this.activePlayer; }
-
-    /**
-     * Gets the player object currently taking their turn.
-     * @return the active player object
-     */
     public Player getActivePlayerObject() {
         return this.activePlayer == PlayerType.PLAYER ? this.humanPlayer : this.enemyPlayer;
     }
 
-    /**
-     * Switches the turn to the other player and handles drawing.
-     */
     public void switchTurn() {
         this.selectedPosition = null;
 
-        for (int row = 0; row < 7; row++) {
-            for (int col = 0; col < 7; col++) {
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            for (int col = 0; col < BOARD_SIZE; col++) {
                 this.board.getUnitAt(new Position(col, row)).ifPresent(unitObj -> unitObj.setMoved(false));
             }
         }
 
-        this.activePlayer = this.activePlayer.next();
-        String pName = this.activePlayer.getDisplayName();
+        // FIX: Wir speichern den vorherigen Spieler, um nicht mehrfach PlayerType-Methoden aufrufen zu müssen.
+        PlayerType previousPlayer = this.activePlayer;
+        this.activePlayer = previousPlayer.next();
 
         Player nextPlayer = getActivePlayerObject();
         nextPlayer.setPlacedThisTurn(false);
 
+        String activeName = this.activePlayer.getDisplayName();
+
         if (!nextPlayer.drawCard()) {
-            System.out.printf(StringConstants.FMT_NO_CARDS, pName);
-            System.out.printf(StringConstants.FMT_WINS, this.activePlayer.next().getDisplayName());
+            System.out.printf(StringConstants.FMT_NO_CARDS, activeName);
+            System.out.printf(StringConstants.FMT_WINS, previousPlayer.getDisplayName());
             quit();
         } else {
-            System.out.printf(StringConstants.FMT_TURN, pName);
+            System.out.printf(StringConstants.FMT_TURN, activeName);
         }
     }
 }

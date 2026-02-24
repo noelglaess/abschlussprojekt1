@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * Handles the fully automated turn for the AI Enemy.
  *
- * @author uqhkm
+ * @author uXXXXX
  * @version 1.0
  */
 public final class AIEngine {
@@ -57,7 +57,7 @@ public final class AIEngine {
         Board board = game.getBoard();
         Player enemy = game.getEnemyPlayer();
 
-        if (!enemy.getHand().isEmpty() && enemy.getBoardCount() < enemy.getMaxBoardCapacity()) {
+        if (!enemy.getHand().isEmpty() && enemy.getBoardCount() < Player.MAXIMUM_BOARD_CAPACITY) {
             Position kingPosition = board.findUnit(StringConstants.KING_NAME, PlayerType.ENEMY);
             Position playerKingPosition = board.findUnit(StringConstants.KING_NAME, PlayerType.PLAYER);
 

@@ -12,7 +12,7 @@ import java.util.Random;
 /**
  * Represents the 7x7 game board.
  *
- * @author uqhkm
+ * @author uXXXXX
  * @version 1.0
  */
 public class Board {
@@ -231,7 +231,7 @@ public class Board {
 
             if (tOwner == PlayerType.ENEMY) {
                 Optional<Unit> combined = unit.getUnit().combineWith(targetUnit.getUnit());
-                resultScore = combined.map(u -> u.attack() + u.defense() - uAtk - unit.getDefense())
+                resultScore = combined.map(combinedUnit -> combinedUnit.attack() + combinedUnit.defense() - uAtk - unit.getDefense())
                         .orElse(-tAtk - tDef);
             } else if (targetUnit.isKing()) {
                 resultScore = uAtk;

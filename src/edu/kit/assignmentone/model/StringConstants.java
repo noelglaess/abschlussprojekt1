@@ -3,7 +3,7 @@ package edu.kit.assignmentone.model;
 /**
  * Utility class containing all strings to avoid duplicate or hardcoded string literals.
  *
- * @author uqhkm
+ * @author uXXXXX
  * @version 1.0
  */
 public final class StringConstants {
@@ -53,14 +53,12 @@ public final class StringConstants {
 
     /** Unit info format. */
     public static final String UNIT_INFO_FORMAT = "%s (Team %s)%nATK: %d%nDEF: %d";
-    /** Unit select format. */
-    public static final String UNIT_SELECT_FORMAT = "%s %s (Team %s)%nATK: %d%nDEF: %d";
     /** Stats format. */
     public static final String FMT_STATS = " (%d" + SLASH + "%d)";
     /** State format. */
     public static final String FMT_STATE = "%s%n%d" + SLASH + "%d LP%nDC: %d" + SLASH + "%d%nBC: %d" + SLASH + "%d";
     /** Hand card format. */
-    public static final String FMT_HAND_CARD = "[%d] %s%n(%d" + SLASH + "%d)%n";
+    public static final String FMT_HAND_CARD = "[%d] %s (%d" + SLASH + "%d)%n";
     /** Attack format. */
     public static final String FMT_ATTACKS = "%s %s attacks %s%s on %s!%n";
     /** Damage format. */

@@ -13,13 +13,15 @@ import java.util.Random;
 /**
  * Represents a player in the game.
  *
- * @author uqhkm
+ * @author uXXXXX
  * @version 1.0
  */
 public class Player {
 
+    /** The maximum number of units allowed on the board per player. */
+    public static final int MAXIMUM_BOARD_CAPACITY = 5;
+
     private static final int MAXIMUM_LIFE_POINTS = 8000;
-    private static final int MAXIMUM_BOARD_CAPACITY = 5;
     private static final int MAXIMUM_DECK_CAPACITY = 40;
     private static final int INITIAL_HAND_SIZE = 4;
     private static final int FULL_HAND_SIZE = 5;
@@ -154,8 +156,6 @@ public class Player {
         }
         this.boardCount--;
     }
-
-    public int getMaxBoardCapacity() { return MAXIMUM_BOARD_CAPACITY; }
 
     public void setPlacedThisTurn(boolean hasPlaced) { this.placedThisTurn = hasPlaced; }
 

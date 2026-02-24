@@ -17,7 +17,7 @@ import java.util.Optional;
 /**
  * Command to place one or more units from the hand onto the board.
  *
- * @author uqhkm
+ * @author uXXXXX
  * @version 1.0
  */
 public class PlaceCommand extends Command {
@@ -59,7 +59,8 @@ public class PlaceCommand extends Command {
             Unit firstUnit = unitsToPlace.removeFirst();
             activePlayer.incrementBoardCount();
             board.placeUnit(targetPosition, new PlacedUnit(firstUnit, playerType));
-            System.out.printf(StringConstants.FMT_PLACES, playerType.getDisplayName(), firstUnit.name(), targetPosition);
+            // FIX: Nutzt jetzt fullName() statt name()
+            System.out.printf(StringConstants.FMT_PLACES, playerType.getDisplayName(), firstUnit.fullName(), targetPosition);
             isPlaced = true;
         }
         return isPlaced;
@@ -76,11 +77,13 @@ public class PlaceCommand extends Command {
 
         for (Unit unitObject : unitsToPlace) {
             if (!suppressMessage) {
-                System.out.printf(StringConstants.FMT_PLACES, activePlayerName, unitObject.name(), targetPosition);
+                // FIX: Nutzt jetzt fullName() statt name()
+                System.out.printf(StringConstants.FMT_PLACES, activePlayerName, unitObject.fullName(), targetPosition);
             }
             suppressMessage = false;
 
-            System.out.printf(StringConstants.FMT_JOIN_FORCES, unitObject.name(), targetUnitName, targetPosition);
+            // FIX: Nutzt jetzt fullName() statt name()
+            System.out.printf(StringConstants.FMT_JOIN_FORCES, unitObject.fullName(), targetUnitName, targetPosition);
             Optional<Unit> combinedOptional = unitObject.combineWith(targetUnit.getUnit());
 
             if (combinedOptional.isPresent()) {

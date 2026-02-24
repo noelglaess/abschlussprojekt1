@@ -11,44 +11,30 @@ import java.util.Random;
 /**
  * Represents a deck of units for a player.
  *
- * @author uqhkm
+ * @author uXXXXX
  * @version 1.0
  */
 public class Deck {
 
     private final List<Unit> units;
 
-    /**
-     * Creates a new, empty deck.
-     */
     public Deck() {
         this.units = new ArrayList<>();
     }
 
-    /**
-     * Adds a unit to the bottom of the deck.
-     *
-     * @param unit The unit to add
-     */
     public void addUnit(Unit unit) {
         this.units.add(unit);
     }
 
     /**
-     * Shuffles the deck using the given seed.
+     * Shuffles the deck using the given random generator.
      *
-     * @param seed The random seed to use for shuffling
+     * @param randomGenerator The global random instance
      */
-    public void shuffle(long seed) {
-        Random random = new Random(seed);
-        Collections.shuffle(this.units, random);
+    public void shuffle(Random randomGenerator) {
+        Collections.shuffle(this.units, randomGenerator);
     }
 
-    /**
-     * Draws the top unit from the deck.
-     *
-     * @return An Optional containing the drawn unit, or empty if the deck is empty
-     */
     public Optional<Unit> drawTopUnit() {
         if (this.units.isEmpty()) {
             return Optional.empty();
@@ -56,11 +42,6 @@ public class Deck {
         return Optional.of(this.units.removeFirst());
     }
 
-    /**
-     * Gets the current number of units remaining in the deck.
-     *
-     * @return The size of the deck
-     */
     public int size() {
         return this.units.size();
     }
