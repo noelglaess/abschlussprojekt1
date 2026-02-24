@@ -1,12 +1,14 @@
 package edu.kit.assignmentone.model;
 
 import edu.kit.assignmentone.model.board.Board;
+import edu.kit.assignmentone.model.board.PlacedUnit;
 import edu.kit.assignmentone.model.board.Position;
 import edu.kit.assignmentone.model.io.ResourceLoader;
 import edu.kit.assignmentone.model.player.Deck;
 import edu.kit.assignmentone.model.player.Player;
 import edu.kit.assignmentone.model.player.PlayerType;
 import edu.kit.assignmentone.model.units.Unit;
+import edu.kit.assignmentone.model.units.UnitType;
 
 import java.io.IOException;
 import java.util.List;
@@ -67,6 +69,11 @@ public class Game {
         initPlayer(this.humanPlayer, true);
         initPlayer(this.enemyPlayer, false);
 
+        // HIER IST DIE NEUE LOGIK: Bauernkönige auf D1 (3, 0) und D7 (3, 6) platzieren!
+        Unit kingUnit = new Unit(StringConstants.EMPTY, StringConstants.KING_NAME, UnitType.FARMER, 0, 0);
+        this.board.placeUnit(new Position(3, 0), new PlacedUnit(kingUnit, PlayerType.PLAYER));
+        this.board.placeUnit(new Position(3, 6), new PlacedUnit(kingUnit, PlayerType.ENEMY));
+
         this.activePlayer = PlayerType.PLAYER;
     }
 
@@ -111,7 +118,6 @@ public class Game {
             }
         }
 
-        // FIX: Wir speichern den vorherigen Spieler, um nicht mehrfach PlayerType-Methoden aufrufen zu müssen.
         PlayerType previousPlayer = this.activePlayer;
         this.activePlayer = previousPlayer.next();
 
