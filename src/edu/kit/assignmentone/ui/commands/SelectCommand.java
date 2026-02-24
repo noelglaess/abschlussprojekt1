@@ -12,7 +12,7 @@ import java.util.Optional;
 /**
  * Command to select a position on the board and show its details.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public class SelectCommand extends Command {

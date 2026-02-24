@@ -8,7 +8,7 @@ import java.util.Optional;
 /**
  * Represents a single unit configuration as read from the units file.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public record Unit(String qualifier, String roleString, UnitType type, int attack, int defense) {

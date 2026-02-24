@@ -17,7 +17,7 @@ import java.util.Random;
 /**
  * The main game logic class (Facade).
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public class Game {

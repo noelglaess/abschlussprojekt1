@@ -9,7 +9,7 @@ import edu.kit.assignmentone.model.units.Unit;
 /**
  * Represents a unit that is currently placed on the board, including its owner and state.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public class PlacedUnit {

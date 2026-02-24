@@ -16,7 +16,7 @@ import java.util.Optional;
 /**
  * Command to move the selected unit on the board.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public class MoveCommand extends Command {

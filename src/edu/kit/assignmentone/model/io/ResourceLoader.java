@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Utility class to load game resources from files.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public final class ResourceLoader {

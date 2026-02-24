@@ -9,7 +9,7 @@ import edu.kit.assignmentone.model.player.PlayerType;
 /**
  * Utility class to format the game board for console output.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public final class BoardFormatter {

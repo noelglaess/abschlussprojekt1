@@ -3,7 +3,7 @@ package edu.kit.assignmentone.model;
 /**
  * Utility class containing all strings to avoid duplicate or hardcoded string literals.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public final class StringConstants {
@@ -19,7 +19,6 @@ public final class StringConstants {
     public static final String FMT_BLOCKS = "%s (%s) blocks!%n";
     public static final String FMT_NO_LONGER_BLOCKS = "%s no longer blocks.%n";
 
-    // FIX: Formatiert die Zellen jetzt 100% sauber, auch bei "xb" für blockierende Einheiten
     public static final String FMT_CELL = "%s%-2s|";
 
     public static final String FMT_ROW = "%d |";

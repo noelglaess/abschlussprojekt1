@@ -10,7 +10,7 @@ import java.util.Optional;
 /**
  * Command to show the current state of the game board.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public class ShowCommand extends Command {

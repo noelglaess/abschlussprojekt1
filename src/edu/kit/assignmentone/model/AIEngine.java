@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * Handles the fully automated turn for the AI Enemy.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public final class AIEngine {

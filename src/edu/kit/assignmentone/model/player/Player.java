@@ -13,7 +13,7 @@ import java.util.Random;
 /**
  * Represents a player in the game.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public class Player {

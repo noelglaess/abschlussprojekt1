@@ -17,7 +17,7 @@ import java.util.Optional;
 /**
  * Command to place one or more units from the hand onto the board.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public class PlaceCommand extends Command {
