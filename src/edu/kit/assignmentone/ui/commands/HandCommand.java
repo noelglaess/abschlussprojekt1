@@ -34,7 +34,7 @@ public class HandCommand extends Command {
         int handSize = handUnits.size();
 
         for (int index = 0; index < handSize; index++) {
-            System.out.print(handUnits.get(index).formatHandInfo(index + 1));
+            System.out.print(handUnits.get(index).formatHandInformation(index + 1));
         }
     }
 }

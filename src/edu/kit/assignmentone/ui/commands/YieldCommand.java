@@ -27,7 +27,7 @@ public class YieldCommand extends Command {
         Player activePlayer = currentGame.getActivePlayerObject();
         Unit discardedUnit = activePlayer.processYield(arguments);
         if (discardedUnit != null) {
-            System.out.print(discardedUnit.formatDiscardInfo(activePlayer.getType()));
+            System.out.print(discardedUnit.formatDiscardInformation(activePlayer.getType()));
         }
         currentGame.switchTurn();
     }

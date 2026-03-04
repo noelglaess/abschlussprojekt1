@@ -26,7 +26,7 @@ public class StateCommand extends Command {
         }
 
         Game currentGame = this.getGame();
-        System.out.println(currentGame.getHumanPlayer().formatState());
-        System.out.println(currentGame.getEnemyPlayer().formatState());
+        System.out.println(currentGame.getHumanPlayer().formatStateInformation());
+        System.out.println(currentGame.getEnemyPlayer().formatStateInformation());
     }
 }

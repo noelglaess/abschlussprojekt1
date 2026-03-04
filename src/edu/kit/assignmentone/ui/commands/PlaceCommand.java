@@ -58,7 +58,7 @@ public class PlaceCommand extends Command {
 
         Optional<PlacedUnit> unitOptional = board.getUnitAt(targetPosition);
         if (unitOptional.isPresent()) {
-            System.out.println(unitOptional.get().formatInfo(currentGame));
+            System.out.println(unitOptional.get().formatInformation(currentGame));
         } else {
             System.out.println(StringConstants.NO_UNIT_SELECTED);
         }

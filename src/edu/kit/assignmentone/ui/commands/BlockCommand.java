@@ -42,6 +42,6 @@ public class BlockCommand extends Command {
         unit.block();
         System.out.printf(StringConstants.FORMAT_BLOCKS, unit.getName(), selectedPosition);
         System.out.print(BoardFormatter.formatBoard(board, selectedPosition));
-        System.out.println(unit.formatInfo(currentGame));
+        System.out.println(unit.formatInformation(currentGame));
     }
 }

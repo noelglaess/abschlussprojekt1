@@ -43,7 +43,7 @@ public class FlipCommand extends Command {
             unit.setMoved(true);
             System.out.printf(StringConstants.FORMAT_FLIPPED, unit.getName(), unit.getAttack(), unit.getDefense(), selectedPosition);
             System.out.print(BoardFormatter.formatBoard(board, selectedPosition));
-            System.out.println(unit.formatInfo(currentGame));
+            System.out.println(unit.formatInformation(currentGame));
         }
     }
 }

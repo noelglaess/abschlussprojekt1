@@ -174,7 +174,7 @@ public final class AIEngine {
         unit.block();
         System.out.printf(StringConstants.FORMAT_BLOCKS, unit.getName(), position);
         System.out.print(BoardFormatter.formatBoard(board, position));
-        System.out.println(unit.formatInfo(game));
+        System.out.println(unit.formatInformation(game));
     }
 
     private static void endTurn(Game game) {

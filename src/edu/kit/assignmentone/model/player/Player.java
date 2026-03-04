@@ -101,10 +101,10 @@ public class Player {
      */
     public Unit processYield(String[] arguments) {
         Unit discardedUnit = null;
-        boolean isHandFull = this.hand.size() == FULL_HAND_SIZE;
-        if (isHandFull && arguments.length == 0) {
+        boolean hasMaximumCards = this.hand.size() == FULL_HAND_SIZE;
+        if (hasMaximumCards && arguments.length == 0) {
             throw new IllegalStateException(StringConstants.ERROR_MUST_DISCARD);
-        } else if (!isHandFull && arguments.length > 0) {
+        } else if (!hasMaximumCards && arguments.length > 0) {
             throw new IllegalStateException(StringConstants.ERROR_CANNOT_DISCARD);
         } else if (arguments.length > 0) {
             int index = Integer.parseInt(arguments[0]) - 1;
@@ -235,7 +235,7 @@ public class Player {
      * Formats the current state of the player.
      * @return The formatted string
      */
-    public String formatState() {
+    public String formatStateInformation() {
         return String.format(StringConstants.FORMAT_STATE, this.type.getDisplayName(),
                 this.lifePoints, MAXIMUM_LIFE_POINTS, this.deck.size(),
                 MAXIMUM_DECK_CAPACITY, this.boardCount, MAXIMUM_BOARD_CAPACITY);

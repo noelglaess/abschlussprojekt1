@@ -32,8 +32,8 @@ public final class StringConstants {
     public static final String PATTERN_PLACE = "place( [0-9]+)+";
     public static final String PATTERN_YIELD = "yield( +[0-9]+)?";
 
-    public static final String FORMAT_UNIT_INFO = "%s (Team %s)%nATK: %d%nDEF: %d";
-    public static final String FORMAT_STATS = " (%d" + SLASH + "%d)";
+    public static final String FORMAT_UNIT_INFORMATION = "%s (Team %s)%nATK: %d%nDEF: %d";
+    public static final String FORMAT_STATISTICS = " (%d" + SLASH + "%d)";
     public static final String FORMAT_STATE = "%s%n%d" + SLASH + "%d LP%nDC: %d" + SLASH + "%d%nBC: %d" + SLASH + "%d";
     public static final String FORMAT_HAND_CARD = "[%d] %s (%d" + SLASH + "%d)%n";
 

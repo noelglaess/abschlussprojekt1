@@ -33,7 +33,7 @@ public class ShowCommand extends Command {
         } else {
             Optional<PlacedUnit> unitOptional = currentGame.getBoard().getUnitAt(selectedPosition);
             if (unitOptional.isPresent()) {
-                System.out.println(unitOptional.get().formatInfo(currentGame));
+                System.out.println(unitOptional.get().formatInformation(currentGame));
             } else {
                 System.out.println(StringConstants.NO_UNIT_SELECTED);
             }

@@ -53,11 +53,11 @@ public record Unit(String qualifier, String roleString, UnitType type, int attac
         return resultOptional;
     }
 
-    public String formatHandInfo(int index) {
+    public String formatHandInformation(int index) {
         return String.format(StringConstants.FORMAT_HAND_CARD, index, this.fullName(), this.attack, this.defense);
     }
 
-    public String formatDiscardInfo(PlayerType playerType) {
+    public String formatDiscardInformation(PlayerType playerType) {
         return String.format(StringConstants.FORMAT_DISCARDED, playerType.getDisplayName(),
                 this.fullName(), this.attack, this.defense);
     }

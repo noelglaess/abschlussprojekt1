@@ -62,7 +62,7 @@ public class MoveCommand extends Command {
             if (selectedPosition != null) {
                 Optional<PlacedUnit> unitOptional = board.getUnitAt(selectedPosition);
                 if (unitOptional.isPresent()) {
-                    System.out.println(unitOptional.get().formatInfo(currentGame));
+                    System.out.println(unitOptional.get().formatInformation(currentGame));
                 } else {
                     System.out.println(StringConstants.NO_UNIT_SELECTED);
                 }
@@ -127,11 +127,11 @@ public class MoveCommand extends Command {
         String attackerName = attacker.getName();
         String defenderName = defenderHidden ? StringConstants.NAME_HIDDEN_UNIT : defender.getName();
 
-        String attackerStats = String.format(StringConstants.FORMAT_STATS, attacker.getAttack(), attacker.getDefense());
-        String defenderStats = defenderHidden || defender.isKing() ? StringConstants.EMPTY_STRING :
-                String.format(StringConstants.FORMAT_STATS, defender.getAttack(), defender.getDefense());
+        String attackerStatistics = String.format(StringConstants.FORMAT_STATISTICS, attacker.getAttack(), attacker.getDefense());
+        String defenderStatistics = defenderHidden || defender.isKing() ? StringConstants.EMPTY_STRING :
+                String.format(StringConstants.FORMAT_STATISTICS, defender.getAttack(), defender.getDefense());
 
-        System.out.printf(StringConstants.FORMAT_ATTACKS, attackerName, attackerStats, defenderName, defenderStats, targetPosition);
+        System.out.printf(StringConstants.FORMAT_ATTACKS, attackerName, attackerStatistics, defenderName, defenderStatistics, targetPosition);
     }
 
     private void handleFlipping(PlacedUnit attacker, PlacedUnit defender, Position sourcePosition, Position targetPosition) {

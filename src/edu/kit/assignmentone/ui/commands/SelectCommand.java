@@ -32,7 +32,7 @@ public class SelectCommand extends Command {
 
         Optional<PlacedUnit> unitOptional = board.getUnitAt(position);
         if (unitOptional.isPresent()) {
-            System.out.println(unitOptional.get().formatInfo(currentGame));
+            System.out.println(unitOptional.get().formatInformation(currentGame));
         } else {
             System.out.println(StringConstants.NO_UNIT_SELECTED);
         }

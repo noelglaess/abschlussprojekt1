@@ -148,7 +148,7 @@ public class Board {
     /**
      * Gets the highest attack value around.
      * @param position center
-     * @return max attack
+     * @return maximum attack
      */
     public int getMaximumSurroundingEnemyAttack(Position position) {
         int maximumAttack = 0;
