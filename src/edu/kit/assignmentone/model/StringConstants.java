@@ -3,7 +3,7 @@ package edu.kit.assignmentone.model;
 /**
  * Utility class containing all strings to avoid duplicate or hardcoded string literals.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public final class StringConstants {
@@ -38,9 +38,7 @@ public final class StringConstants {
     public static final String FMT_STATE = "%s%n%d" + SLASH + "%d LP%nDC: %d" + SLASH + "%d%nBC: %d" + SLASH + "%d";
     public static final String FMT_HAND_CARD = "[%d] %s (%d" + SLASH + "%d)%n";
 
-    // FIX: Entfernt das doppelte Leerzeichen bei Angriffen!
     public static final String FMT_ATTACKS = "%s%s attacks %s%s on %s!%n";
-
     public static final String FMT_DAMAGE = "%s takes %d damage!%n";
     public static final String FMT_DROPPED_ZERO = "%s's life points dropped to 0!%n";
     public static final String FMT_WINS = "%s wins!%n";
@@ -59,6 +57,8 @@ public final class StringConstants {
     public static final String CMD_STATE = "state";
     public static final String CMD_HAND = "hand";
     public static final String CMD_BOARD = "board";
+    public static final String CMD_BLOCK = "block";
+    public static final String CMD_FLIP = "flip";
 
     public static final String MSG_HELP = "Use one of the following commands: select, board, move, flip, block, hand, place, show, yield, state, quit.";
 
@@ -67,8 +67,8 @@ public final class StringConstants {
     public static final String ARG_VERBOSITY = "verbosity";
     public static final String ARG_UNITS = "units";
     public static final String ARG_SEPARATOR = "=";
-    public static final String ERR_ARG_FORMAT = "Invalid command line arguments.";
 
+    public static final String ERR_ARG_FORMAT = "Invalid command line arguments.";
     public static final String ERR_MOVE_DIST = "Invalid move distance. Only 1 step horizontally" + SLASH + "vertically or en place allowed.";
     public static final String ERR_NO_SELECTION = "No field selected or selected field is empty.";
     public static final String ERR_ALREADY_MOVED = "This unit has already moved this turn.";
@@ -81,6 +81,17 @@ public final class StringConstants {
     public static final String ERR_MUST_DISC = "You hold 5 units and must discard one using 'yield <idx>'.";
     public static final String ERR_CANT_DISC = "You hold less than 5 units and cannot discard.";
     public static final String ERR_NO_ARGS = "This command does not take any arguments.";
+
+    public static final String ERR_DECK_ROWS = "Deck rows do not match unit rows.";
+    public static final String ERR_DECK_SIZE = "Deck must contain exactly 40 cards.";
+    public static final String ERR_NEG_DAMAGE = "Damage cannot be negative.";
+    public static final String ERR_MAX_BOARD_CAP = "Maximum board capacity reached.";
+    public static final String ERR_BOARD_COUNT_ZERO = "Board count is already zero.";
+    public static final String ERR_POS_OCCUPIED = "Position is already occupied.";
+    public static final String ERR_NO_UNIT_SOURCE = "No unit at source.";
+    public static final String ERR_TARGET_OCCUPIED = "Target occupied.";
+    public static final String ERR_POS_FORMAT = "Position must be exactly 2 characters long.";
+    public static final String ERR_POS_OUT_OF_BOUNDS = "Position %s is out of bounds.";
 
     private StringConstants() {
     }

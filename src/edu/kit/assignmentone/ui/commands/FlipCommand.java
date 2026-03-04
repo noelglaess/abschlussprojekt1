@@ -10,13 +10,17 @@ import edu.kit.assignmentone.ui.BoardFormatter;
 /**
  * Command to flip the selected unit.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public class FlipCommand extends Command {
 
+    /**
+     * Creates a new flip command.
+     * @param game The game instance
+     */
     public FlipCommand(Game game) {
-        super("flip", game);
+        super(StringConstants.CMD_FLIP, game);
     }
 
     @Override
@@ -36,7 +40,7 @@ public class FlipCommand extends Command {
         unit.requireValidMove(0, unit);
 
         if (unit.flipIfCovered()) {
-            unit.setMoved(true); // Das Aufdecken verbraucht den Zug
+            unit.setMoved(true);
             System.out.printf(StringConstants.FMT_FLIPPED, unit.getName(), unit.getAttack(), unit.getDefense(), sel);
             System.out.print(BoardFormatter.formatBoard(board, sel));
             System.out.println(unit.formatInfo(game));

@@ -25,6 +25,13 @@ public final class ResourceLoader {
 
     private ResourceLoader() { }
 
+    /**
+     * Loads the units from the specified file.
+     *
+     * @param filePath The path to the units file
+     * @return A list of loaded units
+     * @throws IOException If reading the file fails or the format is invalid
+     */
     public static List<Unit> loadUnits(String filePath) throws IOException {
         List<Unit> units = new ArrayList<>();
         try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath))) {
@@ -33,7 +40,6 @@ public final class ResourceLoader {
                 if (line == null) {
                     break;
                 }
-                System.out.println(line);
 
                 if (line.trim().isEmpty()) {
                     continue;
@@ -58,6 +64,13 @@ public final class ResourceLoader {
         return units;
     }
 
+    /**
+     * Loads the deck configuration from the specified file.
+     *
+     * @param filePath The path to the deck file
+     * @return A list of integers representing the deck configuration
+     * @throws IOException If reading the file fails or the format is invalid
+     */
     public static List<Integer> loadDeck(String filePath) throws IOException {
         List<Integer> deck = new ArrayList<>();
         try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath))) {
@@ -66,7 +79,6 @@ public final class ResourceLoader {
                 if (line == null) {
                     break;
                 }
-                System.out.println(line);
 
                 if (line.trim().isEmpty()) {
                     continue;

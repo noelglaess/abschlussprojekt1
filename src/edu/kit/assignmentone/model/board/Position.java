@@ -1,5 +1,7 @@
 package edu.kit.assignmentone.model.board;
 
+import edu.kit.assignmentone.model.StringConstants;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +30,7 @@ public record Position(int col, int row) {
      */
     public static Position fromString(String posString) {
         if (posString == null || posString.length() != EXPECTED_LENGTH) {
-            throw new IllegalArgumentException("Position must be exactly 2 characters long.");
+            throw new IllegalArgumentException(StringConstants.ERR_POS_FORMAT);
         }
 
         char colChar = Character.toUpperCase(posString.charAt(0));
@@ -38,7 +40,7 @@ public record Position(int col, int row) {
         int row = rowChar - ROW_OFFSET;
 
         if (!isValid(col, row)) {
-            throw new IllegalArgumentException("Position " + posString + " is out of bounds.");
+            throw new IllegalArgumentException(String.format(StringConstants.ERR_POS_OUT_OF_BOUNDS, posString));
         }
 
         return new Position(col, row);

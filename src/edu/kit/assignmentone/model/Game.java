@@ -37,6 +37,15 @@ public class Game {
     private Position selectedPosition;
     private PlayerType activePlayer;
 
+    /**
+     * Constructs a new game instance.
+     *
+     * @param seed      The random seed
+     * @param deckPath  Path to the deck configuration file
+     * @param unitsPath Path to the units configuration file
+     * @throws IOException              If reading the files fails
+     * @throws IllegalStateException    If the deck configuration is invalid
+     */
     public Game(long seed, String deckPath, String unitsPath) throws IOException {
         this.random = new Random(seed);
         this.running = true;
@@ -45,14 +54,14 @@ public class Game {
         this.deckBlueprint = ResourceLoader.loadDeck(deckPath);
 
         if (this.allUnits.size() != this.deckBlueprint.size()) {
-            throw new IllegalStateException("Deck rows do not match unit rows.");
+            throw new IllegalStateException(StringConstants.ERR_DECK_ROWS);
         }
         int totalCards = 0;
         for (int count : this.deckBlueprint) {
             totalCards += count;
         }
         if (totalCards != REQUIRED_DECK_SIZE) {
-            throw new IllegalStateException("Deck must contain exactly 40 cards.");
+            throw new IllegalStateException(StringConstants.ERR_DECK_SIZE);
         }
 
         this.board = new Board();
@@ -69,7 +78,6 @@ public class Game {
         initPlayer(this.humanPlayer, true);
         initPlayer(this.enemyPlayer, false);
 
-        // HIER IST DIE NEUE LOGIK: Bauernkönige auf D1 (3, 0) und D7 (3, 6) platzieren!
         Unit kingUnit = new Unit(StringConstants.EMPTY, StringConstants.KING_NAME, UnitType.FARMER, 0, 0);
         this.board.placeUnit(new Position(3, 0), new PlacedUnit(kingUnit, PlayerType.PLAYER));
         this.board.placeUnit(new Position(3, 6), new PlacedUnit(kingUnit, PlayerType.ENEMY));
@@ -95,20 +103,77 @@ public class Game {
         return deck;
     }
 
+    /**
+     * Checks if the game is still running.
+     *
+     * @return True if running, false otherwise
+     */
     public boolean isRunning() { return this.running; }
+
+    /** Quits the game. */
     public void quit() { this.running = false; }
+
+    /**
+     * Checks if it is the enemy's turn.
+     *
+     * @return True if enemy turn
+     */
     public boolean isEnemyTurn() { return this.activePlayer == PlayerType.ENEMY; }
+
+    /**
+     * Gets the game's random instance.
+     *
+     * @return The random generator
+     */
     public Random getRandom() { return this.random; }
+
+    /**
+     * Gets the human player.
+     *
+     * @return The human player
+     */
     public Player getHumanPlayer() { return this.humanPlayer; }
+
+    /**
+     * Gets the enemy player.
+     *
+     * @return The enemy player
+     */
     public Player getEnemyPlayer() { return this.enemyPlayer; }
+
+    /**
+     * Gets the game board.
+     *
+     * @return The board
+     */
     public Board getBoard() { return this.board; }
+
+    /**
+     * Gets the currently selected position.
+     *
+     * @return The selected position, or null
+     */
     public Position getSelectedPosition() { return this.selectedPosition; }
+
+    /**
+     * Sets the currently selected position.
+     *
+     * @param position The position to select
+     */
     public void setSelectedPosition(Position position) { this.selectedPosition = position; }
 
+    /**
+     * Gets the active player object.
+     *
+     * @return The active player
+     */
     public Player getActivePlayerObject() {
         return this.activePlayer == PlayerType.PLAYER ? this.humanPlayer : this.enemyPlayer;
     }
 
+    /**
+     * Switches the turn to the other player and executes turn preparation.
+     */
     public void switchTurn() {
         this.selectedPosition = null;
 

@@ -7,11 +7,15 @@ import edu.kit.assignmentone.ui.BoardFormatter;
 /**
  * Command to print the current board.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public class BoardCommand extends Command {
 
+    /**
+     * Creates a new board command.
+     * @param game The game instance
+     */
     public BoardCommand(Game game) {
         super(StringConstants.CMD_BOARD, game);
     }

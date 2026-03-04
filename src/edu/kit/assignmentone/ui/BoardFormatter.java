@@ -25,6 +25,12 @@ public final class BoardFormatter {
 
     private BoardFormatter() { }
 
+    /**
+     * Formats the game board into a string representation.
+     * @param board The game board
+     * @param highlightPos The currently selected position to highlight
+     * @return The formatted board string
+     */
     public static String formatBoard(Board board, Position highlightPos) {
         StringBuilder builder = new StringBuilder();
 
@@ -33,7 +39,6 @@ public final class BoardFormatter {
 
             for (int col = 0; col < BOARD_SIZE; col++) {
                 Position currentPos = new Position(col, row);
-                // FIX: Wir holen den Wert aus dem Optional oder nutzen null, falls leer
                 PlacedUnit unit = board.getUnitAt(currentPos).orElse(null);
 
                 String cellContent = getCellContent(unit);
@@ -49,7 +54,7 @@ public final class BoardFormatter {
 
     /**
      * Determines the display string for a cell based on the unit present.
-     * * @param unit the unit at the position, or null if empty
+     * @param unit the unit at the position, or null if empty
      * @return the formatted content string
      */
     private static String getCellContent(PlacedUnit unit) {

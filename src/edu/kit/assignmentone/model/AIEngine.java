@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * Handles the fully automated turn for the AI Enemy.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public final class AIEngine {
@@ -28,6 +28,10 @@ public final class AIEngine {
 
     private AIEngine() { }
 
+    /**
+     * Executes a complete turn for the AI.
+     * @param game The game instance
+     */
     public static void playTurn(Game game) {
         if (game.isRunning()) {
             moveKing(game);
@@ -170,7 +174,7 @@ public final class AIEngine {
         unit.block();
         System.out.printf(StringConstants.FMT_BLOCKS, unit.getName(), position);
         System.out.print(BoardFormatter.formatBoard(board, position));
-        System.out.println(unit.formatInfo(game)); // FIX: Jetzt druckt das Blocken auch brav die Einheiten-Info!
+        System.out.println(unit.formatInfo(game));
     }
 
     private static void endTurn(Game game) {

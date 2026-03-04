@@ -33,6 +33,12 @@ public class Player {
     private int boardCount;
     private boolean placedThisTurn;
 
+    /**
+     * Creates a new player.
+     *
+     * @param type The player type
+     * @param deck The player's deck
+     */
     public Player(PlayerType type, Deck deck) {
         this.type = type;
         this.deck = deck;
@@ -42,28 +48,57 @@ public class Player {
         this.placedThisTurn = false;
     }
 
+    /**
+     * Gets the player type.
+     * @return The type
+     */
     public PlayerType getType() { return this.type; }
 
+    /**
+     * Subtracts damage from the player's life points and checks for defeat.
+     *
+     * @param amount The damage amount
+     * @return True if the player is defeated (LP dropped to 0)
+     * @throws IllegalArgumentException If the damage is negative
+     */
     public boolean takeDamageAndCheckDefeat(int amount) {
         if (amount < 0) {
-            throw new IllegalArgumentException("Damage cannot be negative.");
+            throw new IllegalArgumentException(StringConstants.ERR_NEG_DAMAGE);
         }
         this.lifePoints = Math.max(0, this.lifePoints - amount);
         return this.lifePoints == 0;
     }
 
+    /**
+     * Gets the player's current hand.
+     * @return An unmodifiable list of units
+     */
     public List<Unit> getHand() {
         return Collections.unmodifiableList(this.hand);
     }
 
+    /**
+     * Gets the current hand size.
+     * @return The size
+     */
     public int getHandSize() {
         return this.hand.size();
     }
 
+    /**
+     * Checks if the hand is full.
+     * @return True if full
+     */
     public boolean hasFullHand() {
         return this.hand.size() == FULL_HAND_SIZE;
     }
 
+    /**
+     * Processes the yield command logic for the player.
+     *
+     * @param arguments The command arguments
+     * @return The discarded unit, or null if none
+     */
     public Unit processYield(String[] arguments) {
         Unit discardedUnit = null;
         boolean isFull = this.hand.size() == FULL_HAND_SIZE;
@@ -81,6 +116,13 @@ public class Player {
         return discardedUnit;
     }
 
+    /**
+     * Prepares units for placement.
+     *
+     * @param indices     The indices of the units to place
+     * @param targetOwner The owner of the target field
+     * @return The list of units to place
+     */
     public List<Unit> preparePlacement(List<Integer> indices, PlayerType targetOwner) {
         if (this.placedThisTurn) {
             throw new IllegalStateException(StringConstants.ERR_ALREADY_PLACED);
@@ -109,6 +151,12 @@ public class Player {
         return pulledUnits;
     }
 
+    /**
+     * Selects a unit index to place based on AI logic.
+     *
+     * @param randomGenerator The random generator
+     * @return The chosen index
+     */
     public int pickUnitToPlace(Random randomGenerator) {
         List<Integer> weights = new ArrayList<>();
         for (Unit unitObject : this.hand) {
@@ -117,6 +165,12 @@ public class Player {
         return RandomUtils.weightedRandom(weights, randomGenerator);
     }
 
+    /**
+     * Selects a unit index to discard based on AI logic.
+     *
+     * @param randomGenerator The random generator
+     * @return The chosen index
+     */
     public int pickUnitToDiscard(Random randomGenerator) {
         List<Integer> weights = new ArrayList<>();
         for (Unit unitObject : this.hand) {
@@ -125,12 +179,20 @@ public class Player {
         return RandomUtils.reverseWeightedRandom(weights, randomGenerator);
     }
 
+    /**
+     * Draws the initial hand of units.
+     */
     public void drawInitialHand() {
         for (int index = 0; index < INITIAL_HAND_SIZE; index++) {
             drawCard();
         }
     }
 
+    /**
+     * Draws a single card from the deck.
+     *
+     * @return True if successful
+     */
     public boolean drawCard() {
         boolean isSuccessful = false;
         Optional<Unit> drawnUnit = this.deck.drawTopUnit();
@@ -141,24 +203,38 @@ public class Player {
         return isSuccessful;
     }
 
+    /**
+     * Gets the current amount of units on the board.
+     * @return The count
+     */
     public int getBoardCount() { return this.boardCount; }
 
+    /** Increments the board unit counter. */
     public void incrementBoardCount() {
         if (this.boardCount >= MAXIMUM_BOARD_CAPACITY) {
-            throw new IllegalStateException("Maximum board capacity reached.");
+            throw new IllegalStateException(StringConstants.ERR_MAX_BOARD_CAP);
         }
         this.boardCount++;
     }
 
+    /** Decrements the board unit counter. */
     public void decrementBoardCount() {
         if (this.boardCount <= 0) {
-            throw new IllegalStateException("Board count is already zero.");
+            throw new IllegalStateException(StringConstants.ERR_BOARD_COUNT_ZERO);
         }
         this.boardCount--;
     }
 
+    /**
+     * Sets whether the player has placed units this turn.
+     * @param hasPlaced True if placed
+     */
     public void setPlacedThisTurn(boolean hasPlaced) { this.placedThisTurn = hasPlaced; }
 
+    /**
+     * Formats the current state of the player.
+     * @return The formatted string
+     */
     public String formatState() {
         return String.format(StringConstants.FMT_STATE, this.type.getDisplayName(),
                 this.lifePoints, MAXIMUM_LIFE_POINTS, this.deck.size(),

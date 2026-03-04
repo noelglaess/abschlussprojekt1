@@ -23,7 +23,7 @@ import java.util.Scanner;
 /**
  * Handles the user input and executes the corresponding commands.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public class CommandHandler {

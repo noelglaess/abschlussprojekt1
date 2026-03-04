@@ -1,5 +1,6 @@
 package edu.kit.assignmentone.model.board;
 
+import edu.kit.assignmentone.model.StringConstants;
 import edu.kit.assignmentone.model.player.PlayerType;
 import edu.kit.assignmentone.model.units.Unit;
 import edu.kit.assignmentone.model.RandomUtils;
@@ -45,7 +46,6 @@ public class Board {
      * @param type The player type
      * @return true if occupied by the player
      */
-
     private boolean isOccupiedBy(Position position, PlayerType type) {
         return !isEmpty(position) && this.grid[position.col()][position.row()].getOwner() == type;
     }
@@ -57,7 +57,7 @@ public class Board {
      */
     public void placeUnit(Position position, PlacedUnit unit) {
         if (!isEmpty(position)) {
-            throw new IllegalStateException("Position is already occupied.");
+            throw new IllegalStateException(StringConstants.ERR_POS_OCCUPIED);
         }
         this.grid[position.col()][position.row()] = unit;
     }
@@ -91,10 +91,10 @@ public class Board {
      */
     public void moveUnit(Position from, Position to) {
         if (isEmpty(from)) {
-            throw new IllegalStateException("No unit at source.");
+            throw new IllegalStateException(StringConstants.ERR_NO_UNIT_SOURCE);
         }
         if (!isEmpty(to)) {
-            throw new IllegalStateException("Target occupied.");
+            throw new IllegalStateException(StringConstants.ERR_TARGET_OCCUPIED);
         }
         PlacedUnit unit = removeUnit(from);
         placeUnit(to, unit);

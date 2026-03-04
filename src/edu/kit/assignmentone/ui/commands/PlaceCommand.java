@@ -22,6 +22,10 @@ import java.util.Optional;
  */
 public class PlaceCommand extends Command {
 
+    /**
+     * Creates a new place command.
+     * @param game The game instance
+     */
     public PlaceCommand(Game game) {
         super(StringConstants.REGEX_PLACE, game);
     }
@@ -52,7 +56,6 @@ public class PlaceCommand extends Command {
 
         System.out.print(BoardFormatter.formatBoard(board, targetPosition));
 
-        // FIX: Druckt jetzt auch die Karten-Info mit aus!
         Optional<PlacedUnit> unitOpt = board.getUnitAt(targetPosition);
         if (unitOpt.isPresent()) {
             System.out.println(unitOpt.get().formatInfo(game));

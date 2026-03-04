@@ -10,13 +10,17 @@ import edu.kit.assignmentone.ui.BoardFormatter;
 /**
  * Command to block with the selected unit.
  *
- * @author uXXXXX
+ * @author uqhkm
  * @version 1.0
  */
 public class BlockCommand extends Command {
 
+    /**
+     * Creates a new block command.
+     * @param game The game instance
+     */
     public BlockCommand(Game game) {
-        super("block", game);
+        super(StringConstants.CMD_BLOCK, game);
     }
 
     @Override
@@ -33,8 +37,6 @@ public class BlockCommand extends Command {
         }
 
         PlacedUnit unit = board.getUnitAt(sel).orElseThrow();
-
-        // Prüft, ob die Einheit sich diese Runde schon bewegt hat
         unit.requireValidMove(0, unit);
 
         unit.block();
