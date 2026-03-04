@@ -11,26 +11,21 @@ public final class MathUtils {
 
     /**
      * Calculates the greatest common divisor.
-     * @param value1 The first integer
-     * @param value2 The second integer
-     * @return The GCD
+     * @param firstValue The first integer
+     * @param secondValue The second integer
+     * @return The greatest common divisor
      */
-    public static int gcd(int value1, int value2) {
-        int tempValue1 = Math.abs(value1);
-        int tempValue2 = Math.abs(value2);
-        while (tempValue2 != 0) {
-            int remainder = tempValue1 % tempValue2;
-            tempValue1 = tempValue2;
-            tempValue2 = remainder;
+    public static int calculateGreatestCommonDivisor(int firstValue, int secondValue) {
+        int temporaryValue1 = Math.abs(firstValue);
+        int temporaryValue2 = Math.abs(secondValue);
+        while (temporaryValue2 != 0) {
+            int remainder = temporaryValue1 % temporaryValue2;
+            temporaryValue1 = temporaryValue2;
+            temporaryValue2 = remainder;
         }
-        return tempValue1;
+        return temporaryValue1;
     }
 
-    /**
-     * Checks if a given number is prime.
-     * @param numberToCheck The number to check
-     * @return true if prime
-     */
     private static boolean isPrime(int numberToCheck) {
         if (numberToCheck <= 1) return false;
         if (numberToCheck <= 3) return true;
@@ -43,11 +38,11 @@ public final class MathUtils {
 
     /**
      * Checks if either of two values is prime.
-     * @param value1 First value
-     * @param value2 Second value
+     * @param firstValue First value
+     * @param secondValue Second value
      * @return true if one or both are prime
      */
-    public static boolean hasPrime(int value1, int value2) {
-        return isPrime(value1) || isPrime(value2);
+    public static boolean hasPrime(int firstValue, int secondValue) {
+        return isPrime(firstValue) || isPrime(secondValue);
     }
 }

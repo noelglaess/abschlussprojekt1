@@ -18,17 +18,17 @@ public class YieldCommand extends Command {
      * @param game The game to execute the command on
      */
     public YieldCommand(Game game) {
-        super(StringConstants.REGEX_YIELD, game);
+        super(StringConstants.PATTERN_YIELD, game);
     }
 
     @Override
     public void execute(String[] arguments) {
-        Game game = this.getGame();
-        Player active = game.getActivePlayerObject();
-        Unit discarded = active.processYield(arguments);
-        if (discarded != null) {
-            System.out.print(discarded.formatDiscardInfo(active.getType()));
+        Game currentGame = this.getGame();
+        Player activePlayer = currentGame.getActivePlayerObject();
+        Unit discardedUnit = activePlayer.processYield(arguments);
+        if (discardedUnit != null) {
+            System.out.print(discardedUnit.formatDiscardInfo(activePlayer.getType()));
         }
-        game.switchTurn();
+        currentGame.switchTurn();
     }
 }

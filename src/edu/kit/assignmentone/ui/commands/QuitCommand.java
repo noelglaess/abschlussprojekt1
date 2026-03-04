@@ -16,7 +16,7 @@ public class QuitCommand extends Command {
      * @param game The game to execute the command on
      */
     public QuitCommand(Game game) {
-        super(StringConstants.CMD_QUIT, game);
+        super(StringConstants.COMMAND_QUIT, game);
     }
 
     @Override

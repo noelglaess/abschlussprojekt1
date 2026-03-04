@@ -16,17 +16,17 @@ public class StateCommand extends Command {
      * @param game The game to execute the command on
      */
     public StateCommand(Game game) {
-        super(StringConstants.CMD_STATE, game);
+        super(StringConstants.COMMAND_STATE, game);
     }
 
     @Override
     public void execute(String[] arguments) {
         if (arguments.length > 0) {
-            throw new IllegalArgumentException(StringConstants.ERR_NO_ARGS);
+            throw new IllegalArgumentException(StringConstants.ERROR_NO_ARGUMENTS);
         }
 
-        Game game = this.getGame();
-        System.out.println(game.getHumanPlayer().formatState());
-        System.out.println(game.getEnemyPlayer().formatState());
+        Game currentGame = this.getGame();
+        System.out.println(currentGame.getHumanPlayer().formatState());
+        System.out.println(currentGame.getEnemyPlayer().formatState());
     }
 }

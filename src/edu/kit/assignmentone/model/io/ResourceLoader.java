@@ -33,35 +33,35 @@ public final class ResourceLoader {
      * @throws IOException If reading the file fails or the format is invalid
      */
     public static List<Unit> loadUnits(String filePath) throws IOException {
-        List<Unit> units = new ArrayList<>();
-        try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath))) {
+        List<Unit> unitsList = new ArrayList<>();
+        try (BufferedReader bufferedReader = Files.newBufferedReader(Path.of(filePath))) {
             while (true) {
-                String line = reader.readLine();
-                if (line == null) {
+                String lineString = bufferedReader.readLine();
+                if (lineString == null) {
                     break;
                 }
 
-                if (line.trim().isEmpty()) {
+                if (lineString.trim().isEmpty()) {
                     continue;
                 }
-                String[] parts = line.split(UNIT_DELIMITER);
-                if (parts.length != UNIT_PARTS_COUNT) {
+                String[] partsArray = lineString.split(UNIT_DELIMITER);
+                if (partsArray.length != UNIT_PARTS_COUNT) {
                     throw new IOException(INVALID_UNIT_FORMAT_ERROR);
                 }
 
-                String qualifier = parts[0].trim();
-                String roleString = parts[1].trim();
+                String qualifier = partsArray[0].trim();
+                String roleString = partsArray[1].trim();
                 UnitType type = UnitType.fromString(roleString);
-                int attack = Integer.parseInt(parts[2].trim());
-                int defense = Integer.parseInt(parts[3].trim());
-                units.add(new Unit(qualifier, roleString, type, attack, defense));
+                int attack = Integer.parseInt(partsArray[2].trim());
+                int defense = Integer.parseInt(partsArray[3].trim());
+                unitsList.add(new Unit(qualifier, roleString, type, attack, defense));
             }
-        } catch (NumberFormatException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalArgumentException e) {
-            throw new IOException(INVALID_UNIT_FORMAT_ERROR, e);
+        } catch (NumberFormatException exception) {
+            throw new RuntimeException(exception);
+        } catch (IllegalArgumentException exception) {
+            throw new IOException(INVALID_UNIT_FORMAT_ERROR, exception);
         }
-        return units;
+        return unitsList;
     }
 
     /**
@@ -72,24 +72,24 @@ public final class ResourceLoader {
      * @throws IOException If reading the file fails or the format is invalid
      */
     public static List<Integer> loadDeck(String filePath) throws IOException {
-        List<Integer> deck = new ArrayList<>();
-        try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath))) {
+        List<Integer> deckList = new ArrayList<>();
+        try (BufferedReader bufferedReader = Files.newBufferedReader(Path.of(filePath))) {
             while (true) {
-                String line = reader.readLine();
-                if (line == null) {
+                String lineString = bufferedReader.readLine();
+                if (lineString == null) {
                     break;
                 }
 
-                if (line.trim().isEmpty()) {
+                if (lineString.trim().isEmpty()) {
                     continue;
                 }
-                deck.add(Integer.parseInt(line.trim()));
+                deckList.add(Integer.parseInt(lineString.trim()));
             }
-        } catch (NumberFormatException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalArgumentException e) {
-            throw new IOException(INVALID_DECK_FORMAT_ERROR, e);
+        } catch (NumberFormatException exception) {
+            throw new RuntimeException(exception);
+        } catch (IllegalArgumentException exception) {
+            throw new IOException(INVALID_DECK_FORMAT_ERROR, exception);
         }
-        return deck;
+        return deckList;
     }
 }

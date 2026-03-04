@@ -1,80 +1,78 @@
 package edu.kit.assignmentone.model.board;
 
 import edu.kit.assignmentone.model.StringConstants;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Represents a position on the game board.
- * The board uses columns A-G and rows 1-7.
  *
- * @param col The column index (0 to 6, where 0 = 'A')
+ * @param column The column index (0 to 6, where 0 = 'A')
  * @param row The row index (0 to 6, where 0 = '1')
  * @author uqhkm
  * @version 1.0
  */
-public record Position(int col, int row) {
+public record Position(int column, int row) {
 
-    private static final int MIN_INDEX = 0;
-    private static final int MAX_INDEX = 6;
-    private static final char COL_OFFSET = 'A';
+    private static final int MINIMUM_INDEX = 0;
+    private static final int MAXIMUM_INDEX = 6;
+    private static final char COLUMN_OFFSET = 'A';
     private static final char ROW_OFFSET = '1';
     private static final int EXPECTED_LENGTH = 2;
 
     /**
-     * Parses a string representation (e.g., "D5") into a Position.
-     * @param posString The string representation of the position
+     * Parses a string representation into a Position.
+     * @param positionString The string representation of the position
      * @return The parsed Position
      * @throws IllegalArgumentException If the string format or bounds are invalid
      */
-    public static Position fromString(String posString) {
-        if (posString == null || posString.length() != EXPECTED_LENGTH) {
-            throw new IllegalArgumentException(StringConstants.ERR_POS_FORMAT);
+    public static Position fromString(String positionString) {
+        if (positionString == null || positionString.length() != EXPECTED_LENGTH) {
+            throw new IllegalArgumentException(StringConstants.ERROR_POSITION_FORMAT);
         }
 
-        char colChar = Character.toUpperCase(posString.charAt(0));
-        char rowChar = posString.charAt(1);
+        char columnCharacter = Character.toUpperCase(positionString.charAt(0));
+        char rowCharacter = positionString.charAt(1);
 
-        int col = colChar - COL_OFFSET;
-        int row = rowChar - ROW_OFFSET;
+        int parsedColumn = columnCharacter - COLUMN_OFFSET;
+        int parsedRow = rowCharacter - ROW_OFFSET;
 
-        if (!isValid(col, row)) {
-            throw new IllegalArgumentException(String.format(StringConstants.ERR_POS_OUT_OF_BOUNDS, posString));
+        if (!isValid(parsedColumn, parsedRow)) {
+            throw new IllegalArgumentException(String.format(StringConstants.ERROR_POSITION_OUT_OF_BOUNDS, positionString));
         }
 
-        return new Position(col, row);
+        return new Position(parsedColumn, parsedRow);
     }
 
     /**
      * Checks if the given column and row are within bounds.
-     * @param col The column index
+     * @param column The column index
      * @param row The row index
      * @return true if valid
      */
-    public static boolean isValid(int col, int row) {
-        return col >= MIN_INDEX && col <= MAX_INDEX && row >= MIN_INDEX && row <= MAX_INDEX;
+    public static boolean isValid(int column, int row) {
+        return column >= MINIMUM_INDEX && column <= MAXIMUM_INDEX && row >= MINIMUM_INDEX && row <= MAXIMUM_INDEX;
     }
 
     /**
      * Calculates the Manhattan distance.
-     * @param other The other position
+     * @param otherPosition The other position
      * @return The distance in steps
      */
-    public int distanceTo(Position other) {
-        return Math.abs(this.col - other.col()) + Math.abs(this.row - other.row());
+    public int distanceTo(Position otherPosition) {
+        return Math.abs(this.column - otherPosition.column()) + Math.abs(this.row - otherPosition.row());
     }
 
     /**
      * Translates the position by given offsets.
-     * @param dCol Column offset
-     * @param dRow Row offset
+     * @param deltaColumn Column offset
+     * @param deltaRow Row offset
      * @return New Position or null if invalid
      */
-    public Position translate(int dCol, int dRow) {
-        int newCol = this.col + dCol;
-        int newRow = this.row + dRow;
-        return isValid(newCol, newRow) ? new Position(newCol, newRow) : null;
+    public Position translate(int deltaColumn, int deltaRow) {
+        int newColumn = this.column + deltaColumn;
+        int newRow = this.row + deltaRow;
+        return isValid(newColumn, newRow) ? new Position(newColumn, newRow) : null;
     }
 
     /**
@@ -82,29 +80,29 @@ public record Position(int col, int row) {
      * @return List of positions
      */
     public List<Position> getAdjacentAndCenter() {
-        List<Position> list = new ArrayList<>();
-        Position up = translate(0, 1);
-        if (up != null) {
-            list.add(up);
+        List<Position> positionList = new ArrayList<>();
+        Position positionUp = translate(0, 1);
+        if (positionUp != null) {
+            positionList.add(positionUp);
         }
-        Position right = translate(1, 0);
-        if (right != null) {
-            list.add(right);
+        Position positionRight = translate(1, 0);
+        if (positionRight != null) {
+            positionList.add(positionRight);
         }
-        Position down = translate(0, -1);
-        if (down != null) {
-            list.add(down);
+        Position positionDown = translate(0, -1);
+        if (positionDown != null) {
+            positionList.add(positionDown);
         }
-        Position left = translate(-1, 0);
-        if (left != null) {
-            list.add(left);
+        Position positionLeft = translate(-1, 0);
+        if (positionLeft != null) {
+            positionList.add(positionLeft);
         }
-        list.add(this);
-        return list;
+        positionList.add(this);
+        return positionList;
     }
 
     @Override
     public String toString() {
-        return "" + (char) (col + COL_OFFSET) + (char) (row + ROW_OFFSET);
+        return "" + (char) (column + COLUMN_OFFSET) + (char) (row + ROW_OFFSET);
     }
 }

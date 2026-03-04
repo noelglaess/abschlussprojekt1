@@ -20,28 +20,28 @@ public class BlockCommand extends Command {
      * @param game The game instance
      */
     public BlockCommand(Game game) {
-        super(StringConstants.CMD_BLOCK, game);
+        super(StringConstants.COMMAND_BLOCK, game);
     }
 
     @Override
     public void execute(String[] arguments) {
         if (arguments.length > 0) {
-            throw new IllegalArgumentException(StringConstants.ERR_NO_ARGS);
+            throw new IllegalArgumentException(StringConstants.ERROR_NO_ARGUMENTS);
         }
-        Game game = this.getGame();
-        Board board = game.getBoard();
-        Position sel = game.getSelectedPosition();
+        Game currentGame = this.getGame();
+        Board board = currentGame.getBoard();
+        Position selectedPosition = currentGame.getSelectedPosition();
 
-        if (sel == null || board.isEmpty(sel)) {
-            throw new IllegalStateException(StringConstants.ERR_NO_SELECTION);
+        if (selectedPosition == null || board.isEmpty(selectedPosition)) {
+            throw new IllegalStateException(StringConstants.ERROR_NO_SELECTION);
         }
 
-        PlacedUnit unit = board.getUnitAt(sel).orElseThrow();
+        PlacedUnit unit = board.getUnitAt(selectedPosition).orElseThrow();
         unit.requireValidMove(0, unit);
 
         unit.block();
-        System.out.printf(StringConstants.FMT_BLOCKS, unit.getName(), sel);
-        System.out.print(BoardFormatter.formatBoard(board, sel));
-        System.out.println(unit.formatInfo(game));
+        System.out.printf(StringConstants.FORMAT_BLOCKS, unit.getName(), selectedPosition);
+        System.out.print(BoardFormatter.formatBoard(board, selectedPosition));
+        System.out.println(unit.formatInfo(currentGame));
     }
 }

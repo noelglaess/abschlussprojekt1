@@ -24,41 +24,41 @@ public record Unit(String qualifier, String roleString, UnitType type, int attac
         return (this.qualifier + " " + this.roleString).trim();
     }
 
-    public Optional<Unit> combineWith(Unit other) {
-        Optional<Unit> result = Optional.empty();
+    public Optional<Unit> combineWith(Unit otherUnit) {
+        Optional<Unit> resultOptional = Optional.empty();
 
-        if (!this.fullName().equals(other.fullName())) {
-            String newQualifier = other.qualifier() + " " + this.qualifier();
-            String newRoleString = other.roleString();
-            UnitType newType = other.type();
+        if (!this.fullName().equals(otherUnit.fullName())) {
+            String newQualifier = otherUnit.qualifier() + " " + this.qualifier();
+            String newRoleString = otherUnit.roleString();
+            UnitType newType = otherUnit.type();
 
             int thisAttack = this.attack;
             int thisDefense = this.defense;
-            int otherAttack = other.attack();
-            int otherDefense = other.defense();
+            int otherAttack = otherUnit.attack();
+            int otherDefense = otherUnit.defense();
 
             if (thisAttack > otherAttack && thisAttack == otherDefense && otherAttack == thisDefense) {
-                result = Optional.of(new Unit(newQualifier, newRoleString, newType, thisAttack, otherDefense));
+                resultOptional = Optional.of(new Unit(newQualifier, newRoleString, newType, thisAttack, otherDefense));
             } else {
-                int maxGcd = Math.max(MathUtils.gcd(thisAttack, otherAttack), MathUtils.gcd(thisDefense, otherDefense));
-                if (maxGcd > 100) {
-                    result = Optional.of(new Unit(newQualifier, newRoleString, newType,
-                            thisAttack + otherAttack - maxGcd, thisDefense + otherDefense - maxGcd));
-                } else if (maxGcd == 100 && (MathUtils.hasPrime(thisAttack / 100, otherAttack / 100)
+                int maximumGreatestCommonDivisor = Math.max(MathUtils.calculateGreatestCommonDivisor(thisAttack, otherAttack), MathUtils.calculateGreatestCommonDivisor(thisDefense, otherDefense));
+                if (maximumGreatestCommonDivisor > 100) {
+                    resultOptional = Optional.of(new Unit(newQualifier, newRoleString, newType,
+                            thisAttack + otherAttack - maximumGreatestCommonDivisor, thisDefense + otherDefense - maximumGreatestCommonDivisor));
+                } else if (maximumGreatestCommonDivisor == 100 && (MathUtils.hasPrime(thisAttack / 100, otherAttack / 100)
                         || MathUtils.hasPrime(thisDefense / 100, otherDefense / 100))) {
-                    result = Optional.of(new Unit(newQualifier, newRoleString, newType, thisAttack + otherAttack, thisDefense + otherDefense));
+                    resultOptional = Optional.of(new Unit(newQualifier, newRoleString, newType, thisAttack + otherAttack, thisDefense + otherDefense));
                 }
             }
         }
-        return result;
+        return resultOptional;
     }
 
     public String formatHandInfo(int index) {
-        return String.format(StringConstants.FMT_HAND_CARD, index, this.fullName(), this.attack, this.defense);
+        return String.format(StringConstants.FORMAT_HAND_CARD, index, this.fullName(), this.attack, this.defense);
     }
 
     public String formatDiscardInfo(PlayerType playerType) {
-        return String.format(StringConstants.FMT_DISCARDED, playerType.getDisplayName(),
+        return String.format(StringConstants.FORMAT_DISCARDED, playerType.getDisplayName(),
                 this.fullName(), this.attack, this.defense);
     }
 }

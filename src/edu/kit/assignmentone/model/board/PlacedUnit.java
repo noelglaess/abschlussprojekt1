@@ -109,17 +109,17 @@ public class PlacedUnit {
      */
     public void requireValidMove(int distance, PlacedUnit targetUnit) {
         if (this.moved) {
-            throw new IllegalStateException(StringConstants.ERR_ALREADY_MOVED);
+            throw new IllegalStateException(StringConstants.ERROR_ALREADY_MOVED);
         }
         if (distance > 1) {
-            throw new IllegalStateException(StringConstants.ERR_MOVE_DIST);
+            throw new IllegalStateException(StringConstants.ERROR_MOVE_DISTANCE);
         }
         if (targetUnit != null && targetUnit != this) {
             if (targetUnit.isKing() && this.owner == targetUnit.owner) {
-                throw new IllegalStateException(StringConstants.ERR_KING_MOVE);
+                throw new IllegalStateException(StringConstants.ERROR_KING_MOVE);
             }
             if (this.isKing() && this.owner != targetUnit.owner) {
-                throw new IllegalStateException(StringConstants.ERR_KING_MOVE);
+                throw new IllegalStateException(StringConstants.ERROR_KING_MOVE);
             }
         }
     }
@@ -131,13 +131,13 @@ public class PlacedUnit {
      */
     public String formatInfo(Game game) {
         if (this.isKing()) {
-            return String.format(StringConstants.FMT_KING_NAME, this.owner.getDisplayName(), StringConstants.KING_NAME);
+            return String.format(StringConstants.FORMAT_KING_NAME, this.owner.getDisplayName(), StringConstants.KING_NAME);
         }
         boolean isActivePlayer = game.getActivePlayerObject().getType() == this.owner;
         if (!this.flipped && !isActivePlayer) {
-            return String.format(StringConstants.FMT_HIDDEN_UNIT, this.owner.getDisplayName());
+            return String.format(StringConstants.FORMAT_HIDDEN_UNIT, this.owner.getDisplayName());
         }
-        return String.format(StringConstants.UNIT_INFO_FORMAT, this.getName(),
+        return String.format(StringConstants.FORMAT_UNIT_INFO, this.getName(),
                 this.owner.getDisplayName(), this.getAttack(), this.getDefense());
     }
 

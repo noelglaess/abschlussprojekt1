@@ -16,26 +16,26 @@ import java.util.Optional;
 public class ShowCommand extends Command {
 
     public ShowCommand(Game game) {
-        super(StringConstants.CMD_SHOW, game);
+        super(StringConstants.COMMAND_SHOW, game);
     }
 
     @Override
     public void execute(String[] arguments) {
         if (arguments.length > 0) {
-            throw new IllegalArgumentException(StringConstants.ERR_NO_ARGS);
+            throw new IllegalArgumentException(StringConstants.ERROR_NO_ARGUMENTS);
         }
 
-        Game game = this.getGame();
-        Position selected = game.getSelectedPosition();
+        Game currentGame = this.getGame();
+        Position selectedPosition = currentGame.getSelectedPosition();
 
-        if (selected == null) {
-            System.out.println(StringConstants.NO_UNIT);
+        if (selectedPosition == null) {
+            System.out.println(StringConstants.NO_UNIT_SELECTED);
         } else {
-            Optional<PlacedUnit> unitOpt = game.getBoard().getUnitAt(selected);
-            if (unitOpt.isPresent()) {
-                System.out.println(unitOpt.get().formatInfo(game));
+            Optional<PlacedUnit> unitOptional = currentGame.getBoard().getUnitAt(selectedPosition);
+            if (unitOptional.isPresent()) {
+                System.out.println(unitOptional.get().formatInfo(currentGame));
             } else {
-                System.out.println(StringConstants.NO_UNIT);
+                System.out.println(StringConstants.NO_UNIT_SELECTED);
             }
         }
     }

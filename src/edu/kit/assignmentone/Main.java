@@ -14,7 +14,7 @@ import java.io.IOException;
  */
 public final class Main {
 
-    private static final int REQUIRED_ARGS_COUNT = 4;
+    private static final int REQUIRED_ARGUMENTS_COUNT = 4;
 
     private Main() {
         // Prevent instantiation
@@ -23,49 +23,49 @@ public final class Main {
     /**
      * The main entry point for the program.
      *
-     * @param args the command line arguments
+     * @param arguments the command line arguments
      */
-    public static void main(String[] args) {
-        if (args.length != REQUIRED_ARGS_COUNT) {
-            System.err.println(StringConstants.ERROR_PREFIX + StringConstants.ERR_ARG_FORMAT);
+    public static void main(String[] arguments) {
+        if (arguments.length != REQUIRED_ARGUMENTS_COUNT) {
+            System.err.println(StringConstants.ERROR_PREFIX + StringConstants.ERROR_ARGUMENT_FORMAT);
             return;
         }
 
-        long seed = 0;
-        String deckPath = StringConstants.EMPTY;
-        String unitsPath = StringConstants.EMPTY;
+        long randomSeed = 0;
+        String deckFilePath = StringConstants.EMPTY_STRING;
+        String unitsFilePath = StringConstants.EMPTY_STRING;
 
         try {
-            for (String arg : args) {
-                String[] parts = arg.split(StringConstants.ARG_SEPARATOR, 2);
-                if (parts.length != 2) {
-                    System.err.println(StringConstants.ERROR_PREFIX + StringConstants.ERR_ARG_FORMAT);
+            for (String argument : arguments) {
+                String[] partsArray = argument.split(StringConstants.ARGUMENT_SEPARATOR, 2);
+                if (partsArray.length != 2) {
+                    System.err.println(StringConstants.ERROR_PREFIX + StringConstants.ERROR_ARGUMENT_FORMAT);
                     return;
                 }
 
-                String key = parts[0];
-                String value = parts[1];
+                String key = partsArray[0];
+                String value = partsArray[1];
 
                 switch (key) {
-                    case StringConstants.ARG_SEED -> seed = Long.parseLong(value);
-                    case StringConstants.ARG_DECK -> deckPath = value;
-                    case StringConstants.ARG_VERBOSITY -> {
+                    case StringConstants.ARGUMENT_SEED -> randomSeed = Long.parseLong(value);
+                    case StringConstants.ARGUMENT_DECK -> deckFilePath = value;
+                    case StringConstants.ARGUMENT_VERBOSITY -> {
                         // Parsed but intentionally ignored
                     }
-                    case StringConstants.ARG_UNITS -> unitsPath = value;
+                    case StringConstants.ARGUMENT_UNITS -> unitsFilePath = value;
                     case null, default -> {
-                        System.err.println(StringConstants.ERROR_PREFIX + StringConstants.ERR_ARG_FORMAT);
+                        System.err.println(StringConstants.ERROR_PREFIX + StringConstants.ERROR_ARGUMENT_FORMAT);
                         return;
                     }
                 }
             }
-            Game game = new Game(seed, deckPath, unitsPath);
-            CommandHandler handler = new CommandHandler(game);
+            Game gameInstance = new Game(randomSeed, deckFilePath, unitsFilePath);
+            CommandHandler handler = new CommandHandler(gameInstance);
             handler.handleUserInput();
-        } catch (NumberFormatException e) {
-            System.err.println(StringConstants.ERROR_PREFIX + StringConstants.ERR_ARG_FORMAT);
-        } catch (IllegalArgumentException | IllegalStateException | IOException e) {
-            System.err.println(StringConstants.ERROR_PREFIX + e.getMessage());
+        } catch (NumberFormatException exception) {
+            System.err.println(StringConstants.ERROR_PREFIX + StringConstants.ERROR_ARGUMENT_FORMAT);
+        } catch (IllegalArgumentException | IllegalStateException | IOException exception) {
+            System.err.println(StringConstants.ERROR_PREFIX + exception.getMessage());
         }
     }
 }

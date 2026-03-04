@@ -17,13 +17,13 @@ public class BoardCommand extends Command {
      * @param game The game instance
      */
     public BoardCommand(Game game) {
-        super(StringConstants.CMD_BOARD, game);
+        super(StringConstants.COMMAND_BOARD, game);
     }
 
     @Override
     public void execute(String[] arguments) {
         if (arguments.length > 0) {
-            throw new IllegalArgumentException(StringConstants.ERR_NO_ARGS);
+            throw new IllegalArgumentException(StringConstants.ERROR_NO_ARGUMENTS);
         }
         System.out.print(BoardFormatter.formatBoard(this.getGame().getBoard(), this.getGame().getSelectedPosition()));
     }

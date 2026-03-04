@@ -11,16 +11,16 @@ import edu.kit.assignmentone.model.Game;
 public abstract class Command {
 
     private final Game game;
-    private final String commandRegex;
+    private final String commandRegularExpression;
 
     /**
      * Creates a new Command.
      *
-     * @param commandRegex The regular expression to match the command
+     * @param commandRegularExpression The regular expression to match the command
      * @param game The game model
      */
-    protected Command(String commandRegex, Game game) {
-        this.commandRegex = commandRegex;
+    protected Command(String commandRegularExpression, Game game) {
+        this.commandRegularExpression = commandRegularExpression;
         this.game = game;
     }
 
@@ -29,8 +29,8 @@ public abstract class Command {
      *
      * @return The regex string
      */
-    public String getCommandRegex() {
-        return this.commandRegex;
+    public String getCommandRegularExpression() {
+        return this.commandRegularExpression;
     }
 
     /**

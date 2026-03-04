@@ -20,21 +20,21 @@ public class HandCommand extends Command {
      * @param game The game to execute the command on
      */
     public HandCommand(Game game) {
-        super(StringConstants.CMD_HAND, game);
+        super(StringConstants.COMMAND_HAND, game);
     }
 
     @Override
     public void execute(String[] arguments) {
         if (arguments.length > 0) {
-            throw new IllegalArgumentException(StringConstants.ERR_NO_ARGS);
+            throw new IllegalArgumentException(StringConstants.ERROR_NO_ARGUMENTS);
         }
 
-        Player active = this.getGame().getActivePlayerObject();
-        List<Unit> hand = active.getHand();
-        int size = hand.size();
+        Player activePlayer = this.getGame().getActivePlayerObject();
+        List<Unit> handUnits = activePlayer.getHand();
+        int handSize = handUnits.size();
 
-        for (int i = 0; i < size; i++) {
-            System.out.print(hand.get(i).formatHandInfo(i + 1));
+        for (int index = 0; index < handSize; index++) {
+            System.out.print(handUnits.get(index).formatHandInfo(index + 1));
         }
     }
 }

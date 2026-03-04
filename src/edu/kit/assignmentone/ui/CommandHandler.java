@@ -28,10 +28,10 @@ import java.util.Scanner;
  */
 public class CommandHandler {
 
-    private static final String CMD_NOT_FOUND_ERROR = "Command not recognised.";
+    private static final String COMMAND_NOT_FOUND_ERROR = "Command not recognised.";
 
     private final Game game;
-    private final List<Command> commands;
+    private final List<Command> commandsList;
 
     /**
      * Creates a new CommandHandler.
@@ -40,29 +40,29 @@ public class CommandHandler {
      */
     public CommandHandler(Game game) {
         this.game = game;
-        this.commands = new ArrayList<>();
-        initCommands();
+        this.commandsList = new ArrayList<>();
+        initializeCommands();
     }
 
-    private void initCommands() {
-        this.commands.add(new QuitCommand(this.game));
-        this.commands.add(new StateCommand(this.game));
-        this.commands.add(new ShowCommand(this.game));
-        this.commands.add(new SelectCommand(this.game));
-        this.commands.add(new PlaceCommand(this.game));
-        this.commands.add(new MoveCommand(this.game));
-        this.commands.add(new HandCommand(this.game));
-        this.commands.add(new YieldCommand(this.game));
-        this.commands.add(new BoardCommand(this.game));
-        this.commands.add(new BlockCommand(this.game));
-        this.commands.add(new FlipCommand(this.game));
+    private void initializeCommands() {
+        this.commandsList.add(new QuitCommand(this.game));
+        this.commandsList.add(new StateCommand(this.game));
+        this.commandsList.add(new ShowCommand(this.game));
+        this.commandsList.add(new SelectCommand(this.game));
+        this.commandsList.add(new PlaceCommand(this.game));
+        this.commandsList.add(new MoveCommand(this.game));
+        this.commandsList.add(new HandCommand(this.game));
+        this.commandsList.add(new YieldCommand(this.game));
+        this.commandsList.add(new BoardCommand(this.game));
+        this.commandsList.add(new BlockCommand(this.game));
+        this.commandsList.add(new FlipCommand(this.game));
     }
 
     /**
      * Starts the input loop.
      */
     public void handleUserInput() {
-        System.out.println(StringConstants.MSG_HELP);
+        System.out.println(StringConstants.MESSAGE_HELP);
         try (Scanner scanner = new Scanner(System.in)) {
             while (this.game.isRunning()) {
                 if (this.game.isEnemyTurn()) {
@@ -80,24 +80,24 @@ public class CommandHandler {
     }
 
     private void executeCommand(String input) {
-        boolean found = false;
-        for (Command command : this.commands) {
-            if (input.matches(command.getCommandRegex())) {
-                found = true;
-                String[] arguments = input.split(StringConstants.REGEX_WHITESPACE);
-                String[] argsOnly = new String[arguments.length - 1];
-                System.arraycopy(arguments, 1, argsOnly, 0, arguments.length - 1);
+        boolean commandFound = false;
+        for (Command command : this.commandsList) {
+            if (input.matches(command.getCommandRegularExpression())) {
+                commandFound = true;
+                String[] arguments = input.split(StringConstants.PATTERN_WHITESPACE);
+                String[] argumentsOnly = new String[arguments.length - 1];
+                System.arraycopy(arguments, 1, argumentsOnly, 0, arguments.length - 1);
 
                 try {
-                    command.execute(argsOnly);
-                } catch (IllegalStateException | IllegalArgumentException e) {
-                    System.err.println(StringConstants.ERROR_PREFIX + e.getMessage());
+                    command.execute(argumentsOnly);
+                } catch (IllegalStateException | IllegalArgumentException exception) {
+                    System.err.println(StringConstants.ERROR_PREFIX + exception.getMessage());
                 }
                 break;
             }
         }
-        if (!found) {
-            System.err.println(StringConstants.ERROR_PREFIX + CMD_NOT_FOUND_ERROR);
+        if (!commandFound) {
+            System.err.println(StringConstants.ERROR_PREFIX + COMMAND_NOT_FOUND_ERROR);
         }
     }
 }

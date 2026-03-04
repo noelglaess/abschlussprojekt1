@@ -18,11 +18,9 @@ import java.util.Random;
  */
 public class Board {
 
-    /** Penalty applied when attacking unflipped units. */
-    private static final int FLIPPED_PENALTY = 500;
-
-    private static final int[][] DIR_4 = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
-    private static final int[][] DIR_8 = {{0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}};
+    private static final int PENALTY_FLIPPED = 500;
+    private static final int[][] DIRECTIONS_FOUR = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    private static final int[][] DIRECTIONS_EIGHT = {{0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}};
     private static final int BOARD_SIZE = 7;
     private final PlacedUnit[][] grid;
 
@@ -37,17 +35,11 @@ public class Board {
      * @return true if empty
      */
     public boolean isEmpty(Position position) {
-        return this.grid[position.col()][position.row()] == null;
+        return this.grid[position.column()][position.row()] == null;
     }
 
-    /**
-     * Checks if the position is occupied by a specific player.
-     * @param position The position
-     * @param type The player type
-     * @return true if occupied by the player
-     */
     private boolean isOccupiedBy(Position position, PlayerType type) {
-        return !isEmpty(position) && this.grid[position.col()][position.row()].getOwner() == type;
+        return !isEmpty(position) && this.grid[position.column()][position.row()].getOwner() == type;
     }
 
     /**
@@ -57,9 +49,9 @@ public class Board {
      */
     public void placeUnit(Position position, PlacedUnit unit) {
         if (!isEmpty(position)) {
-            throw new IllegalStateException(StringConstants.ERR_POS_OCCUPIED);
+            throw new IllegalStateException(StringConstants.ERROR_POSITION_OCCUPIED);
         }
-        this.grid[position.col()][position.row()] = unit;
+        this.grid[position.column()][position.row()] = unit;
     }
 
     /**
@@ -68,10 +60,10 @@ public class Board {
      * @return The removed unit
      */
     public PlacedUnit removeUnit(Position position) {
-        int col = position.col();
+        int column = position.column();
         int row = position.row();
-        PlacedUnit unit = this.grid[col][row];
-        this.grid[col][row] = null;
+        PlacedUnit unit = this.grid[column][row];
+        this.grid[column][row] = null;
         return unit;
     }
 
@@ -81,23 +73,23 @@ public class Board {
      * @return An Optional
      */
     public Optional<PlacedUnit> getUnitAt(Position position) {
-        return Optional.ofNullable(this.grid[position.col()][position.row()]);
+        return Optional.ofNullable(this.grid[position.column()][position.row()]);
     }
 
     /**
      * Moves a unit.
-     * @param from source
-     * @param to target
+     * @param sourcePosition source
+     * @param targetPosition target
      */
-    public void moveUnit(Position from, Position to) {
-        if (isEmpty(from)) {
-            throw new IllegalStateException(StringConstants.ERR_NO_UNIT_SOURCE);
+    public void moveUnit(Position sourcePosition, Position targetPosition) {
+        if (isEmpty(sourcePosition)) {
+            throw new IllegalStateException(StringConstants.ERROR_NO_UNIT_SOURCE);
         }
-        if (!isEmpty(to)) {
-            throw new IllegalStateException(StringConstants.ERR_TARGET_OCCUPIED);
+        if (!isEmpty(targetPosition)) {
+            throw new IllegalStateException(StringConstants.ERROR_TARGET_OCCUPIED);
         }
-        PlacedUnit unit = removeUnit(from);
-        placeUnit(to, unit);
+        PlacedUnit unit = removeUnit(sourcePosition);
+        placeUnit(targetPosition, unit);
     }
 
     /**
@@ -109,11 +101,11 @@ public class Board {
     public Position findUnit(String name, PlayerType owner) {
         Position found = null;
         for (int row = 0; row < BOARD_SIZE; row++) {
-            for (int col = 0; col < BOARD_SIZE; col++) {
-                Position pos = new Position(col, row);
-                Optional<PlacedUnit> opt = getUnitAt(pos);
-                if (opt.isPresent() && opt.get().getOwner() == owner && opt.get().getName().equals(name)) {
-                    found = pos;
+            for (int column = 0; column < BOARD_SIZE; column++) {
+                Position position = new Position(column, row);
+                Optional<PlacedUnit> unitOptional = getUnitAt(position);
+                if (unitOptional.isPresent() && unitOptional.get().getOwner() == owner && unitOptional.get().getName().equals(name)) {
+                    found = position;
                     break;
                 }
             }
@@ -129,32 +121,24 @@ public class Board {
      * @return List of positions
      */
     public List<Position> getUnmovedEnemyUnits() {
-        List<Position> unmoved = new ArrayList<>();
+        List<Position> unmovedList = new ArrayList<>();
         for (int row = 0; row < BOARD_SIZE; row++) {
-            for (int col = 0; col < BOARD_SIZE; col++) {
-                PlacedUnit unit = this.grid[col][row];
+            for (int column = 0; column < BOARD_SIZE; column++) {
+                PlacedUnit unit = this.grid[column][row];
                 if (unit != null && unit.isUnmovedEnemy()) {
-                    unmoved.add(new Position(col, row));
+                    unmovedList.add(new Position(column, row));
                 }
             }
         }
-        return unmoved;
+        return unmovedList;
     }
 
-    /**
-     * Counts specific units around a position.
-     * @param pos center
-     * @param eightDirs true if 8 directions
-     * @param type type
-     * @param exclude exclude
-     * @return amount
-     */
-    private int countUnits(Position pos, boolean eightDirs, PlayerType type, Position exclude) {
+    private int countUnits(Position position, boolean useEightDirections, PlayerType type, Position excludePosition) {
         int count = 0;
-        int[][] dirs = eightDirs ? DIR_8 : DIR_4;
-        for (int[] dir : dirs) {
-            Position check = pos.translate(dir[0], dir[1]);
-            if (check != null && !check.equals(exclude) && isOccupiedBy(check, type)) {
+        int[][] directions = useEightDirections ? DIRECTIONS_EIGHT : DIRECTIONS_FOUR;
+        for (int[] directionArray : directions) {
+            Position positionToCheck = position.translate(directionArray[0], directionArray[1]);
+            if (positionToCheck != null && !positionToCheck.equals(excludePosition) && isOccupiedBy(positionToCheck, type)) {
                 count++;
             }
         }
@@ -163,84 +147,72 @@ public class Board {
 
     /**
      * Gets the highest attack value around.
-     * @param pos center
+     * @param position center
      * @return max attack
      */
-    public int getMaxSurroundingEnemyAtk(Position pos) {
-        int maxAtk = 0;
-        for (int[] dir : DIR_4) {
-            Position check = pos.translate(dir[0], dir[1]);
-            if (check != null) {
-                Optional<PlacedUnit> opt = getUnitAt(check);
-                if (opt.isPresent() && opt.get().getOwner() == PlayerType.PLAYER) {
-                    maxAtk = Math.max(maxAtk, opt.get().getAttack());
+    public int getMaximumSurroundingEnemyAttack(Position position) {
+        int maximumAttack = 0;
+        for (int[] directionArray : DIRECTIONS_FOUR) {
+            Position positionToCheck = position.translate(directionArray[0], directionArray[1]);
+            if (positionToCheck != null) {
+                Optional<PlacedUnit> unitOptional = getUnitAt(positionToCheck);
+                if (unitOptional.isPresent() && unitOptional.get().getOwner() == PlayerType.PLAYER) {
+                    maximumAttack = Math.max(maximumAttack, unitOptional.get().getAttack());
                 }
             }
         }
-        return maxAtk;
+        return maximumAttack;
     }
 
-    /**
-     * Calculates the king score for AI.
-     * @param pos Evaluation position
-     * @param kingPos Current king pos
-     * @return The score
-     */
-    private int getKingScore(Position pos, Position kingPos) {
-        int fellows = countUnits(pos, true, PlayerType.ENEMY, kingPos);
-        int enemies = countUnits(pos, true, PlayerType.PLAYER, null);
-        int dist = kingPos.distanceTo(pos);
-        int present = (isOccupiedBy(pos, PlayerType.ENEMY) && !pos.equals(kingPos)) ? 1 : 0;
-        return fellows - 2 * enemies - dist - 3 * present;
+    private int calculateKingScore(Position positionToEvaluate, Position kingPosition) {
+        int fellows = countUnits(positionToEvaluate, true, PlayerType.ENEMY, kingPosition);
+        int enemies = countUnits(positionToEvaluate, true, PlayerType.PLAYER, null);
+        int distance = kingPosition.distanceTo(positionToEvaluate);
+        int present = (isOccupiedBy(positionToEvaluate, PlayerType.ENEMY) && !positionToEvaluate.equals(kingPosition)) ? 1 : 0;
+        return fellows - 2 * enemies - distance - 3 * present;
     }
 
-    /**
-     * Calculates placement score for AI.
-     * @param pos The position
-     * @param playerKingPos Target king pos
-     * @return The score
-     */
-    private int getPlacementScore(Position pos, Position playerKingPos) {
-        int steps = pos.distanceTo(playerKingPos);
-        int enemies = countUnits(pos, false, PlayerType.PLAYER, null);
-        int fellows = countUnits(pos, false, PlayerType.ENEMY, null);
-        return -steps + 2 * enemies - fellows;
+    private int calculatePlacementScore(Position positionToEvaluate, Position playerKingPosition) {
+        int distance = positionToEvaluate.distanceTo(playerKingPosition);
+        int enemies = countUnits(positionToEvaluate, false, PlayerType.PLAYER, null);
+        int fellows = countUnits(positionToEvaluate, false, PlayerType.ENEMY, null);
+        return -distance + 2 * enemies - fellows;
     }
 
     /**
      * Evaluates AI target score safely.
-     * @param sourcePos Source pos
-     * @param targetPos Target pos (must not be null)
-     * @param pKing Player king
+     * @param sourcePosition Source
+     * @param targetPosition Target (must not be null)
+     * @param playerKingPosition Player king
      * @return the score
      */
-    public int evaluateTargetScore(Position sourcePos, Position targetPos, Position pKing) {
+    public int evaluateTargetScore(Position sourcePosition, Position targetPosition, Position playerKingPosition) {
         int resultScore;
-        PlacedUnit unit = getUnitAt(sourcePos).orElseThrow();
-        PlacedUnit targetUnit = getUnitAt(targetPos).orElse(null);
+        PlacedUnit unit = getUnitAt(sourcePosition).orElseThrow();
+        PlacedUnit targetUnit = getUnitAt(targetPosition).orElse(null);
 
         if (targetUnit == null) {
-            int steps = targetPos.distanceTo(pKing);
-            int enemies = countUnits(targetPos, false, PlayerType.PLAYER, null);
-            resultScore = 10 - steps - enemies;
+            int distance = targetPosition.distanceTo(playerKingPosition);
+            int enemies = countUnits(targetPosition, false, PlayerType.PLAYER, null);
+            resultScore = 10 - distance - enemies;
         } else {
-            PlayerType tOwner = targetUnit.getOwner();
-            int tAtk = targetUnit.getAttack();
-            int tDef = targetUnit.getDefense();
-            int uAtk = unit.getAttack();
+            PlayerType targetOwner = targetUnit.getOwner();
+            int targetAttack = targetUnit.getAttack();
+            int targetDefense = targetUnit.getDefense();
+            int unitAttack = unit.getAttack();
 
-            if (tOwner == PlayerType.ENEMY) {
-                Optional<Unit> combined = unit.getUnit().combineWith(targetUnit.getUnit());
-                resultScore = combined.map(combinedUnit -> combinedUnit.attack() + combinedUnit.defense() - uAtk - unit.getDefense())
-                        .orElse(-tAtk - tDef);
+            if (targetOwner == PlayerType.ENEMY) {
+                Optional<Unit> combinedUnitOptional = unit.getUnit().combineWith(targetUnit.getUnit());
+                resultScore = combinedUnitOptional.map(combinedUnit -> combinedUnit.attack() + combinedUnit.defense() - unitAttack - unit.getDefense())
+                        .orElse(-targetAttack - targetDefense);
             } else if (targetUnit.isKing()) {
-                resultScore = uAtk;
+                resultScore = unitAttack;
             } else if (!targetUnit.isFlipped()) {
-                resultScore = uAtk - FLIPPED_PENALTY;
+                resultScore = unitAttack - PENALTY_FLIPPED;
             } else if (targetUnit.isBlocking()) {
-                resultScore = uAtk - tDef;
+                resultScore = unitAttack - targetDefense;
             } else {
-                resultScore = 2 * (uAtk - tAtk);
+                resultScore = 2 * (unitAttack - targetAttack);
             }
         }
         return resultScore;
@@ -248,62 +220,62 @@ public class Board {
 
     /**
      * Finds the best King move for AI.
-     * @param kingPos the king
-     * @param rnd random
+     * @param kingPosition the king
+     * @param randomGenerator random
      * @return The position
      */
-    public Position findBestKingMove(Position kingPos, Random rnd) {
-        Position bestResult = kingPos;
-        int maxScore = Integer.MIN_VALUE;
-        List<Position> bestOpts = new ArrayList<>();
+    public Position findBestKingMove(Position kingPosition, Random randomGenerator) {
+        Position bestResult = kingPosition;
+        int maximumScore = Integer.MIN_VALUE;
+        List<Position> bestOptions = new ArrayList<>();
 
-        for (Position pos : kingPos.getAdjacentAndCenter()) {
-            if (Position.isValid(pos.col(), pos.row()) && !isOccupiedBy(pos, PlayerType.PLAYER)) {
-                int scoreVal = getKingScore(pos, kingPos);
-                if (scoreVal > maxScore) {
-                    maxScore = scoreVal;
-                    bestOpts.clear();
-                    bestOpts.add(pos);
-                } else if (scoreVal == maxScore) {
-                    bestOpts.add(pos);
+        for (Position position : kingPosition.getAdjacentAndCenter()) {
+            if (Position.isValid(position.column(), position.row()) && !isOccupiedBy(position, PlayerType.PLAYER)) {
+                int scoreValue = calculateKingScore(position, kingPosition);
+                if (scoreValue > maximumScore) {
+                    maximumScore = scoreValue;
+                    bestOptions.clear();
+                    bestOptions.add(position);
+                } else if (scoreValue == maximumScore) {
+                    bestOptions.add(position);
                 }
             }
         }
 
-        if (bestOpts.size() == 1) {
-            bestResult = bestOpts.getFirst();
-        } else if (bestOpts.size() > 1) {
+        if (bestOptions.size() == 1) {
+            bestResult = bestOptions.getFirst();
+        } else if (bestOptions.size() > 1) {
             List<Integer> weights = new ArrayList<>();
-            for (int i = 0; i < bestOpts.size(); i++) {
+            for (int index = 0; index < bestOptions.size(); index++) {
                 weights.add(1);
             }
-            bestResult = bestOpts.get(RandomUtils.weightedRandom(weights, rnd));
+            bestResult = bestOptions.get(RandomUtils.weightedRandom(weights, randomGenerator));
         }
         return bestResult;
     }
 
     /**
      * Finds best placement for AI.
-     * @param kingPos King
-     * @param pKing Player king
-     * @param rnd Random
+     * @param kingPosition King
+     * @param playerKingPosition Player king
+     * @param randomGenerator Random
      * @return Position or null
      */
-    public Position findBestPlacement(Position kingPos, Position pKing, Random rnd) {
+    public Position findBestPlacement(Position kingPosition, Position playerKingPosition, Random randomGenerator) {
         Position bestResult = null;
-        int maxScore = Integer.MIN_VALUE;
+        int maximumScore = Integer.MIN_VALUE;
         List<Position> bestFields = new ArrayList<>();
 
-        for (int[] dir : DIR_8) {
-            Position pos = kingPos.translate(dir[0], dir[1]);
-            if (pos != null && !isOccupiedBy(pos, PlayerType.PLAYER)) {
-                int scoreVal = getPlacementScore(pos, pKing);
-                if (scoreVal > maxScore) {
-                    maxScore = scoreVal;
+        for (int[] directionArray : DIRECTIONS_EIGHT) {
+            Position position = kingPosition.translate(directionArray[0], directionArray[1]);
+            if (position != null && !isOccupiedBy(position, PlayerType.PLAYER)) {
+                int scoreValue = calculatePlacementScore(position, playerKingPosition);
+                if (scoreValue > maximumScore) {
+                    maximumScore = scoreValue;
                     bestFields.clear();
-                    bestFields.add(pos);
-                } else if (scoreVal == maxScore) {
-                    bestFields.add(pos);
+                    bestFields.add(position);
+                } else if (scoreValue == maximumScore) {
+                    bestFields.add(position);
                 }
             }
         }
@@ -312,10 +284,10 @@ public class Board {
             bestResult = bestFields.getFirst();
         } else if (bestFields.size() > 1) {
             List<Integer> weights = new ArrayList<>();
-            for (int i = 0; i < bestFields.size(); i++) {
+            for (int index = 0; index < bestFields.size(); index++) {
                 weights.add(1);
             }
-            bestResult = bestFields.get(RandomUtils.weightedRandom(weights, rnd));
+            bestResult = bestFields.get(RandomUtils.weightedRandom(weights, randomGenerator));
         }
         return bestResult;
     }

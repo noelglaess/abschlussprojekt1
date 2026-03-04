@@ -18,23 +18,23 @@ import java.util.Optional;
 public class SelectCommand extends Command {
 
     public SelectCommand(Game game) {
-        super(StringConstants.REGEX_SELECT, game);
+        super(StringConstants.PATTERN_SELECT, game);
     }
 
     @Override
     public void execute(String[] arguments) {
-        Position pos = Position.fromString(arguments[0]);
-        Game curGame = this.getGame();
-        Board board = curGame.getBoard();
+        Position position = Position.fromString(arguments[0]);
+        Game currentGame = this.getGame();
+        Board board = currentGame.getBoard();
 
-        curGame.setSelectedPosition(pos);
-        System.out.print(BoardFormatter.formatBoard(board, pos));
+        currentGame.setSelectedPosition(position);
+        System.out.print(BoardFormatter.formatBoard(board, position));
 
-        Optional<PlacedUnit> unitOpt = board.getUnitAt(pos);
-        if (unitOpt.isPresent()) {
-            System.out.println(unitOpt.get().formatInfo(curGame));
+        Optional<PlacedUnit> unitOptional = board.getUnitAt(position);
+        if (unitOptional.isPresent()) {
+            System.out.println(unitOptional.get().formatInfo(currentGame));
         } else {
-            System.out.println(StringConstants.NO_UNIT);
+            System.out.println(StringConstants.NO_UNIT_SELECTED);
         }
     }
 }

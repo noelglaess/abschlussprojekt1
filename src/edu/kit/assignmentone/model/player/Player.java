@@ -63,7 +63,7 @@ public class Player {
      */
     public boolean takeDamageAndCheckDefeat(int amount) {
         if (amount < 0) {
-            throw new IllegalArgumentException(StringConstants.ERR_NEG_DAMAGE);
+            throw new IllegalArgumentException(StringConstants.ERROR_NEGATIVE_DAMAGE);
         }
         this.lifePoints = Math.max(0, this.lifePoints - amount);
         return this.lifePoints == 0;
@@ -89,7 +89,7 @@ public class Player {
      * Checks if the hand is full.
      * @return True if full
      */
-    public boolean hasFullHand() {
+    public boolean isHandFull() {
         return this.hand.size() == FULL_HAND_SIZE;
     }
 
@@ -101,15 +101,15 @@ public class Player {
      */
     public Unit processYield(String[] arguments) {
         Unit discardedUnit = null;
-        boolean isFull = this.hand.size() == FULL_HAND_SIZE;
-        if (isFull && arguments.length == 0) {
-            throw new IllegalStateException(StringConstants.ERR_MUST_DISC);
-        } else if (!isFull && arguments.length > 0) {
-            throw new IllegalStateException(StringConstants.ERR_CANT_DISC);
+        boolean isHandFull = this.hand.size() == FULL_HAND_SIZE;
+        if (isHandFull && arguments.length == 0) {
+            throw new IllegalStateException(StringConstants.ERROR_MUST_DISCARD);
+        } else if (!isHandFull && arguments.length > 0) {
+            throw new IllegalStateException(StringConstants.ERROR_CANNOT_DISCARD);
         } else if (arguments.length > 0) {
             int index = Integer.parseInt(arguments[0]) - 1;
             if (index < 0 || index >= this.hand.size()) {
-                throw new IllegalArgumentException(StringConstants.ERR_INV_IDX);
+                throw new IllegalArgumentException(StringConstants.ERROR_INVALID_INDEX);
             }
             discardedUnit = this.hand.remove(index);
         }
@@ -125,14 +125,14 @@ public class Player {
      */
     public List<Unit> preparePlacement(List<Integer> indices, PlayerType targetOwner) {
         if (this.placedThisTurn) {
-            throw new IllegalStateException(StringConstants.ERR_ALREADY_PLACED);
+            throw new IllegalStateException(StringConstants.ERROR_ALREADY_PLACED);
         }
         if (targetOwner != null && targetOwner != this.type) {
-            throw new IllegalStateException(StringConstants.ERR_OCC_ENEMY);
+            throw new IllegalStateException(StringConstants.ERROR_OCCUPIED_BY_ENEMY);
         }
         for (int index : indices) {
             if (index < 0 || index >= this.hand.size()) {
-                throw new IllegalArgumentException(StringConstants.ERR_INV_IDX);
+                throw new IllegalArgumentException(StringConstants.ERROR_INVALID_INDEX);
             }
         }
 
@@ -212,7 +212,7 @@ public class Player {
     /** Increments the board unit counter. */
     public void incrementBoardCount() {
         if (this.boardCount >= MAXIMUM_BOARD_CAPACITY) {
-            throw new IllegalStateException(StringConstants.ERR_MAX_BOARD_CAP);
+            throw new IllegalStateException(StringConstants.ERROR_MAXIMUM_BOARD_CAPACITY);
         }
         this.boardCount++;
     }
@@ -220,7 +220,7 @@ public class Player {
     /** Decrements the board unit counter. */
     public void decrementBoardCount() {
         if (this.boardCount <= 0) {
-            throw new IllegalStateException(StringConstants.ERR_BOARD_COUNT_ZERO);
+            throw new IllegalStateException(StringConstants.ERROR_BOARD_COUNT_ZERO);
         }
         this.boardCount--;
     }
@@ -236,7 +236,7 @@ public class Player {
      * @return The formatted string
      */
     public String formatState() {
-        return String.format(StringConstants.FMT_STATE, this.type.getDisplayName(),
+        return String.format(StringConstants.FORMAT_STATE, this.type.getDisplayName(),
                 this.lifePoints, MAXIMUM_LIFE_POINTS, this.deck.size(),
                 MAXIMUM_DECK_CAPACITY, this.boardCount, MAXIMUM_BOARD_CAPACITY);
     }

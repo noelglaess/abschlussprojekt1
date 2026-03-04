@@ -20,30 +20,30 @@ public class FlipCommand extends Command {
      * @param game The game instance
      */
     public FlipCommand(Game game) {
-        super(StringConstants.CMD_FLIP, game);
+        super(StringConstants.COMMAND_FLIP, game);
     }
 
     @Override
     public void execute(String[] arguments) {
         if (arguments.length > 0) {
-            throw new IllegalArgumentException(StringConstants.ERR_NO_ARGS);
+            throw new IllegalArgumentException(StringConstants.ERROR_NO_ARGUMENTS);
         }
-        Game game = this.getGame();
-        Board board = game.getBoard();
-        Position sel = game.getSelectedPosition();
+        Game currentGame = this.getGame();
+        Board board = currentGame.getBoard();
+        Position selectedPosition = currentGame.getSelectedPosition();
 
-        if (sel == null || board.isEmpty(sel)) {
-            throw new IllegalStateException(StringConstants.ERR_NO_SELECTION);
+        if (selectedPosition == null || board.isEmpty(selectedPosition)) {
+            throw new IllegalStateException(StringConstants.ERROR_NO_SELECTION);
         }
 
-        PlacedUnit unit = board.getUnitAt(sel).orElseThrow();
+        PlacedUnit unit = board.getUnitAt(selectedPosition).orElseThrow();
         unit.requireValidMove(0, unit);
 
         if (unit.flipIfCovered()) {
             unit.setMoved(true);
-            System.out.printf(StringConstants.FMT_FLIPPED, unit.getName(), unit.getAttack(), unit.getDefense(), sel);
-            System.out.print(BoardFormatter.formatBoard(board, sel));
-            System.out.println(unit.formatInfo(game));
+            System.out.printf(StringConstants.FORMAT_FLIPPED, unit.getName(), unit.getAttack(), unit.getDefense(), selectedPosition);
+            System.out.print(BoardFormatter.formatBoard(board, selectedPosition));
+            System.out.println(unit.formatInfo(currentGame));
         }
     }
 }

@@ -28,35 +28,30 @@ public final class BoardFormatter {
     /**
      * Formats the game board into a string representation.
      * @param board The game board
-     * @param highlightPos The currently selected position to highlight
+     * @param highlightPosition The currently selected position to highlight
      * @return The formatted board string
      */
-    public static String formatBoard(Board board, Position highlightPos) {
+    public static String formatBoard(Board board, Position highlightPosition) {
         StringBuilder builder = new StringBuilder();
 
         for (int row = BOARD_SIZE - 1; row >= 0; row--) {
-            builder.append(String.format(StringConstants.FMT_ROW, row + 1));
+            builder.append(String.format(StringConstants.FORMAT_ROW, row + 1));
 
-            for (int col = 0; col < BOARD_SIZE; col++) {
-                Position currentPos = new Position(col, row);
-                PlacedUnit unit = board.getUnitAt(currentPos).orElse(null);
+            for (int column = 0; column < BOARD_SIZE; column++) {
+                Position currentPosition = new Position(column, row);
+                PlacedUnit unit = board.getUnitAt(currentPosition).orElse(null);
 
                 String cellContent = getCellContent(unit);
-                String prefix = currentPos.equals(highlightPos) ? SYMBOL_HIGHLIGHT : SYMBOL_EMPTY;
+                String prefix = currentPosition.equals(highlightPosition) ? SYMBOL_HIGHLIGHT : SYMBOL_EMPTY;
 
-                builder.append(String.format(StringConstants.FMT_CELL, prefix, cellContent));
+                builder.append(String.format(StringConstants.FORMAT_CELL, prefix, cellContent));
             }
             builder.append(System.lineSeparator());
         }
-        builder.append(StringConstants.COL_FOOTER).append(System.lineSeparator());
+        builder.append(StringConstants.COLUMN_FOOTER).append(System.lineSeparator());
         return builder.toString();
     }
 
-    /**
-     * Determines the display string for a cell based on the unit present.
-     * @param unit the unit at the position, or null if empty
-     * @return the formatted content string
-     */
     private static String getCellContent(PlacedUnit unit) {
         if (unit == null) {
             return SYMBOL_EMPTY;

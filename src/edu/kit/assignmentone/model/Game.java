@@ -25,7 +25,7 @@ public class Game {
     private static final int REQUIRED_DECK_SIZE = 40;
     private static final int BOARD_SIZE = 7;
 
-    private final Random random;
+    private final Random randomGenerator;
     private final List<Unit> allUnits;
     private final List<Integer> deckBlueprint;
 
@@ -41,27 +41,27 @@ public class Game {
      * Constructs a new game instance.
      *
      * @param seed      The random seed
-     * @param deckPath  Path to the deck configuration file
-     * @param unitsPath Path to the units configuration file
+     * @param deckFilePath  Path to the deck configuration file
+     * @param unitsFilePath Path to the units configuration file
      * @throws IOException              If reading the files fails
      * @throws IllegalStateException    If the deck configuration is invalid
      */
-    public Game(long seed, String deckPath, String unitsPath) throws IOException {
-        this.random = new Random(seed);
+    public Game(long seed, String deckFilePath, String unitsFilePath) throws IOException {
+        this.randomGenerator = new Random(seed);
         this.running = true;
 
-        this.allUnits = ResourceLoader.loadUnits(unitsPath);
-        this.deckBlueprint = ResourceLoader.loadDeck(deckPath);
+        this.allUnits = ResourceLoader.loadUnits(unitsFilePath);
+        this.deckBlueprint = ResourceLoader.loadDeck(deckFilePath);
 
         if (this.allUnits.size() != this.deckBlueprint.size()) {
-            throw new IllegalStateException(StringConstants.ERR_DECK_ROWS);
+            throw new IllegalStateException(StringConstants.ERROR_DECK_ROWS);
         }
         int totalCards = 0;
         for (int count : this.deckBlueprint) {
             totalCards += count;
         }
         if (totalCards != REQUIRED_DECK_SIZE) {
-            throw new IllegalStateException(StringConstants.ERR_DECK_SIZE);
+            throw new IllegalStateException(StringConstants.ERROR_DECK_SIZE);
         }
 
         this.board = new Board();
@@ -69,35 +69,35 @@ public class Game {
         Deck humanDeck = createDeckFromBlueprint();
         Deck enemyDeck = createDeckFromBlueprint();
 
-        humanDeck.shuffle(this.random);
-        enemyDeck.shuffle(this.random);
+        humanDeck.shuffle(this.randomGenerator);
+        enemyDeck.shuffle(this.randomGenerator);
 
         this.humanPlayer = new Player(PlayerType.PLAYER, humanDeck);
         this.enemyPlayer = new Player(PlayerType.ENEMY, enemyDeck);
 
-        initPlayer(this.humanPlayer, true);
-        initPlayer(this.enemyPlayer, false);
+        initializePlayer(this.humanPlayer, true);
+        initializePlayer(this.enemyPlayer, false);
 
-        Unit kingUnit = new Unit(StringConstants.EMPTY, StringConstants.KING_NAME, UnitType.FARMER, 0, 0);
+        Unit kingUnit = new Unit(StringConstants.EMPTY_STRING, StringConstants.KING_NAME, UnitType.FARMER, 0, 0);
         this.board.placeUnit(new Position(3, 0), new PlacedUnit(kingUnit, PlayerType.PLAYER));
         this.board.placeUnit(new Position(3, 6), new PlacedUnit(kingUnit, PlayerType.ENEMY));
 
         this.activePlayer = PlayerType.PLAYER;
     }
 
-    private void initPlayer(Player player, boolean drawExtra) {
+    private void initializePlayer(Player player, boolean drawExtraCard) {
         player.drawInitialHand();
-        if (drawExtra) {
+        if (drawExtraCard) {
             player.drawCard();
         }
     }
 
     private Deck createDeckFromBlueprint() {
         Deck deck = new Deck();
-        for (int i = 0; i < this.allUnits.size(); i++) {
-            int count = this.deckBlueprint.get(i);
-            for (int j = 0; j < count; j++) {
-                deck.addUnit(this.allUnits.get(i).copy());
+        for (int listIndex = 0; listIndex < this.allUnits.size(); listIndex++) {
+            int count = this.deckBlueprint.get(listIndex);
+            for (int unitIndex = 0; unitIndex < count; unitIndex++) {
+                deck.addUnit(this.allUnits.get(listIndex).copy());
             }
         }
         return deck;
@@ -125,7 +125,7 @@ public class Game {
      *
      * @return The random generator
      */
-    public Random getRandom() { return this.random; }
+    public Random getRandomGenerator() { return this.randomGenerator; }
 
     /**
      * Gets the human player.
@@ -178,8 +178,8 @@ public class Game {
         this.selectedPosition = null;
 
         for (int row = 0; row < BOARD_SIZE; row++) {
-            for (int col = 0; col < BOARD_SIZE; col++) {
-                this.board.getUnitAt(new Position(col, row)).ifPresent(unitObj -> unitObj.setMoved(false));
+            for (int column = 0; column < BOARD_SIZE; column++) {
+                this.board.getUnitAt(new Position(column, row)).ifPresent(unitObject -> unitObject.setMoved(false));
             }
         }
 
@@ -192,11 +192,11 @@ public class Game {
         String activeName = this.activePlayer.getDisplayName();
 
         if (!nextPlayer.drawCard()) {
-            System.out.printf(StringConstants.FMT_NO_CARDS, activeName);
-            System.out.printf(StringConstants.FMT_WINS, previousPlayer.getDisplayName());
+            System.out.printf(StringConstants.FORMAT_NO_CARDS, activeName);
+            System.out.printf(StringConstants.FORMAT_WINS, previousPlayer.getDisplayName());
             quit();
         } else {
-            System.out.printf(StringConstants.FMT_TURN, activeName);
+            System.out.printf(StringConstants.FORMAT_TURN, activeName);
         }
     }
 }

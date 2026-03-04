@@ -22,9 +22,9 @@ import java.util.List;
  */
 public final class AIEngine {
 
-    private static final int HUNDRED = 100;
+    private static final int ONE_HUNDRED = 100;
     private static final int DIRECTION_COUNT = 4;
-    private static final int[][] DIRECTIONS = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    private static final int[][] DIRECTIONS_FOUR = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
 
     private AIEngine() { }
 
@@ -51,7 +51,7 @@ public final class AIEngine {
         Board board = game.getBoard();
         Position kingPosition = board.findUnit(StringConstants.KING_NAME, PlayerType.ENEMY);
         if (kingPosition != null) {
-            Position chosenPosition = board.findBestKingMove(kingPosition, game.getRandom());
+            Position chosenPosition = board.findBestKingMove(kingPosition, game.getRandomGenerator());
             game.setSelectedPosition(kingPosition);
             executeSilently(new MoveCommand(game), new String[]{chosenPosition.toString()});
         }
@@ -59,16 +59,16 @@ public final class AIEngine {
 
     private static void placeUnit(Game game) {
         Board board = game.getBoard();
-        Player enemy = game.getEnemyPlayer();
+        Player enemyPlayer = game.getEnemyPlayer();
 
-        if (!enemy.getHand().isEmpty() && enemy.getBoardCount() < Player.MAXIMUM_BOARD_CAPACITY) {
+        if (!enemyPlayer.getHand().isEmpty() && enemyPlayer.getBoardCount() < Player.MAXIMUM_BOARD_CAPACITY) {
             Position kingPosition = board.findUnit(StringConstants.KING_NAME, PlayerType.ENEMY);
             Position playerKingPosition = board.findUnit(StringConstants.KING_NAME, PlayerType.PLAYER);
 
             if (kingPosition != null && playerKingPosition != null) {
-                Position chosenField = board.findBestPlacement(kingPosition, playerKingPosition, game.getRandom());
+                Position chosenField = board.findBestPlacement(kingPosition, playerKingPosition, game.getRandomGenerator());
                 if (chosenField != null) {
-                    int chosenIndex = enemy.pickUnitToPlace(game.getRandom());
+                    int chosenIndex = enemyPlayer.pickUnitToPlace(game.getRandomGenerator());
                     game.setSelectedPosition(chosenField);
                     executeSilently(new PlaceCommand(game), new String[]{String.valueOf(chosenIndex + 1)});
                 }
@@ -115,7 +115,7 @@ public final class AIEngine {
         int totalScore = 0;
 
         for (int index = 0; index < DIRECTION_COUNT; index++) {
-            Position targetPosition = position.translate(DIRECTIONS[index][0], DIRECTIONS[index][1]);
+            Position targetPosition = position.translate(DIRECTIONS_FOUR[index][0], DIRECTIONS_FOUR[index][1]);
             if (targetPosition != null) {
                 PlacedUnit targetUnit = board.getUnitAt(targetPosition).orElse(null);
                 if (targetUnit == null || !targetUnit.isKing() || targetUnit.getOwner() != PlayerType.ENEMY) {
@@ -127,13 +127,13 @@ public final class AIEngine {
             }
         }
 
-        int maximumAttack = board.getMaxSurroundingEnemyAtk(position);
-        int blockScore = Math.max(1, (unit.getDefense() - maximumAttack) / HUNDRED);
+        int maximumAttack = board.getMaximumSurroundingEnemyAttack(position);
+        int blockScore = Math.max(1, (unit.getDefense() - maximumAttack) / ONE_HUNDRED);
         scores.add(blockScore);
         indices.add(4);
         totalScore += blockScore;
 
-        int inPlaceScore = Math.max(0, (unit.getAttack() - maximumAttack) / HUNDRED);
+        int inPlaceScore = Math.max(0, (unit.getAttack() - maximumAttack) / ONE_HUNDRED);
         scores.add(inPlaceScore);
         indices.add(5);
         totalScore += inPlaceScore;
@@ -154,10 +154,10 @@ public final class AIEngine {
         if (!hasPositiveScore) {
             blockUnit(game, board, unit, position);
         } else {
-            int chosenIndex = RandomUtils.weightedRandom(scores, game.getRandom());
+            int chosenIndex = RandomUtils.weightedRandom(scores, game.getRandomGenerator());
             int action = indices.get(chosenIndex);
             if (action < DIRECTION_COUNT) {
-                Position targetPosition = position.translate(DIRECTIONS[action][0], DIRECTIONS[action][1]);
+                Position targetPosition = position.translate(DIRECTIONS_FOUR[action][0], DIRECTIONS_FOUR[action][1]);
                 if (targetPosition != null) {
                     executeSilently(new MoveCommand(game), new String[]{targetPosition.toString()});
                 }
@@ -172,15 +172,15 @@ public final class AIEngine {
     private static void blockUnit(Game game, Board board, PlacedUnit unit, Position position) {
         game.setSelectedPosition(position);
         unit.block();
-        System.out.printf(StringConstants.FMT_BLOCKS, unit.getName(), position);
+        System.out.printf(StringConstants.FORMAT_BLOCKS, unit.getName(), position);
         System.out.print(BoardFormatter.formatBoard(board, position));
         System.out.println(unit.formatInfo(game));
     }
 
     private static void endTurn(Game game) {
-        Player enemy = game.getEnemyPlayer();
-        if (enemy.hasFullHand()) {
-            int dropIndex = enemy.pickUnitToDiscard(game.getRandom());
+        Player enemyPlayer = game.getEnemyPlayer();
+        if (enemyPlayer.isHandFull()) {
+            int dropIndex = enemyPlayer.pickUnitToDiscard(game.getRandomGenerator());
             executeSilently(new YieldCommand(game), new String[]{String.valueOf(dropIndex + 1)});
         } else {
             executeSilently(new YieldCommand(game), new String[0]);
@@ -191,7 +191,7 @@ public final class AIEngine {
         try {
             command.execute(arguments);
         } catch (IllegalStateException | IllegalArgumentException ignored) {
-            // Ignored silently for AI
+            // Ignored silently for AI turn
         }
     }
 
