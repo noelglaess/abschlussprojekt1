@@ -7,9 +7,9 @@ import edu.kit.assignmentone.model.player.PlayerType;
 import edu.kit.assignmentone.model.units.Unit;
 
 /**
- * Represents a unit that is currently placed on the board, including its owner and state.
+ * Represents a unit that is currently placed on the board.
  *
- * @author uqhkm
+ * @author uXXXXX
  * @version 1.0
  */
 public class PlacedUnit {
@@ -38,7 +38,6 @@ public class PlacedUnit {
     public void setMoved(boolean moved) { this.moved = moved; }
     public boolean isBlocking() { return this.blocking; }
 
-    // FIX: Nutzt jetzt korrekt fullName() aus Unit.java!
     public boolean isKing() { return this.unit.fullName().equals(StringConstants.KING_NAME); }
     public int getAttack() { return this.unit.attack(); }
     public int getDefense() { return this.unit.defense(); }
@@ -78,7 +77,8 @@ public class PlacedUnit {
         if (distance > 1) {
             throw new IllegalStateException(StringConstants.ERR_MOVE_DIST);
         }
-        if (targetUnit != null) {
+        // FIX: targetUnit != this sorgt dafür, dass "en place" Züge nicht blockiert werden!
+        if (targetUnit != null && targetUnit != this) {
             if (targetUnit.isKing() && this.owner == targetUnit.owner) {
                 throw new IllegalStateException(StringConstants.ERR_KING_MOVE);
             }

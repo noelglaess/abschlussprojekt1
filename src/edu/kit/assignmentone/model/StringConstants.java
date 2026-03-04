@@ -55,6 +55,7 @@ public final class StringConstants {
     public static final String CMD_SHOW = "show";
     public static final String CMD_STATE = "state";
     public static final String CMD_HAND = "hand";
+    public static final String CMD_BOARD = "board";
 
     public static final String MSG_HELP = "Use one of the following commands: select, board, move, flip, block, hand, place, show, yield, state, quit.";
 

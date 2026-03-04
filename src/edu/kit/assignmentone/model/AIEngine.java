@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * Handles the fully automated turn for the AI Enemy.
  *
- * @author uqhkm
+ * @author uXXXXX
  * @version 1.0
  */
 public final class AIEngine {
@@ -148,7 +148,7 @@ public final class AIEngine {
         }
 
         if (!hasPositiveScore) {
-            blockUnit(board, unit, position);
+            blockUnit(game, board, unit, position);
         } else {
             int chosenIndex = RandomUtils.weightedRandom(scores, game.getRandom());
             int action = indices.get(chosenIndex);
@@ -158,17 +158,19 @@ public final class AIEngine {
                     executeSilently(new MoveCommand(game), new String[]{targetPosition.toString()});
                 }
             } else if (action == DIRECTION_COUNT) {
-                blockUnit(board, unit, position);
+                blockUnit(game, board, unit, position);
             } else {
                 executeSilently(new MoveCommand(game), new String[]{position.toString()});
             }
         }
     }
 
-    private static void blockUnit(Board board, PlacedUnit unit, Position position) {
+    private static void blockUnit(Game game, Board board, PlacedUnit unit, Position position) {
+        game.setSelectedPosition(position);
         unit.block();
         System.out.printf(StringConstants.FMT_BLOCKS, unit.getName(), position);
         System.out.print(BoardFormatter.formatBoard(board, position));
+        System.out.println(unit.formatInfo(game)); // FIX: Jetzt druckt das Blocken auch brav die Einheiten-Info!
     }
 
     private static void endTurn(Game game) {

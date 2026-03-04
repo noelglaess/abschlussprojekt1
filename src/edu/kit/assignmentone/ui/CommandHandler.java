@@ -12,6 +12,7 @@ import edu.kit.assignmentone.ui.commands.SelectCommand;
 import edu.kit.assignmentone.ui.commands.ShowCommand;
 import edu.kit.assignmentone.ui.commands.StateCommand;
 import edu.kit.assignmentone.ui.commands.YieldCommand;
+import edu.kit.assignmentone.ui.commands.BoardCommand; // <-- NEUER IMPORT
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,7 @@ import java.util.Scanner;
 /**
  * Handles the user input and executes the corresponding commands.
  *
- * @author uqhkm
+ * @author uXXXXX
  * @version 1.0
  */
 public class CommandHandler {
@@ -50,6 +51,7 @@ public class CommandHandler {
         this.commands.add(new MoveCommand(this.game));
         this.commands.add(new HandCommand(this.game));
         this.commands.add(new YieldCommand(this.game));
+        this.commands.add(new BoardCommand(this.game)); // <-- NEUER BEFEHL HINZUGEFÜGT
     }
 
     /**
