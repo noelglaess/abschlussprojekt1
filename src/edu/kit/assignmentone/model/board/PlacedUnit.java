@@ -77,7 +77,6 @@ public class PlacedUnit {
         if (distance > 1) {
             throw new IllegalStateException(StringConstants.ERR_MOVE_DIST);
         }
-        // FIX: targetUnit != this sorgt dafür, dass "en place" Züge nicht blockiert werden!
         if (targetUnit != null && targetUnit != this) {
             if (targetUnit.isKing() && this.owner == targetUnit.owner) {
                 throw new IllegalStateException(StringConstants.ERR_KING_MOVE);
@@ -100,6 +99,7 @@ public class PlacedUnit {
                 this.owner.getDisplayName(), this.getAttack(), this.getDefense());
     }
 
+    // FIX: Komplett reparierte Kampflogik! (Wer gewinnt, wer verliert)
     public DuelResult fightAgainst(PlacedUnit defender) {
         DuelResult result;
         int attackerAttack = this.getAttack();
@@ -112,7 +112,7 @@ public class PlacedUnit {
             result = new DuelResult(attackerAttack, defenderOwner, false, false, false);
         } else if (defender.isBlocking()) {
             if (attackerAttack > defenderDefense) {
-                result = new DuelResult(0, null, false, true, true);
+                result = new DuelResult(0, null, true, false, true);
             } else if (attackerAttack < defenderDefense) {
                 result = new DuelResult(defenderDefense - attackerAttack, attackerOwner, false, false, false);
             } else {
@@ -120,9 +120,9 @@ public class PlacedUnit {
             }
         } else {
             if (attackerAttack > defenderAttack) {
-                result = new DuelResult(attackerAttack - defenderAttack, defenderOwner, false, true, true);
+                result = new DuelResult(attackerAttack - defenderAttack, defenderOwner, true, false, true);
             } else if (attackerAttack < defenderAttack) {
-                result = new DuelResult(defenderAttack - attackerAttack, attackerOwner, true, false, false);
+                result = new DuelResult(defenderAttack - attackerAttack, attackerOwner, false, true, false);
             } else {
                 result = new DuelResult(0, null, true, true, false);
             }

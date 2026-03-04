@@ -3,7 +3,7 @@ package edu.kit.assignmentone.model;
 /**
  * Utility class containing all strings to avoid duplicate or hardcoded string literals.
  *
- * @author uqhkm
+ * @author uXXXXX
  * @version 1.0
  */
 public final class StringConstants {
@@ -37,7 +37,10 @@ public final class StringConstants {
     public static final String FMT_STATS = " (%d" + SLASH + "%d)";
     public static final String FMT_STATE = "%s%n%d" + SLASH + "%d LP%nDC: %d" + SLASH + "%d%nBC: %d" + SLASH + "%d";
     public static final String FMT_HAND_CARD = "[%d] %s (%d" + SLASH + "%d)%n";
-    public static final String FMT_ATTACKS = "%s %s attacks %s%s on %s!%n";
+
+    // FIX: Entfernt das doppelte Leerzeichen bei Angriffen!
+    public static final String FMT_ATTACKS = "%s%s attacks %s%s on %s!%n";
+
     public static final String FMT_DAMAGE = "%s takes %d damage!%n";
     public static final String FMT_DROPPED_ZERO = "%s's life points dropped to 0!%n";
     public static final String FMT_WINS = "%s wins!%n";

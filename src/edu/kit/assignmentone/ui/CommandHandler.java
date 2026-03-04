@@ -12,7 +12,9 @@ import edu.kit.assignmentone.ui.commands.SelectCommand;
 import edu.kit.assignmentone.ui.commands.ShowCommand;
 import edu.kit.assignmentone.ui.commands.StateCommand;
 import edu.kit.assignmentone.ui.commands.YieldCommand;
-import edu.kit.assignmentone.ui.commands.BoardCommand; // <-- NEUER IMPORT
+import edu.kit.assignmentone.ui.commands.BoardCommand;
+import edu.kit.assignmentone.ui.commands.BlockCommand;
+import edu.kit.assignmentone.ui.commands.FlipCommand;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +53,9 @@ public class CommandHandler {
         this.commands.add(new MoveCommand(this.game));
         this.commands.add(new HandCommand(this.game));
         this.commands.add(new YieldCommand(this.game));
-        this.commands.add(new BoardCommand(this.game)); // <-- NEUER BEFEHL HINZUGEFÜGT
+        this.commands.add(new BoardCommand(this.game));
+        this.commands.add(new BlockCommand(this.game));
+        this.commands.add(new FlipCommand(this.game));
     }
 
     /**
