@@ -99,7 +99,6 @@ public class PlacedUnit {
                 this.owner.getDisplayName(), this.getAttack(), this.getDefense());
     }
 
-    // FIX: Komplett reparierte Kampflogik! (Wer gewinnt, wer verliert)
     public DuelResult fightAgainst(PlacedUnit defender) {
         DuelResult result;
         int attackerAttack = this.getAttack();
@@ -112,7 +111,7 @@ public class PlacedUnit {
             result = new DuelResult(attackerAttack, defenderOwner, false, false, false);
         } else if (defender.isBlocking()) {
             if (attackerAttack > defenderDefense) {
-                result = new DuelResult(0, null, true, false, true);
+                result = new DuelResult(0, null, true, false, false);
             } else if (attackerAttack < defenderDefense) {
                 result = new DuelResult(defenderDefense - attackerAttack, attackerOwner, false, false, false);
             } else {
