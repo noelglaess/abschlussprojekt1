@@ -43,9 +43,7 @@ public final class StringConstants {
     public static final String FMT_WINS = "%s wins!%n";
     public static final String FMT_FLIPPED = "%s (%d" + SLASH + "%d) was flipped on %s!%n";
 
-    // FIX: "on" zu "to" geändert, wie vom PDF verlangt
-    public static final String FMT_PLACES = "%s places %s to %s.%n";
-
+    public static final String FMT_PLACES = "%s places %s on %s.%n";
     public static final String FMT_DISCARDED = "%s discarded %s (%d" + SLASH + "%d).%n";
     public static final String FMT_TURN = "It is %s's turn!%n";
     public static final String FMT_NO_CARDS = "%s has no cards left in the deck!%n";
